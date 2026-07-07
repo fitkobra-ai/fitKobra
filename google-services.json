@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1062137796931",
+    "project_id": "fitpulse-89c0e",
+    "storage_bucket": "fitpulse-89c0e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1062137796931:android:f8a17ceb6c5e6e7b0a37f6",
+        "android_client_info": {
+          "package_name": "com.truefit.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtFve9t-CnC3E9VtAVEEi-0Wtr0eViFYM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
