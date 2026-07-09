@@ -2,7 +2,7 @@
   "expo": {
     "name": "KinexFit",
     "slug": "kinexfit",
-    "version": "1.0.9",
+    "version": "1.0.10",
     "orientation": "portrait",
     "icon": "./assets/images/truefit-logo.png",
     "scheme": "kinexfit",
@@ -18,7 +18,7 @@
         "backgroundColor": "#0d1117"
       },
       "package": "com.kinexfit.app",
-      "versionCode": 10,
+      "versionCode": 11,
       "softwareKeyboardLayoutMode": "pan",
       "permissions": [
         "android.permission.ACTIVITY_RECOGNITION",

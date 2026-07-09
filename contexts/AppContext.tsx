@@ -2,6 +2,7 @@ import React, {
   createContext, useContext, useEffect, useRef, useState,
   useCallback, type ReactNode,
 } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
 import { useAuth } from './AuthContext';
 import {
   getUserProfile, getUserGoals, getDailyStats, getRecentWorkouts,
@@ -161,8 +162,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
     });
 
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        getTodayStepCount().then(steps => {
+          midnightSteps.current = steps;
+          lastSavedSteps.current = steps;
+          if (steps > 0 && profile) {
+            const cals = stepsToCalories(steps, profile.weightKg, profile.heightCm);
+            const dist = stepsToDistanceKm(steps, profile.heightCm);
+            setTodayStats(prev => ({
+              ...prev,
+              steps,
+              caloriesBurned: cals,
+              distanceKm: dist,
+            }));
+          }
+        });
+      }
+    };
+    const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+
     return () => {
       stepWatcherCleanup.current?.();
+      appStateSubscription.remove();
     };
   }, [uid, profile]);
 

@@ -214,7 +214,6 @@ export default function WorkoutsScreen() {
     <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <Text style={styles.title}>Muscle Guide 🧠</Text>
-        <Text style={styles.subtitle}>Interactive 3D Anatomy</Text>
       </View>
       
       <View style={[styles.anatomyContainer, Shadow.glow(colors.purple)]}>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,19 +6,15 @@ import {
   ScrollView,
   SafeAreaView,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import { Radius, Spacing, Shadow } from '../../constants/Theme';
 import { useApp } from '../../contexts/AppContext';
-
-// Mocked monthly data for visual presentation
-const monthlyData = [
-  { week: 'W1', steps: 42000 },
-  { week: 'W2', steps: 51000 },
-  { week: 'W3', steps: 48500 },
-  { week: 'W4', steps: 62000 },
-];
+import { useAuth } from '../../contexts/AuthContext';
+import { getRecentDailyStats, getRecentWorkouts, type DailyStats, type WorkoutRecord } from '../../services/firestore';
+import { format } from 'date-fns';
 
 const ALL_ACHIEVEMENTS: { id: string, title: string, desc: string, iconName: React.ComponentProps<typeof Feather>['name'] }[] = [
   { id: 'first_workout', title: 'First Steps', desc: 'Complete your first workout', iconName: 'target' },
@@ -31,7 +27,83 @@ export default function ProgressScreen() {
   const { colors } = useTheme();
   const styles = useStyles(colors);
   const { todayStats, goals, unlockedAchievements } = useApp();
-  const maxVal = Math.max(...monthlyData.map((d) => d.steps));
+  const { user } = useAuth();
+
+  const [loading, setLoading] = useState(true);
+  const [monthlyData, setMonthlyData] = useState<{week: string, steps: number}[]>([]);
+  const [prs, setPrs] = useState({
+    longestRun: { val: '0 km', date: '-' },
+    mostCalories: { val: '0 kcal', date: '-' },
+    mostSteps: { val: '0', date: '-' },
+    longestWorkout: { val: '0 min', date: '-' }
+  });
+
+  useEffect(() => {
+    if (!user) return;
+    async function loadStats() {
+      try {
+        const [dailyStats, recentWorkouts] = await Promise.all([
+          getRecentDailyStats(user!.uid, 28), // Last 4 weeks
+          getRecentWorkouts(user!.uid, 100)
+        ]);
+
+        // Calculate Weekly Breakdown
+        const weeks = [
+          { week: 'W1', steps: 0 },
+          { week: 'W2', steps: 0 },
+          { week: 'W3', steps: 0 },
+          { week: 'W4', steps: 0 }
+        ];
+        const now = new Date();
+        dailyStats.forEach(stat => {
+          const statDate = new Date(stat.date);
+          const diffDays = Math.floor((now.getTime() - statDate.getTime()) / (1000 * 3600 * 24));
+          if (diffDays < 7) weeks[3].steps += stat.steps;
+          else if (diffDays < 14) weeks[2].steps += stat.steps;
+          else if (diffDays < 21) weeks[1].steps += stat.steps;
+          else if (diffDays < 28) weeks[0].steps += stat.steps;
+        });
+        setMonthlyData(weeks);
+
+        // Calculate PRs
+        let lRun = { val: 0, date: '-' };
+        let mCals = { val: 0, date: '-' };
+        let lWorkout = { val: 0, date: '-' };
+        recentWorkouts.forEach(w => {
+          if (w.type === 'run' && w.distanceKm && w.distanceKm > lRun.val) {
+            lRun = { val: w.distanceKm, date: format(new Date(w.startedAt), 'MMM d') };
+          }
+          if (w.caloriesBurned > mCals.val) {
+            mCals = { val: w.caloriesBurned, date: format(new Date(w.startedAt), 'MMM d') };
+          }
+          if (w.durationSeconds > lWorkout.val) {
+            lWorkout = { val: w.durationSeconds, date: format(new Date(w.startedAt), 'MMM d') };
+          }
+        });
+
+        let mSteps = { val: 0, date: '-' };
+        dailyStats.forEach(s => {
+          if (s.steps > mSteps.val) {
+            mSteps = { val: s.steps, date: format(new Date(s.date), 'MMM d') };
+          }
+        });
+
+        setPrs({
+          longestRun: { val: `${lRun.val.toFixed(1)} km`, date: lRun.date },
+          mostCalories: { val: `${Math.round(mCals.val)} kcal`, date: mCals.date },
+          mostSteps: { val: mSteps.val.toLocaleString(), date: mSteps.date },
+          longestWorkout: { val: `${Math.round(lWorkout.val / 60)} min`, date: lWorkout.date }
+        });
+      } catch (err) {
+        console.error('Error loading progress stats:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadStats();
+  }, [user, todayStats.steps]); // re-run if steps change (i.e. today)
+
+  const maxVal = Math.max(1, ...monthlyData.map((d) => d.steps));
 
   const stepsGoal = goals?.dailySteps || 10000;
   const calGoal = goals?.dailyCaloriesBurn || 500;
@@ -46,6 +118,11 @@ export default function ProgressScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.title}>Progress 📊</Text>
+
+        {loading ? (
+          <ActivityIndicator size="large" color={colors.blue} style={{ marginTop: Spacing.xl }} />
+        ) : (
+          <>
 
         {/* Monthly Overview */}
         <View style={[styles.card, Shadow.card]}>
@@ -75,10 +152,10 @@ export default function ProgressScreen() {
         <View style={[styles.card, Shadow.card]}>
           <Text style={styles.sectionTitle}>Personal Records 🏆</Text>
           <View style={styles.prList}>
-            <PRRow iconName="map" label="Longest Run" value="21.1 km" date="Jun 15" color={colors.green} />
-            <PRRow iconName="zap" label="Most Calories" value="892 kcal" date="Jun 22" color={colors.orange} />
-            <PRRow iconName="activity" label="Most Steps" value="18,420" date="May 30" color={colors.red} />
-            <PRRow iconName="heart" label="Longest Workout" value="95 min" date="Jul 1" color={colors.blue} />
+            <PRRow iconName="map" label="Longest Run" value={prs.longestRun.val} date={prs.longestRun.date} color={colors.green} />
+            <PRRow iconName="zap" label="Most Calories" value={prs.mostCalories.val} date={prs.mostCalories.date} color={colors.orange} />
+            <PRRow iconName="activity" label="Most Steps" value={prs.mostSteps.val} date={prs.mostSteps.date} color={colors.red} />
+            <PRRow iconName="heart" label="Longest Workout" value={prs.longestWorkout.val} date={prs.longestWorkout.date} color={colors.blue} />
           </View>
         </View>
 
@@ -141,6 +218,8 @@ export default function ProgressScreen() {
             })}
           </View>
         </View>
+        </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
