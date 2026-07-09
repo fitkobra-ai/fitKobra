@@ -12,6 +12,7 @@ import {
   Pressable,
   TextInput,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import { Radius, Spacing, Shadow } from '../../constants/Theme';
@@ -24,6 +25,7 @@ const MEAL_TIMES: MealTime[] = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
 export default function NutritionScreen() {
   const { colors } = useTheme();
   const styles = useStyles(colors);
+  const router = useRouter();
   const [selectedDiet, setSelectedDiet] = useState<DietType>('Veg');
   
   // State for the meal builder
@@ -133,14 +135,24 @@ export default function NutritionScreen() {
           <View key={mealTime} style={styles.mealSection}>
             <View style={styles.mealSectionHeader}>
               <Text style={styles.mealSectionTitle}>{mealTime}</Text>
-              <TouchableOpacity 
-                style={styles.addFoodBtn} 
-                onPress={() => openFoodSelector(mealTime)}
-                activeOpacity={0.7}
-              >
-                <Feather name="plus" size={16} color={colors.green} />
-                <Text style={styles.addFoodText}>Add Food</Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <TouchableOpacity 
+                  style={[styles.addFoodBtn, { backgroundColor: 'rgba(249,115,22,0.15)' }]} 
+                  onPress={() => router.push('/(modals)/recipe-scanner')}
+                  activeOpacity={0.7}
+                >
+                  <Feather name="camera" size={16} color={colors.orange} />
+                  <Text style={[styles.addFoodText, { color: colors.orange }]}>Scan</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.addFoodBtn} 
+                  onPress={() => openFoodSelector(mealTime)}
+                  activeOpacity={0.7}
+                >
+                  <Feather name="plus" size={16} color={colors.green} />
+                  <Text style={styles.addFoodText}>Add Food</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             {selectedMeals[mealTime].length === 0 ? (

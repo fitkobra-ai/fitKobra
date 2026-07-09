@@ -58,6 +58,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="ai-coach"
+        options={{
+          title: 'Coach',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name="cpu" focused={focused} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="nutrition"
         options={{
           title: 'Nutrition',

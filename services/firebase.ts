@@ -36,4 +36,4 @@ if (IS_FIREBASE_CONFIGURED) {
   );
 }
 
-export { auth, db, IS_FIREBASE_CONFIGURED };
+export { app, auth, db, IS_FIREBASE_CONFIGURED };

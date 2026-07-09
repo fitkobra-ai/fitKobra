@@ -15,6 +15,7 @@ import WeeklyBarChart from '../../components/WeeklyBarChart';
 import { Radius, Spacing, Shadow } from '../../constants/Theme';
 import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useRouter } from 'expo-router';
 import { getRecentDailyStats } from '../../services/firestore';
 import { lastSevenDayKeys, dayLabel } from '../../utils/dates';
 
@@ -23,6 +24,7 @@ export default function DashboardScreen() {
   const styles = useStyles(colors);
   const { profile, todayStats, goals, unlockedAchievements } = useApp();
   const { user } = useAuth();
+  const router = useRouter();
   
   const [weeklyData, setWeeklyData] = useState<{ day: string; steps: number; calories: number }[]>([]);
 
@@ -192,6 +194,14 @@ export default function DashboardScreen() {
           {weeklyData.length > 0 && <WeeklyBarChart data={weeklyData} highlightIndex={6} />}
         </View>
       </ScrollView>
+      
+      {/* FAB for Add Workout */}
+      <TouchableOpacity 
+        style={[styles.fab, Shadow.glow(colors.primary)]}
+        onPress={() => router.push('/(modals)/add-workout')}
+      >
+        <Feather name="plus" size={28} color="white" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -352,5 +362,17 @@ const useStyles = (colors: any) => StyleSheet.create({
     fontSize: 13,
     color: colors.textSecondary,
     fontWeight: '500',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: Spacing.xl,
+    right: Spacing.xl,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
   },
 });
