@@ -1,10 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Colors, Spacing, Radius } from '../../constants/Theme';
+import { Spacing, Radius } from '../../constants/Theme';
 
 export default function TermsScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const router = useRouter();
 
   return (
@@ -54,23 +57,23 @@ export default function TermsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.bg },
+const useStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.bg },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: 60,
     paddingHorizontal: Spacing.md,
     paddingBottom: Spacing.md,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: colors.border,
   },
   backBtn: { padding: Spacing.xs },
   headerTitle: { fontSize: 18, fontWeight: '700', color: '#fff', marginLeft: Spacing.sm },
   scroll: { padding: Spacing.xl },
   title: { fontSize: 28, fontWeight: '800', color: '#fff', marginBottom: Spacing.xs },
-  lastUpdated: { fontSize: 14, color: Colors.textSecondary, marginBottom: Spacing.xl },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: Colors.green, marginTop: Spacing.xl, marginBottom: Spacing.sm },
-  paragraph: { fontSize: 15, color: Colors.textPrimary, lineHeight: 24, marginBottom: Spacing.md },
+  lastUpdated: { fontSize: 14, color: colors.textSecondary, marginBottom: Spacing.xl },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: colors.green, marginTop: Spacing.xl, marginBottom: Spacing.sm },
+  paragraph: { fontSize: 15, color: colors.textPrimary, lineHeight: 24, marginBottom: Spacing.md },
 });

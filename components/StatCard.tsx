@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import { Colors, Radius, Spacing, Shadow } from '../constants/Theme';
+import { useTheme } from '../contexts/ThemeContext';
+import { Radius, Spacing, Shadow } from '../constants/Theme';
 import { Feather } from '@expo/vector-icons';
 
 interface StatCardProps {
@@ -13,6 +14,8 @@ interface StatCardProps {
 }
 
 export default function StatCard({ label, value, unit, iconName, color, progress }: StatCardProps) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   return (
     <View style={[styles.card, Shadow.card]}>
       <View style={styles.header}>
@@ -42,13 +45,13 @@ export default function StatCard({ label, value, unit, iconName, color, progress
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = (colors: any) => StyleSheet.create({
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: Radius.lg,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     gap: Spacing.sm,
   },
   header: {
@@ -65,7 +68,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   valueRow: {
@@ -80,12 +83,12 @@ const styles = StyleSheet.create({
   },
   unit: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   progressBg: {
     height: 5,
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
     borderRadius: Radius.full,
     overflow: 'hidden',
   },

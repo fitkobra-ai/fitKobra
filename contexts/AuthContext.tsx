@@ -34,8 +34,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return unsubscribe;
   }, []);
 
+  const value = React.useMemo(() => ({ user, loading, isConfigured: IS_FIREBASE_CONFIGURED }), [user, loading]);
+
   return (
-    <AuthContext.Provider value={{ user, loading, isConfigured: IS_FIREBASE_CONFIGURED }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,22 +1,26 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, StyleSheet } from 'react-native';
-import { Colors } from '../../constants/Theme';
 import { Feather } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+  
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.green,
-        tabBarInactiveTintColor: Colors.textSecondary,
+        tabBarActiveTintColor: colors.green,
+        tabBarInactiveTintColor: colors.textSecondary,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: 'rgba(10,10,10,0.97)',
-          borderTopColor: Colors.border,
+          backgroundColor: colors.surfaceHighlight,
+          borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: Platform.OS === 'android' ? 64 : 88,
-          paddingBottom: Platform.OS === 'android' ? 10 : 28,
+          height: Platform.OS === 'android' ? 64 + insets.bottom : 88,
+          paddingBottom: Platform.OS === 'android' ? Math.max(10, insets.bottom) : 28,
           paddingTop: 8,
         },
         tabBarLabelStyle: {
@@ -75,7 +79,7 @@ export default function TabLayout() {
   );
 }
 
-function TabBarIcon({ name, focused, color }: { name: React.ComponentProps<typeof Feather>['name']; focused: boolean; color: string }) {
+function TabBarIcon({ name, focused, color }: { name: React.ComponentProps<typeof Feather>['name']; focused: boolean; color: any }) {
   return (
     <Feather
       name={name}

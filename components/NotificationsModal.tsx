@@ -10,8 +10,9 @@ import {
   Switch,
   Platform,
 } from 'react-native';
+import { useTheme } from '../contexts/ThemeContext';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing, Shadow } from '../constants/Theme';
+import { Radius, Spacing, Shadow } from '../constants/Theme';
 import { UserProfile } from '../services/firestore';
 
 interface NotificationsModalProps {
@@ -22,6 +23,8 @@ interface NotificationsModalProps {
 }
 
 export function NotificationsModal({ visible, onClose, profile, onSave }: NotificationsModalProps) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const [workoutReminders, setWorkoutReminders] = useState(true);
   const [mealReminders, setMealReminders] = useState(false);
   const [goalProgress, setGoalProgress] = useState(true);
@@ -58,7 +61,7 @@ export function NotificationsModal({ visible, onClose, profile, onSave }: Notifi
           <View style={styles.header}>
             <Text style={styles.title}>Notifications</Text>
             <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}>
-              <Feather name="x" size={24} color={Colors.textSecondary} />
+              <Feather name="x" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -110,10 +113,12 @@ export function NotificationsModal({ visible, onClose, profile, onSave }: Notifi
 }
 
 function NotificationToggle({ icon, title, desc, value, onValueChange }: { icon: any, title: string, desc: string, value: boolean, onValueChange: (v: boolean) => void }) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   return (
     <View style={styles.toggleRow}>
       <View style={styles.iconContainer}>
-        <MaterialCommunityIcons name={icon} size={22} color={Colors.blue} />
+        <MaterialCommunityIcons name={icon} size={22} color={colors.blue} />
       </View>
       <View style={styles.textContainer}>
         <Text style={styles.toggleTitle}>{title}</Text>
@@ -122,36 +127,36 @@ function NotificationToggle({ icon, title, desc, value, onValueChange }: { icon:
       <Switch 
         value={value} 
         onValueChange={onValueChange} 
-        trackColor={{ false: Colors.border, true: Colors.blue }}
+        trackColor={{ false: colors.border, true: colors.blue }}
         thumbColor={Platform.OS === 'ios' ? '#fff' : value ? '#fff' : '#f4f3f4'}
       />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = (colors: any) => StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.7)' },
+  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.7)' },
   sheet: {
-    backgroundColor: Colors.bg,
+    backgroundColor: colors.bg,
     borderTopLeftRadius: Radius.xl,
     borderTopRightRadius: Radius.xl,
     padding: Spacing.lg,
     height: '75%',
   },
-  handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.xs },
+  handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center', marginBottom: Spacing.xs },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg },
-  title: { fontSize: 22, fontWeight: '800', color: Colors.textPrimary },
+  title: { fontSize: 22, fontWeight: '800', color: colors.textPrimary },
   scroll: { flex: 1 },
   content: { gap: Spacing.lg, paddingBottom: Spacing.xxl },
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: Radius.xl,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
-  divider: { height: 1, backgroundColor: Colors.border, marginVertical: Spacing.md },
+  divider: { height: 1, backgroundColor: colors.border, marginVertical: Spacing.md },
   toggleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
   iconContainer: {
     width: 40,
@@ -162,14 +167,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   textContainer: { flex: 1, gap: 2 },
-  toggleTitle: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
-  toggleDesc: { fontSize: 13, color: Colors.textSecondary },
+  toggleTitle: { fontSize: 16, fontWeight: '700', color: colors.textPrimary },
+  toggleDesc: { fontSize: 13, color: colors.textSecondary },
   saveBtn: {
-    backgroundColor: Colors.purple,
+    backgroundColor: colors.purple,
     paddingVertical: Spacing.lg,
     borderRadius: Radius.full,
     alignItems: 'center',
-    shadowColor: Colors.purple,
+    shadowColor: colors.purple,
     shadowOpacity: 0.4,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },

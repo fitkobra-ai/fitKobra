@@ -3,7 +3,8 @@ import {
   View, TextInput, Text, TouchableOpacity, StyleSheet,
   type TextInputProps,
 } from 'react-native';
-import { Colors, Radius, Spacing } from '../../constants/Theme';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Radius, Spacing } from '../../constants/Theme';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -20,6 +21,8 @@ export default function Input({
   style,
   ...rest
 }: InputProps) {
+  const { colors } = useTheme();
+  const styles = React.useMemo(() => useStyles(colors), [colors]);
   const [focused, setFocused] = useState(false);
 
   return (
@@ -34,7 +37,7 @@ export default function Input({
       >
         <TextInput
           style={[styles.input, style]}
-          placeholderTextColor={Colors.textSecondary}
+          placeholderTextColor={colors.textSecondary}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           {...rest}
@@ -50,49 +53,40 @@ export default function Input({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = (colors: any) => StyleSheet.create({
   container: { gap: 6 },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
     borderRadius: Radius.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     paddingHorizontal: Spacing.md,
+    minHeight: 52,
   },
   input: {
     flex: 1,
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
     fontSize: 16,
     paddingVertical: 14,
   },
   focused: {
-    borderColor: Colors.green,
-    shadowColor: Colors.green,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+    borderColor: colors.green,
   },
   errored: {
-    borderColor: Colors.red,
-    shadowColor: Colors.red,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+    borderColor: colors.red,
   },
   iconBtn: {
     padding: 4,
   },
   error: {
     fontSize: 12,
-    color: Colors.red,
+    color: colors.red,
   },
 });

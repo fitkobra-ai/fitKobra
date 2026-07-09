@@ -1,5 +1,5 @@
 // Design system: colors, fonts, spacing, shadows
-export const Colors = {
+export const DarkColors = {
   // Background layers (Obsidian/Carbon)
   bg: '#000000',
   surface: '#0A0A0A',
@@ -32,9 +32,43 @@ export const Colors = {
   orangeGlow: 'rgba(255,140,0,0.4)',
 
   // Gradient combos
-  gradientBlue: ['#00F0FF', '#B026FF'] as const,
-  gradientGreen: ['#CCFF00', '#00F0FF'] as const,
-  gradientRed: ['#FF2A54', '#FF8C00'] as const,
+  gradientBlue: ['#00F0FF', '#B026FF'],
+  gradientGreen: ['#CCFF00', '#00F0FF'],
+  gradientRed: ['#FF2A54', '#FF8C00'],
+};
+
+export const LightColors = {
+  bg: '#FFFFFF',
+  surface: '#F4F4F5',
+  surfaceHighlight: '#E4E4E7',
+  border: '#D4D4D8',
+
+  textPrimary: '#000000',
+  textSecondary: '#52525B',
+  textMuted: '#A1A1AA',
+
+  blue: '#0070F3',
+  blueGlow: 'rgba(0,112,243,0.2)',
+  blueLight: '#3291FF',
+
+  green: '#50C878',
+  greenGlow: 'rgba(80,200,120,0.2)',
+  greenLight: '#6EE7B7',
+
+  purple: '#7928CA',
+  purpleGlow: 'rgba(121,40,202,0.2)',
+  purpleLight: '#8A2BE2',
+
+  red: '#E00000',
+  redGlow: 'rgba(224,0,0,0.2)',
+  redLight: '#FF4D4D',
+
+  orange: '#F5A623',
+  orangeGlow: 'rgba(245,166,35,0.2)',
+
+  gradientBlue: ['#0070F3', '#7928CA'],
+  gradientGreen: ['#50C878', '#0070F3'],
+  gradientRed: ['#E00000', '#F5A623'],
 };
 
 export const Spacing = {

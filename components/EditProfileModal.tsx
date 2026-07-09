@@ -12,9 +12,10 @@ import {
   Image,
   Alert,
 } from 'react-native';
+import { useTheme } from '../contexts/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { Colors, Radius, Spacing } from '../constants/Theme';
+import { Radius, Spacing } from '../constants/Theme';
 import { UserProfile } from '../services/firestore';
 import { deleteAccount } from '../services/auth';
 import Input from './ui/Input';
@@ -27,6 +28,8 @@ interface EditProfileModalProps {
 }
 
 export function EditProfileModal({ visible, onClose, profile, onSave }: EditProfileModalProps) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const [name, setName] = useState('');
   const [dob, setDob] = useState('');
   const [weight, setWeight] = useState('');
@@ -102,7 +105,7 @@ export function EditProfileModal({ visible, onClose, profile, onSave }: EditProf
           <View style={styles.header}>
             <Text style={styles.title}>Edit Profile</Text>
             <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}>
-              <Feather name="x" size={24} color={Colors.textSecondary} />
+              <Feather name="x" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -173,19 +176,19 @@ export function EditProfileModal({ visible, onClose, profile, onSave }: EditProf
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = (colors: any) => StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.7)' },
+  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.7)' },
   sheet: {
-    backgroundColor: Colors.bg,
+    backgroundColor: colors.bg,
     borderTopLeftRadius: Radius.xl,
     borderTopRightRadius: Radius.xl,
     padding: Spacing.lg,
     maxHeight: '85%',
   },
-  handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.xs },
+  handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center', marginBottom: Spacing.xs },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg },
-  title: { fontSize: 22, fontWeight: '800', color: Colors.textPrimary },
+  title: { fontSize: 22, fontWeight: '800', color: colors.textPrimary },
   
   avatarContainer: { alignItems: 'center', marginBottom: Spacing.sm },
   avatarWrap: {
@@ -193,24 +196,24 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
     borderWidth: 2,
-    borderColor: Colors.purple,
+    borderColor: colors.purple,
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarImage: { width: '100%', height: '100%', borderRadius: 40 },
   avatarFallback: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  avatarFallbackText: { fontSize: 28, fontWeight: '700', color: Colors.textPrimary },
+  avatarFallbackText: { fontSize: 28, fontWeight: '700', color: colors.textPrimary },
   editIconBadge: {
     position: 'absolute',
     bottom: -4,
     right: -4,
-    backgroundColor: Colors.blue,
+    backgroundColor: colors.blue,
     padding: 6,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: Colors.bg,
+    borderColor: colors.bg,
   },
 
   scroll: { flexGrow: 0 },
@@ -218,11 +221,11 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: Spacing.md },
   flex: { flex: 1 },
   saveBtn: {
-    backgroundColor: Colors.purple,
+    backgroundColor: colors.purple,
     paddingVertical: Spacing.lg,
     borderRadius: Radius.full,
     alignItems: 'center',
-    shadowColor: Colors.purple,
+    shadowColor: colors.purple,
     shadowOpacity: 0.4,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -235,5 +238,5 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     alignItems: 'center',
   },
-  deleteBtnText: { color: Colors.red, fontSize: 14, fontWeight: '700' },
+  deleteBtnText: { color: colors.red, fontSize: 14, fontWeight: '700' },
 });

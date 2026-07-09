@@ -12,8 +12,9 @@ import {
   Pressable,
   TextInput,
 } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import { Feather } from '@expo/vector-icons';
-import { Colors, Radius, Spacing, Shadow } from '../../constants/Theme';
+import { Radius, Spacing, Shadow } from '../../constants/Theme';
 import { FOOD_DATABASE, FoodItem, DietType } from '../../constants/FoodDatabase';
 
 const DIET_TYPES: DietType[] = ['Mix', 'Veg', 'Non-Veg', 'Vegan'];
@@ -21,6 +22,8 @@ type MealTime = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
 const MEAL_TIMES: MealTime[] = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
 
 export default function NutritionScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const [selectedDiet, setSelectedDiet] = useState<DietType>('Veg');
   
   // State for the meal builder
@@ -85,7 +88,7 @@ export default function NutritionScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.bg} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.bg} />
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         
         {/* Header */}
@@ -115,13 +118,13 @@ export default function NutritionScreen() {
         </View>
 
         {/* Daily Macros Live Calculator */}
-        <View style={[styles.macroSummary, Shadow.glow(Colors.green)]}>
+        <View style={[styles.macroSummary, Shadow.glow(colors.green)]}>
           <Text style={styles.sectionTitle}>Daily Totals</Text>
           <View style={styles.macroRow}>
-            <MacroStat label="Calories" value={Math.round(totalCals)} unit="kcal" color={Colors.orange} />
-            <MacroStat label="Protein" value={Math.round(totalProtein)} unit="g" color={Colors.blue} />
-            <MacroStat label="Carbs" value={Math.round(totalCarbs)} unit="g" color={Colors.purple} />
-            <MacroStat label="Fat" value={Math.round(totalFat)} unit="g" color={Colors.red} />
+            <MacroStat label="Calories" value={Math.round(totalCals)} unit="kcal" color={colors.orange} />
+            <MacroStat label="Protein" value={Math.round(totalProtein)} unit="g" color={colors.blue} />
+            <MacroStat label="Carbs" value={Math.round(totalCarbs)} unit="g" color={colors.purple} />
+            <MacroStat label="Fat" value={Math.round(totalFat)} unit="g" color={colors.red} />
           </View>
         </View>
 
@@ -135,7 +138,7 @@ export default function NutritionScreen() {
                 onPress={() => openFoodSelector(mealTime)}
                 activeOpacity={0.7}
               >
-                <Feather name="plus" size={16} color={Colors.green} />
+                <Feather name="plus" size={16} color={colors.green} />
                 <Text style={styles.addFoodText}>Add Food</Text>
               </TouchableOpacity>
             </View>
@@ -164,11 +167,11 @@ export default function NutritionScreen() {
                         
                         <View style={styles.quantityControl}>
                           <TouchableOpacity style={styles.qtyBtn} onPress={() => decrementFood(mealTime, food.id)}>
-                            <Feather name={count === 1 ? "trash-2" : "minus"} size={14} color={count === 1 ? Colors.red : Colors.textPrimary} />
+                            <Feather name={count === 1 ? "trash-2" : "minus"} size={14} color={count === 1 ? colors.red : colors.textPrimary} />
                           </TouchableOpacity>
                           <Text style={styles.qtyText}>{count}</Text>
                           <TouchableOpacity style={styles.qtyBtn} onPress={() => incrementFood(mealTime, food)}>
-                            <Feather name="plus" size={14} color={Colors.textPrimary} />
+                            <Feather name="plus" size={14} color={colors.textPrimary} />
                           </TouchableOpacity>
                         </View>
                       </View>
@@ -204,11 +207,11 @@ export default function NutritionScreen() {
             <Text style={styles.modalTitle}>Add to {activeMealTime}</Text>
             
             <View style={styles.searchBox}>
-              <Feather name="search" size={20} color={Colors.textSecondary} />
+              <Feather name="search" size={20} color={colors.textSecondary} />
               <TextInput
                 style={styles.searchInput}
                 placeholder={`Search ${selectedDiet} foods...`}
-                placeholderTextColor={Colors.textSecondary}
+                placeholderTextColor={colors.textSecondary}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 autoFocus
@@ -231,7 +234,7 @@ export default function NutritionScreen() {
                       <Text style={styles.foodListName}>{food.name}</Text>
                       <Text style={styles.foodListDesc}>{food.servingSize} · {food.cals} kcal</Text>
                     </View>
-                    <Feather name="plus-circle" size={24} color={Colors.green} />
+                    <Feather name="plus-circle" size={24} color={colors.green} />
                   </TouchableOpacity>
                 ))
               )}
@@ -245,6 +248,8 @@ export default function NutritionScreen() {
 }
 
 function MacroStat({ label, value, unit, color }: { label: string, value: number, unit: string, color: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   return (
     <View style={styles.macroStat}>
       <Text style={[styles.macroValue, { color }]}>{value}</Text>
@@ -254,8 +259,8 @@ function MacroStat({ label, value, unit, color }: { label: string, value: number
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.bg },
+const useStyles = (colors: any) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { flex: 1 },
   content: {
     padding: Spacing.md,
@@ -263,16 +268,16 @@ const styles = StyleSheet.create({
     gap: Spacing.lg,
   },
   header: { gap: 4 },
-  title: { fontSize: 26, fontWeight: '700', color: Colors.textPrimary },
-  subtitle: { fontSize: 14, color: Colors.textSecondary },
+  title: { fontSize: 26, fontWeight: '700', color: colors.textPrimary },
+  subtitle: { fontSize: 14, color: colors.textSecondary },
   
   segmentContainer: {
     flexDirection: 'row',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: Radius.full,
     padding: 4,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   segmentBtn: {
     flex: 1,
@@ -280,24 +285,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: Radius.full,
   },
-  segmentBtnActive: { backgroundColor: Colors.green },
-  segmentText: { fontSize: 14, fontWeight: '600', color: Colors.textSecondary },
+  segmentBtnActive: { backgroundColor: colors.green },
+  segmentText: { fontSize: 14, fontWeight: '600', color: colors.textSecondary },
   segmentTextActive: { color: '#000' },
 
   macroSummary: {
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
     borderRadius: Radius.xl,
     padding: Spacing.lg,
     borderWidth: 1,
     borderColor: 'rgba(34,197,94,0.3)',
     gap: Spacing.md,
   },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: colors.textPrimary },
   macroRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   macroStat: { alignItems: 'center' },
   macroValue: { fontSize: 22, fontWeight: '800' },
-  macroUnit: { fontSize: 12, color: Colors.textSecondary, marginTop: -2, marginBottom: 2 },
-  macroLabel: { fontSize: 13, color: Colors.textPrimary, fontWeight: '500' },
+  macroUnit: { fontSize: 12, color: colors.textSecondary, marginTop: -2, marginBottom: 2 },
+  macroLabel: { fontSize: 13, color: colors.textPrimary, fontWeight: '500' },
 
   mealSection: { gap: Spacing.sm },
   mealSectionHeader: {
@@ -305,7 +310,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  mealSectionTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
+  mealSectionTitle: { fontSize: 18, fontWeight: '700', color: colors.textPrimary },
   addFoodBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -315,62 +320,62 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: Radius.full,
   },
-  addFoodText: { color: Colors.green, fontWeight: '600', fontSize: 13 },
+  addFoodText: { color: colors.green, fontWeight: '600', fontSize: 13 },
   
   emptyMealBox: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderStyle: 'dashed',
     borderRadius: Radius.lg,
     padding: Spacing.lg,
     alignItems: 'center',
   },
-  emptyMealText: { color: Colors.textSecondary, fontStyle: 'italic', fontSize: 14 },
+  emptyMealText: { color: colors.textSecondary, fontStyle: 'italic', fontSize: 14 },
 
   mealsList: { gap: Spacing.md },
   mealCard: {
     flexDirection: 'row',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: Radius.lg,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   mealImage: { width: 90, height: '100%' },
   mealInfo: { flex: 1, padding: Spacing.md, gap: 4 },
   mealNameRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  mealName: { flex: 1, fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
+  mealName: { flex: 1, fontSize: 16, fontWeight: '700', color: colors.textPrimary },
   
   quantityControl: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.bg,
+    backgroundColor: colors.bg,
     borderRadius: Radius.full,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     overflow: 'hidden',
     marginLeft: Spacing.sm,
   },
   qtyBtn: {
     padding: 6,
     paddingHorizontal: 8,
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
   },
   qtyText: {
     fontSize: 14,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
     minWidth: 24,
     textAlign: 'center',
   },
 
-  servingSize: { fontSize: 12, color: Colors.textSecondary, marginBottom: 4 },
+  servingSize: { fontSize: 12, color: colors.textSecondary, marginBottom: 4 },
   mealMacros: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
   mealMacroText: {
     fontSize: 11,
-    color: Colors.textSecondary,
-    backgroundColor: Colors.bg,
+    color: colors.textSecondary,
+    backgroundColor: colors.bg,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: Radius.sm,
@@ -378,44 +383,44 @@ const styles = StyleSheet.create({
   },
 
   modalOverlay: { flex: 1, justifyContent: 'flex-end' },
-  modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.7)' },
+  modalBackdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.7)' },
   modalSheet: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: Radius.xl,
     borderTopRightRadius: Radius.xl,
     padding: Spacing.lg,
     height: '80%',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     gap: Spacing.md,
   },
-  modalHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: Colors.surfaceHighlight, alignSelf: 'center', marginBottom: Spacing.xs },
-  modalTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary },
+  modalHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: colors.surfaceHighlight, alignSelf: 'center', marginBottom: Spacing.xs },
+  modalTitle: { fontSize: 20, fontWeight: '700', color: colors.textPrimary },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.bg,
+    backgroundColor: colors.bg,
     borderRadius: Radius.md,
     paddingHorizontal: Spacing.md,
     height: 44,
     gap: Spacing.sm,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
-  searchInput: { flex: 1, color: Colors.textPrimary, fontSize: 15 },
+  searchInput: { flex: 1, color: colors.textPrimary, fontSize: 15 },
   
   foodList: { flex: 1 },
-  emptySearchText: { textAlign: 'center', color: Colors.textSecondary, marginTop: Spacing.xl },
+  emptySearchText: { textAlign: 'center', color: colors.textSecondary, marginTop: Spacing.xl },
   foodListItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: colors.border,
     gap: Spacing.md,
   },
   foodListImg: { width: 50, height: 50, borderRadius: Radius.sm },
   foodListInfo: { flex: 1 },
-  foodListName: { fontSize: 16, fontWeight: '600', color: Colors.textPrimary },
-  foodListDesc: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
+  foodListName: { fontSize: 16, fontWeight: '600', color: colors.textPrimary },
+  foodListDesc: { fontSize: 13, color: colors.textSecondary, marginTop: 2 },
 });

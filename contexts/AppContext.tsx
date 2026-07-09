@@ -213,19 +213,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, [uid]);
 
+  const value = React.useMemo(() => ({
+    profile,
+    goals,
+    todayStats,
+    workouts,
+    unlockedAchievements,
+    loadingProfile,
+    refreshProfile: loadUserData,
+    setProfile,
+    setGoals,
+    addWorkout,
+  }), [profile, goals, todayStats, workouts, unlockedAchievements, loadingProfile, loadUserData, setProfile, setGoals, addWorkout]);
+
   return (
-    <AppContext.Provider value={{
-      profile,
-      goals,
-      todayStats,
-      workouts,
-      unlockedAchievements,
-      loadingProfile,
-      refreshProfile: loadUserData,
-      setProfile,
-      setGoals,
-      addWorkout,
-    }}>
+    <AppContext.Provider value={value}>
       {children}
     </AppContext.Provider>
   );

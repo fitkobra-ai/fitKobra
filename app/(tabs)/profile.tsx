@@ -10,8 +10,9 @@ import {
   Alert,
   Image,
 } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing, Shadow } from '../../constants/Theme';
+import { Radius, Spacing, Shadow } from '../../constants/Theme';
 import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { signOut } from '../../services/auth';
@@ -21,6 +22,8 @@ import { EditProfileModal } from '../../components/EditProfileModal';
 import { NotificationsModal } from '../../components/NotificationsModal';
 
 export default function ProfileScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const { profile, workouts, refreshProfile } = useApp();
   const { user } = useAuth();
   const [isGoalModalVisible, setGoalModalVisible] = useState(false);
@@ -83,7 +86,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.bg} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.bg} />
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -117,10 +120,10 @@ export default function ProfileScreen() {
         <View style={[styles.card, Shadow.card]}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Current Goal</Text>
-            <MaterialCommunityIcons name="bullseye-arrow" size={22} color={Colors.purple} />
+            <MaterialCommunityIcons name="bullseye-arrow" size={22} color={colors.purple} />
           </View>
           <View style={styles.goalRow}>
-            <Feather name="target" size={28} color={Colors.purple} />
+            <Feather name="target" size={28} color={colors.purple} />
             <View>
               <Text style={styles.goalName}>{goalLabel}</Text>
               <Text style={styles.goalDesc}>{goalDesc}</Text>
@@ -132,11 +135,11 @@ export default function ProfileScreen() {
         <View style={[styles.card, Shadow.card]}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Weekly Averages</Text>
-            <MaterialCommunityIcons name="chart-bar" size={22} color={Colors.blue} />
+            <MaterialCommunityIcons name="chart-bar" size={22} color={colors.blue} />
           </View>
           <View style={styles.allTimeGrid}>
-            <AllTimeStat iconName="zap" label="Avg Calories/Day" value={weeklyAvgCals.toString()} color={Colors.orange} />
-            <AllTimeStat iconName="clock" label="Avg Minutes/Day" value={weeklyAvgMins.toString()} color={Colors.green} />
+            <AllTimeStat iconName="zap" label="Avg Calories/Day" value={weeklyAvgCals.toString()} color={colors.orange} />
+            <AllTimeStat iconName="clock" label="Avg Minutes/Day" value={weeklyAvgMins.toString()} color={colors.green} />
           </View>
         </View>
 
@@ -144,10 +147,10 @@ export default function ProfileScreen() {
         <View style={[styles.card, Shadow.card]}>
           <Text style={styles.sectionTitle}>All-Time Stats</Text>
           <View style={styles.allTimeGrid}>
-            <AllTimeStat iconName="activity" label="Total Workouts" value={workouts.length.toString()} color={Colors.red} />
-            <AllTimeStat iconName="zap" label="Total Calories" value={totalCals.toLocaleString()} color={Colors.orange} />
-            <AllTimeStat iconName="map-pin" label="Total Distance" value={`${totalDist.toFixed(1)} km`} color={Colors.blue} />
-            <AllTimeStat iconName="clock" label="Total Min" value={Math.floor(workouts.reduce((s, w) => s + w.durationSeconds, 0)/60).toString()} color={Colors.green} />
+            <AllTimeStat iconName="activity" label="Total Workouts" value={workouts.length.toString()} color={colors.red} />
+            <AllTimeStat iconName="zap" label="Total Calories" value={totalCals.toLocaleString()} color={colors.orange} />
+            <AllTimeStat iconName="map-pin" label="Total Distance" value={`${totalDist.toFixed(1)} km`} color={colors.blue} />
+            <AllTimeStat iconName="clock" label="Total Min" value={Math.floor(workouts.reduce((s, w) => s + w.durationSeconds, 0)/60).toString()} color={colors.green} />
           </View>
         </View>
 
@@ -158,10 +161,11 @@ export default function ProfileScreen() {
             <SettingRow iconName="target" label="Edit Goals" onPress={() => setGoalModalVisible(true)} />
             <SettingRow iconName="bell" label="Notifications" onPress={() => setNotificationsVisible(true)} />
             <SettingRow iconName="user" label="Edit Profile" onPress={() => setEditProfileVisible(true)} />
+            <ThemeToggleRow />
             <TouchableOpacity style={styles.settingRow} onPress={handleLogout} activeOpacity={0.7}>
-              <Feather name="log-out" size={20} color={Colors.red} style={styles.settingIcon} />
-              <Text style={[styles.settingLabel, { color: Colors.red }]}>Sign Out</Text>
-              <Feather name="chevron-right" size={20} color={Colors.textSecondary} />
+              <Feather name="log-out" size={20} color={colors.red} style={styles.settingIcon} />
+              <Text style={[styles.settingLabel, { color: colors.red }]}>Sign Out</Text>
+              <Feather name="chevron-right" size={20} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
         </View>
@@ -195,6 +199,8 @@ export default function ProfileScreen() {
 }
 
 function ProfileStat({ label, value }: { label: string; value: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   return (
     <View style={styles.profileStat}>
       <Text style={styles.profileStatValue}>{value}</Text>
@@ -204,6 +210,8 @@ function ProfileStat({ label, value }: { label: string; value: string }) {
 }
 
 function AllTimeStat({ iconName, label, value, color }: { iconName: React.ComponentProps<typeof Feather>['name']; label: string; value: string; color: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   return (
     <View style={styles.allTimeStat}>
       <Feather name={iconName} size={22} color={color} style={styles.allTimeIcon} />
@@ -214,17 +222,50 @@ function AllTimeStat({ iconName, label, value, color }: { iconName: React.Compon
 }
 
 function SettingRow({ iconName, label, onPress }: { iconName: React.ComponentProps<typeof Feather>['name']; label: string; onPress?: () => void }) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   return (
     <TouchableOpacity style={styles.settingRow} activeOpacity={0.7} onPress={onPress}>
-      <Feather name={iconName} size={20} color={Colors.textPrimary} style={styles.settingIcon} />
+      <Feather name={iconName} size={20} color={colors.textPrimary} style={styles.settingIcon} />
       <Text style={styles.settingLabel}>{label}</Text>
-      <Feather name="chevron-right" size={20} color={Colors.textSecondary} />
+      <Feather name="chevron-right" size={20} color={colors.textSecondary} />
     </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.bg },
+function ThemeToggleRow() {
+  const { theme, setTheme, colors } = useTheme();
+  const styles = useStyles(colors);
+  
+  const nextThemeMap: Record<string, any> = {
+    system: 'light',
+    light: 'dark',
+    dark: 'system'
+  };
+  
+  const iconMap: Record<string, any> = {
+    system: 'smartphone',
+    light: 'sun',
+    dark: 'moon'
+  };
+  
+  const labelMap: Record<string, string> = {
+    system: 'System Default',
+    light: 'Light Mode',
+    dark: 'Dark Mode'
+  };
+
+  return (
+    <TouchableOpacity style={styles.settingRow} activeOpacity={0.7} onPress={() => setTheme(nextThemeMap[theme])}>
+      <Feather name={iconMap[theme]} size={20} color={colors.textPrimary} style={styles.settingIcon} />
+      <Text style={styles.settingLabel}>Appearance: {labelMap[theme]}</Text>
+      <Feather name="refresh-cw" size={20} color={colors.textSecondary} />
+    </TouchableOpacity>
+  );
+}
+
+const useStyles = (colors: any) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { flex: 1 },
   content: {
     padding: Spacing.md,
@@ -232,11 +273,11 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   heroCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: Radius.xl,
     padding: Spacing.xl,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     alignItems: 'center',
     gap: Spacing.sm,
   },
@@ -244,19 +285,19 @@ const styles = StyleSheet.create({
     padding: 4,
     borderRadius: 999,
     borderWidth: 2,
-    borderColor: Colors.purple,
+    borderColor: colors.purple,
     marginBottom: 4,
   },
   avatar: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: Colors.purple,
+    backgroundColor: colors.purple,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: { fontSize: 26, fontWeight: '700', color: '#fff' },
-  userName: { fontSize: 22, fontWeight: '700', color: Colors.textPrimary },
+  userName: { fontSize: 22, fontWeight: '700', color: colors.textPrimary },
   levelBadge: {
     backgroundColor: 'rgba(139,92,246,0.2)',
     paddingHorizontal: 12,
@@ -265,7 +306,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(139,92,246,0.4)',
   },
-  levelText: { fontSize: 13, color: Colors.purple, fontWeight: '600' },
+  levelText: { fontSize: 13, color: colors.purple, fontWeight: '600' },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -274,32 +315,32 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     paddingTop: Spacing.md,
     borderTopWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   profileStat: { alignItems: 'center', gap: 2 },
-  profileStatValue: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
-  profileStatLabel: { fontSize: 12, color: Colors.textSecondary },
-  divider: { width: 1, height: 36, backgroundColor: Colors.border },
+  profileStatValue: { fontSize: 18, fontWeight: '700', color: colors.textPrimary },
+  profileStatLabel: { fontSize: 12, color: colors.textSecondary },
+  divider: { width: 1, height: 36, backgroundColor: colors.border },
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: Radius.xl,
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     gap: Spacing.md,
   },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: colors.textPrimary },
   goalRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.md,
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
     padding: Spacing.md,
     borderRadius: Radius.md,
   },
-  goalName: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
-  goalDesc: { fontSize: 13, color: Colors.textSecondary },
+  goalName: { fontSize: 16, fontWeight: '700', color: colors.textPrimary },
+  goalDesc: { fontSize: 13, color: colors.textSecondary },
   allTimeGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -307,17 +348,17 @@ const styles = StyleSheet.create({
   },
   allTimeStat: {
     width: '47%',
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
     borderRadius: Radius.md,
     padding: Spacing.md,
     alignItems: 'center',
     gap: 4,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   allTimeIcon: { marginBottom: 2 },
   allTimeValue: { fontSize: 18, fontWeight: '700' },
-  allTimeLabel: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center' },
+  allTimeLabel: { fontSize: 12, color: colors.textSecondary, textAlign: 'center' },
   settingsList: { gap: 2 },
   settingRow: {
     flexDirection: 'row',
@@ -327,11 +368,11 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   settingIcon: { width: 28, textAlign: 'center' },
-  settingLabel: { flex: 1, fontSize: 15, color: Colors.textPrimary, fontWeight: '500' },
+  settingLabel: { flex: 1, fontSize: 15, color: colors.textPrimary, fontWeight: '500' },
   version: {
     textAlign: 'center',
     fontSize: 12,
-    color: Colors.textMuted,
+    color: colors.textMuted,
     marginTop: Spacing.sm,
   },
 });

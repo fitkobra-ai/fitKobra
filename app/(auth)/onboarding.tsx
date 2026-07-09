@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert, TouchableOpacity } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useRouter } from 'expo-router';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
-import { Colors, Spacing, Radius } from '../../constants/Theme';
+import { Spacing, Radius } from '../../constants/Theme';
 import { useAuth } from '../../contexts/AuthContext';
 import { useApp } from '../../contexts/AppContext';
 import { saveUserProfile, saveUserGoals } from '../../services/firestore';
@@ -26,6 +27,8 @@ const ACTIVITY_LEVELS = [
 ];
 
 export default function OnboardingScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const router = useRouter();
   const { user } = useAuth();
   const { refreshProfile } = useApp();
@@ -100,10 +103,10 @@ export default function OnboardingScreen() {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined} enabled={Platform.OS === 'ios'}>
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
-          <Text style={styles.title}>Welcome to TrueFit</Text>
+          <Text style={styles.title}>Welcome to KinexFit</Text>
           <Text style={styles.subtitle}>Let's personalize your experience.</Text>
         </View>
 
@@ -230,27 +233,27 @@ export default function OnboardingScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.bg },
-  scroll: { flexGrow: 1, padding: Spacing.xl, paddingTop: 60 },
+const useStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.bg },
+  scroll: { flexGrow: 1, padding: Spacing.xl, paddingTop: 60, paddingBottom: 80 },
   header: { marginBottom: Spacing.xl },
   title: { fontSize: 28, fontWeight: '800', color: '#fff', marginBottom: 4 },
-  subtitle: { fontSize: 16, color: Colors.textSecondary },
+  subtitle: { fontSize: 16, color: colors.textSecondary },
   stepsIndicator: { flexDirection: 'row', gap: 8, marginBottom: Spacing.xl },
-  stepDot: { height: 4, flex: 1, backgroundColor: Colors.surfaceHighlight, borderRadius: 2 },
-  stepDotActive: { backgroundColor: Colors.blue },
+  stepDot: { height: 4, flex: 1, backgroundColor: colors.surfaceHighlight, borderRadius: 2 },
+  stepDotActive: { backgroundColor: colors.blue },
   form: { gap: Spacing.lg, flex: 1 },
   sectionTitle: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: Spacing.sm },
   row: { flexDirection: 'row', gap: Spacing.md },
   flex: { flex: 1 },
-  label: { fontSize: 14, fontWeight: '600', color: Colors.textSecondary, marginBottom: 6 },
-  radioBtn: { flex: 1, padding: 12, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.border, alignItems: 'center' },
-  radioBtnActive: { borderColor: Colors.blue, backgroundColor: 'rgba(59, 130, 246, 0.1)' },
-  radioText: { color: Colors.textSecondary, fontWeight: '600' },
-  radioTextActive: { color: Colors.blue },
-  cardOption: { padding: Spacing.lg, borderRadius: Radius.lg, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border },
-  cardOptionActive: { borderColor: Colors.blue, backgroundColor: 'rgba(59, 130, 246, 0.1)' },
+  label: { fontSize: 14, fontWeight: '600', color: colors.textSecondary, marginBottom: 6 },
+  radioBtn: { flex: 1, padding: 12, borderRadius: Radius.md, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
+  radioBtnActive: { borderColor: colors.blue, backgroundColor: 'rgba(59, 130, 246, 0.1)' },
+  radioText: { color: colors.textSecondary, fontWeight: '600' },
+  radioTextActive: { color: colors.blue },
+  cardOption: { padding: Spacing.lg, borderRadius: Radius.lg, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+  cardOptionActive: { borderColor: colors.blue, backgroundColor: 'rgba(59, 130, 246, 0.1)' },
   cardTitle: { fontSize: 18, fontWeight: '700', color: '#fff', marginBottom: 4 },
-  cardDesc: { color: Colors.textSecondary, fontSize: 14 },
+  cardDesc: { color: colors.textSecondary, fontSize: 14 },
   footer: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.xxl, paddingBottom: Spacing.xl },
 });

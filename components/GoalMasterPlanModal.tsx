@@ -8,8 +8,9 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { useTheme } from '../contexts/ThemeContext';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing, Shadow } from '../constants/Theme';
+import { Radius, Spacing, Shadow } from '../constants/Theme';
 import { UserProfile } from '../services/firestore';
 
 interface GoalMasterPlanModalProps {
@@ -19,15 +20,17 @@ interface GoalMasterPlanModalProps {
   onSaveGoal: (goal: string) => void;
 }
 
-const GOALS = [
-  { id: 'weight_loss', title: 'Weight Loss', icon: 'fire' as const, color: Colors.orange },
-  { id: 'build_muscle', title: 'Build Muscle', icon: 'arm-flex' as const, color: Colors.purple },
-  { id: 'improve_endurance', title: 'Endurance', icon: 'run' as const, color: Colors.blue },
-  { id: 'general_health', title: 'General Health', icon: 'heart-pulse' as const, color: Colors.green },
-];
-
 export function GoalMasterPlanModal({ visible, onClose, profile, onSaveGoal }: GoalMasterPlanModalProps) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const [selectedGoal, setSelectedGoal] = useState<string>(profile?.goal || 'weight_loss');
+
+  const GOALS = [
+    { id: 'weight_loss', title: 'Weight Loss', icon: 'fire' as const, color: colors.orange },
+    { id: 'build_muscle', title: 'Build Muscle', icon: 'arm-flex' as const, color: colors.purple },
+    { id: 'improve_endurance', title: 'Endurance', icon: 'run' as const, color: colors.blue },
+    { id: 'general_health', title: 'General Health', icon: 'heart-pulse' as const, color: colors.green },
+  ];
 
   const { tdee, targetCalories, macros, strategy } = useMemo(() => {
     // 1. Calculate Age
@@ -125,7 +128,7 @@ export function GoalMasterPlanModal({ visible, onClose, profile, onSaveGoal }: G
                   onPress={() => setSelectedGoal(goal.id)}
                   activeOpacity={0.7}
                 >
-                  <MaterialCommunityIcons name={goal.icon} size={28} color={isSelected ? goal.color : Colors.textSecondary} />
+                  <MaterialCommunityIcons name={goal.icon} size={28} color={isSelected ? goal.color : colors.textSecondary} />
                   <Text style={[styles.goalText, isSelected && { color: goal.color }]}>{goal.title}</Text>
                 </TouchableOpacity>
               );
@@ -143,7 +146,7 @@ export function GoalMasterPlanModal({ visible, onClose, profile, onSaveGoal }: G
                   <Text style={styles.calLabel}>Maintenance</Text>
                   <Text style={styles.calValueSm}>{tdee} kcal</Text>
                 </View>
-                <Feather name="arrow-right" size={20} color={Colors.textSecondary} />
+                <Feather name="arrow-right" size={20} color={colors.textSecondary} />
                 <View style={styles.calBoxMain}>
                   <Text style={styles.calLabelMain}>Target Intake</Text>
                   <Text style={styles.calValueMain}>{targetCalories} <Text style={styles.calUnit}>kcal</Text></Text>
@@ -151,16 +154,16 @@ export function GoalMasterPlanModal({ visible, onClose, profile, onSaveGoal }: G
               </View>
 
               <View style={styles.macroSplit}>
-                <MacroBox label="Protein" value={`${macros.p}g`} color={Colors.blue} />
-                <MacroBox label="Carbs" value={`${macros.c}g`} color={Colors.orange} />
-                <MacroBox label="Fats" value={`${macros.f}g`} color={Colors.red} />
+                <MacroBox label="Protein" value={`${macros.p}g`} color={colors.blue} />
+                <MacroBox label="Carbs" value={`${macros.c}g`} color={colors.orange} />
+                <MacroBox label="Fats" value={`${macros.f}g`} color={colors.red} />
               </View>
             </View>
 
             {/* Strategy */}
             <View style={[styles.card, Shadow.card]}>
               <View style={styles.strategyRow}>
-                <MaterialCommunityIcons name="silverware-fork-knife" size={24} color={Colors.green} />
+                <MaterialCommunityIcons name="silverware-fork-knife" size={24} color={colors.green} />
                 <View style={styles.strategyTextCol}>
                   <Text style={styles.strategyTitle}>Nutrition Strategy</Text>
                   <Text style={styles.strategyDesc}>{strategy.diet}</Text>
@@ -170,7 +173,7 @@ export function GoalMasterPlanModal({ visible, onClose, profile, onSaveGoal }: G
               <View style={styles.divider} />
               
               <View style={styles.strategyRow}>
-                <MaterialCommunityIcons name="weight-lifter" size={24} color={Colors.purple} />
+                <MaterialCommunityIcons name="weight-lifter" size={24} color={colors.purple} />
                 <View style={styles.strategyTextCol}>
                   <Text style={styles.strategyTitle}>Training Strategy</Text>
                   <Text style={styles.strategyDesc}>{strategy.training}</Text>
@@ -190,6 +193,8 @@ export function GoalMasterPlanModal({ visible, onClose, profile, onSaveGoal }: G
 }
 
 function MacroBox({ label, value, color }: { label: string; value: string; color: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   return (
     <View style={[styles.macroBox, { backgroundColor: color + '15', borderColor: color + '40' }]}>
       <Text style={[styles.macroVal, { color }]}>{value}</Text>
@@ -198,65 +203,65 @@ function MacroBox({ label, value, color }: { label: string; value: string; color
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = (colors: any) => StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.7)' },
+  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.7)' },
   sheet: {
-    backgroundColor: Colors.bg,
+    backgroundColor: colors.bg,
     borderTopLeftRadius: Radius.xl,
     borderTopRightRadius: Radius.xl,
     padding: Spacing.lg,
     height: '85%',
     gap: Spacing.md,
   },
-  handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.xs },
-  title: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
-  subtitle: { fontSize: 14, color: Colors.textSecondary, marginBottom: Spacing.sm },
+  handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center', marginBottom: Spacing.xs },
+  title: { fontSize: 24, fontWeight: '800', color: colors.textPrimary },
+  subtitle: { fontSize: 14, color: colors.textSecondary, marginBottom: Spacing.sm },
   
   selectorScroll: { flexGrow: 0, minHeight: 110, maxHeight: 110 },
   selectorContent: { gap: Spacing.md, paddingRight: Spacing.xl },
   goalBtn: {
     width: 100,
     height: 90,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: Radius.lg,
     borderWidth: 2,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
   },
-  goalText: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, textAlign: 'center' },
+  goalText: { fontSize: 13, fontWeight: '700', color: colors.textSecondary, textAlign: 'center' },
 
   planScroll: { flex: 1 },
   planContent: { gap: Spacing.lg, paddingBottom: Spacing.xxl },
   
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: Radius.xl,
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     gap: Spacing.md,
   },
-  cardTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
+  cardTitle: { fontSize: 18, fontWeight: '700', color: colors.textPrimary },
   
   calorieRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
     padding: Spacing.md,
     borderRadius: Radius.lg,
   },
   calBox: { alignItems: 'center' },
-  calLabel: { fontSize: 12, color: Colors.textSecondary, marginBottom: 4 },
-  calValueSm: { fontSize: 16, fontWeight: '600', color: Colors.textPrimary },
+  calLabel: { fontSize: 12, color: colors.textSecondary, marginBottom: 4 },
+  calValueSm: { fontSize: 16, fontWeight: '600', color: colors.textPrimary },
   
   calBoxMain: { alignItems: 'center' },
-  calLabelMain: { fontSize: 13, color: Colors.green, fontWeight: '700', marginBottom: 2 },
+  calLabelMain: { fontSize: 13, color: colors.green, fontWeight: '700', marginBottom: 2 },
   calValueMain: { fontSize: 26, fontWeight: '800', color: '#fff' },
-  calUnit: { fontSize: 14, fontWeight: '600', color: Colors.textSecondary },
+  calUnit: { fontSize: 14, fontWeight: '600', color: colors.textSecondary },
 
   macroSplit: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.xs },
   macroBox: {
@@ -267,20 +272,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   macroVal: { fontSize: 16, fontWeight: '800' },
-  macroLabel: { fontSize: 12, color: Colors.textPrimary, fontWeight: '600', marginTop: 2 },
+  macroLabel: { fontSize: 12, color: colors.textPrimary, fontWeight: '600', marginTop: 2 },
 
   strategyRow: { flexDirection: 'row', gap: Spacing.md, alignItems: 'flex-start' },
   strategyTextCol: { flex: 1, gap: 4 },
-  strategyTitle: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
-  strategyDesc: { fontSize: 14, color: Colors.textSecondary, lineHeight: 20 },
-  divider: { height: 1, backgroundColor: Colors.border, marginVertical: Spacing.sm },
+  strategyTitle: { fontSize: 16, fontWeight: '700', color: colors.textPrimary },
+  strategyDesc: { fontSize: 14, color: colors.textSecondary, lineHeight: 20 },
+  divider: { height: 1, backgroundColor: colors.border, marginVertical: Spacing.sm },
 
   saveBtn: {
-    backgroundColor: Colors.purple,
+    backgroundColor: colors.purple,
     paddingVertical: Spacing.lg,
     borderRadius: Radius.full,
     alignItems: 'center',
-    shadowColor: Colors.purple,
+    shadowColor: colors.purple,
     shadowOpacity: 0.4,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },

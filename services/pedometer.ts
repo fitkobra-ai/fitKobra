@@ -3,10 +3,12 @@ import { Platform } from 'react-native';
 
 export type StepCallback = (steps: number) => void;
 
-/** Check if the device has a hardware step counter. */
+/** Check if the device has a hardware step counter and permission is granted. */
 export async function isStepCountingAvailable(): Promise<boolean> {
   if (Platform.OS === 'web') return false;
   try {
+    const { status } = await Pedometer.requestPermissionsAsync();
+    if (status !== 'granted') return false;
     return await Pedometer.isAvailableAsync();
   } catch {
     return false;
@@ -45,7 +47,7 @@ export function watchStepCount(callback: StepCallback): () => void {
 
   let subscription: ReturnType<typeof Pedometer.watchStepCount> | null = null;
 
-  Pedometer.isAvailableAsync().then(available => {
+  isStepCountingAvailable().then(available => {
     if (available) {
       subscription = Pedometer.watchStepCount(result => {
         callback(result.steps);

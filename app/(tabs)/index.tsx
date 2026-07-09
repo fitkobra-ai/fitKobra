@@ -7,21 +7,24 @@ import {
   StatusBar,
   SafeAreaView,
 } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import ActivityRing from '../../components/ActivityRing';
 import StatCard from '../../components/StatCard';
 import WeeklyBarChart from '../../components/WeeklyBarChart';
-import { Colors, Radius, Spacing, Shadow } from '../../constants/Theme';
+import { Radius, Spacing, Shadow } from '../../constants/Theme';
 import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { getRecentDailyStats } from '../../services/firestore';
 import { lastSevenDayKeys, dayLabel } from '../../utils/dates';
 
 export default function DashboardScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const { profile, todayStats, goals, unlockedAchievements } = useApp();
   const { user } = useAuth();
   
-  const [weeklyData, setWeeklyData] = useState<{ day: string; steps: number }[]>([]);
+  const [weeklyData, setWeeklyData] = useState<{ day: string; steps: number; calories: number }[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -32,6 +35,7 @@ export default function DashboardScreen() {
           return {
             day: dayLabel(k),
             steps: found ? found.steps : (k === todayStats.date ? todayStats.steps : 0),
+            calories: found ? found.caloriesBurned : (k === todayStats.date ? todayStats.caloriesBurned : 0),
           };
         });
         setWeeklyData(mapped);
@@ -63,7 +67,7 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.bg} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.bg} />
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -84,8 +88,8 @@ export default function DashboardScreen() {
 
         {/* Streak Banner */}
         {hasStreak && (
-          <View style={[styles.streakBanner, Shadow.glow(Colors.orange)]}>
-            <Feather name="zap" size={24} color={Colors.orange} />
+          <View style={[styles.streakBanner, Shadow.glow(colors.orange)]}>
+            <Feather name="zap" size={24} color={colors.orange} />
             <Text style={styles.streakText}>You're on a streak!</Text>
             <Text style={styles.streakSub}>Keep it up!</Text>
           </View>
@@ -93,7 +97,7 @@ export default function DashboardScreen() {
 
         {/* Daily Quote */}
         <View style={[styles.quoteCard, Shadow.card]}>
-          <Feather name="message-square" size={18} color={Colors.blue} style={{ marginBottom: 4 }} />
+          <Feather name="message-square" size={18} color={colors.blue} style={{ marginBottom: 4 }} />
           <Text style={styles.quoteText}>"The only bad workout is the one that didn't happen."</Text>
         </View>
 
@@ -106,33 +110,33 @@ export default function DashboardScreen() {
                 radius={52}
                 strokeWidth={13}
                 progress={stepsProgress * 100}
-                color={Colors.red}
+                color={colors.red}
               />
-              <Text style={[styles.ringLabel, { color: Colors.red }]}>Steps</Text>
+              <Text style={[styles.ringLabel, { color: colors.red }]}>Steps</Text>
             </View>
             <View style={styles.ringItem}>
               <ActivityRing
                 radius={52}
                 strokeWidth={13}
                 progress={activeProgress * 100}
-                color={Colors.green}
+                color={colors.green}
               />
-              <Text style={[styles.ringLabel, { color: Colors.green }]}>Exercise</Text>
+              <Text style={[styles.ringLabel, { color: colors.green }]}>Exercise</Text>
             </View>
             <View style={styles.ringItem}>
               <ActivityRing
                 radius={52}
                 strokeWidth={13}
                 progress={calProgress * 100}
-                color={Colors.blue}
+                color={colors.blue}
               />
-              <Text style={[styles.ringLabel, { color: Colors.blue }]}>Calories</Text>
+              <Text style={[styles.ringLabel, { color: colors.blue }]}>Calories</Text>
             </View>
           </View>
           <View style={styles.ringLegend}>
-            <LegendItem color={Colors.red} label={`${todayStats.steps.toLocaleString()} / ${stepsGoal.toLocaleString()} steps`} />
-            <LegendItem color={Colors.green} label={`${todayStats.activeMinutes} / ${activeGoal} min active`} />
-            <LegendItem color={Colors.blue} label={`${todayStats.caloriesBurned} / ${calGoal} kcal burned`} />
+            <LegendItem color={colors.red} label={`${todayStats.steps.toLocaleString()} / ${stepsGoal.toLocaleString()} steps`} />
+            <LegendItem color={colors.green} label={`${todayStats.activeMinutes} / ${activeGoal} min active`} />
+            <LegendItem color={colors.blue} label={`${todayStats.caloriesBurned} / ${calGoal} kcal burned`} />
           </View>
         </View>
 
@@ -143,7 +147,7 @@ export default function DashboardScreen() {
               label="Steps"
               value={todayStats.steps.toLocaleString()}
               iconName="activity"
-              color={Colors.red}
+              color={colors.red}
               progress={stepsProgress}
             />
           </View>
@@ -153,7 +157,7 @@ export default function DashboardScreen() {
               value={todayStats.caloriesBurned}
               unit="kcal"
               iconName="zap"
-              color={Colors.orange}
+              color={colors.orange}
               progress={calProgress}
             />
           </View>
@@ -163,7 +167,7 @@ export default function DashboardScreen() {
               value={todayStats.distanceKm}
               unit="km"
               iconName="map-pin"
-              color={Colors.blue}
+              color={colors.blue}
             />
           </View>
           <View style={styles.cardHalf}>
@@ -172,7 +176,7 @@ export default function DashboardScreen() {
               value={todayStats.activeMinutes}
               unit="min"
               iconName="clock"
-              color={Colors.green}
+              color={colors.green}
             />
           </View>
         </View>
@@ -193,6 +197,8 @@ export default function DashboardScreen() {
 }
 
 function LegendItem({ color, label }: { color: string; label: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   return (
     <View style={styles.legendItem}>
       <View style={[styles.legendDot, { backgroundColor: color }]} />
@@ -201,10 +207,10 @@ function LegendItem({ color, label }: { color: string; label: string }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = (colors: any) => StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: colors.bg,
   },
   scroll: {
     flex: 1,
@@ -223,22 +229,22 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 22,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
   },
   dateText: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   avatarContainer: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.purple,
+    backgroundColor: colors.purple,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: Colors.purpleGlow,
+    borderColor: colors.purpleGlow,
   },
   avatarText: {
     fontSize: 15,
@@ -258,15 +264,15 @@ const styles = StyleSheet.create({
   streakText: {
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.orange,
+    color: colors.orange,
     flex: 1,
   },
   streakSub: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   quoteCard: {
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
     borderRadius: Radius.lg,
     padding: Spacing.md,
     borderWidth: 1,
@@ -276,20 +282,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontStyle: 'italic',
     fontWeight: '500',
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
   },
   ringsCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: Radius.xl,
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     gap: Spacing.md,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
   },
   ringsRow: {
     flexDirection: 'row',
@@ -318,7 +324,7 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   cardsGrid: {
     flexDirection: 'row',
@@ -330,11 +336,11 @@ const styles = StyleSheet.create({
     minWidth: '45%',
   },
   weeklyCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: Radius.xl,
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   weeklyHeader: {
     flexDirection: 'row',
@@ -344,7 +350,7 @@ const styles = StyleSheet.create({
   },
   weeklyTotal: {
     fontSize: 13,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
 });

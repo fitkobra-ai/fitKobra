@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Colors, Radius, Spacing } from '../constants/Theme';
+import { useTheme } from '../contexts/ThemeContext';
+import { Radius, Spacing } from '../constants/Theme';
 
 interface BarChartProps {
   data: { day: string; steps: number; calories: number }[];
@@ -8,6 +9,8 @@ interface BarChartProps {
 }
 
 export default function WeeklyBarChart({ data, highlightIndex = 6 }: BarChartProps) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const maxSteps = Math.max(...data.map((d) => d.steps));
 
   return (
@@ -24,10 +27,10 @@ export default function WeeklyBarChart({ data, highlightIndex = 6 }: BarChartPro
                     styles.bar,
                     {
                       height: `${heightPercent}%`,
-                      backgroundColor: isHighlight ? Colors.purple : Colors.surfaceHighlight,
+                      backgroundColor: isHighlight ? colors.purple : colors.surfaceHighlight,
                     },
                     isHighlight && {
-                      shadowColor: Colors.purple,
+                      shadowColor: colors.purple,
                       shadowOffset: { width: 0, height: 0 },
                       shadowOpacity: 0.8,
                       shadowRadius: 6,
@@ -36,7 +39,7 @@ export default function WeeklyBarChart({ data, highlightIndex = 6 }: BarChartPro
                   ]}
                 />
               </View>
-              <Text style={[styles.dayLabel, isHighlight && { color: Colors.textPrimary }]}>
+              <Text style={[styles.dayLabel, isHighlight && { color: colors.textPrimary }]}>
                 {item.day}
               </Text>
             </View>
@@ -47,7 +50,7 @@ export default function WeeklyBarChart({ data, highlightIndex = 6 }: BarChartPro
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = (colors: any) => StyleSheet.create({
   container: {
     marginTop: Spacing.sm,
   },
@@ -76,7 +79,7 @@ const styles = StyleSheet.create({
   },
   dayLabel: {
     fontSize: 12,
-    color: Colors.textMuted,
+    color: colors.textMuted,
     fontWeight: '500',
   },
 });

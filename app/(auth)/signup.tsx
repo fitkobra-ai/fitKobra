@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert, TouchableOpacity, Image } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, Link } from 'expo-router';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
-import { Colors, Spacing, Radius } from '../../constants/Theme';
+import { Spacing, Radius } from '../../constants/Theme';
 import { signUpWithEmail, signInWithGoogle } from '../../services/auth';
 
 export default function SignupScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -85,8 +88,9 @@ export default function SignupScreen() {
     <KeyboardAvoidingView 
       style={styles.container} 
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      enabled={Platform.OS === 'ios'}
     >
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Image source={require('../../assets/images/truefit-logo.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.title}>Join KinexFit</Text>
@@ -169,13 +173,13 @@ export default function SignupScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.bg },
-  scroll: { flexGrow: 1, padding: Spacing.xl, justifyContent: 'center' },
+const useStyles = (colors: any) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.bg },
+  scroll: { flexGrow: 1, padding: Spacing.xl, justifyContent: 'center', paddingBottom: 80 },
   header: { marginBottom: Spacing.xxl, alignItems: 'center' },
   logo: { width: 100, height: 100, marginBottom: Spacing.md, borderRadius: Radius.xl },
   title: { fontSize: 32, fontWeight: '800', color: '#fff', marginBottom: Spacing.xs },
-  subtitle: { fontSize: 16, color: Colors.textSecondary, textAlign: 'center' },
+  subtitle: { fontSize: 16, color: colors.textSecondary, textAlign: 'center' },
   form: { gap: Spacing.lg },
   errorBanner: {
     backgroundColor: 'rgba(255,42,84,0.15)',
@@ -184,7 +188,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,42,84,0.4)',
   },
-  errorBannerText: { color: Colors.red, fontSize: 14, fontWeight: '600', textAlign: 'center' },
+  errorBannerText: { color: colors.red, fontSize: 14, fontWeight: '600', textAlign: 'center' },
   btn: { marginTop: Spacing.md },
   
   consentContainer: { flexDirection: 'row', alignItems: 'flex-start', marginTop: Spacing.xs, gap: Spacing.sm },
@@ -192,22 +196,22 @@ const styles = StyleSheet.create({
     width: 24, height: 24,
     borderRadius: Radius.sm,
     borderWidth: 2,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
   },
   checkboxActive: {
-    backgroundColor: Colors.green,
-    borderColor: Colors.green,
+    backgroundColor: colors.green,
+    borderColor: colors.green,
   },
   consentTextContainer: { flex: 1 },
-  consentText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18 },
-  legalLink: { color: Colors.blue, textDecorationLine: 'underline' },
+  consentText: { fontSize: 13, color: colors.textSecondary, lineHeight: 18 },
+  legalLink: { color: colors.blue, textDecorationLine: 'underline' },
 
   dividerRow: { flexDirection: 'row', alignItems: 'center', marginTop: Spacing.xl, marginBottom: Spacing.md },
-  dividerLine: { flex: 1, height: 1, backgroundColor: Colors.border },
-  dividerText: { color: Colors.textSecondary, paddingHorizontal: Spacing.md, fontSize: 13 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+  dividerText: { color: colors.textSecondary, paddingHorizontal: Spacing.md, fontSize: 13 },
   
   socialRow: { flexDirection: 'row', justifyContent: 'center', gap: Spacing.lg },
   socialBtn: {
@@ -215,13 +219,13 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: Radius.full,
     borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surface,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: Spacing.xxl },
-  footerText: { color: Colors.textSecondary, fontSize: 15 },
-  link: { color: Colors.blue, fontWeight: '700', fontSize: 15 },
+  footerText: { color: colors.textSecondary, fontSize: 15 },
+  link: { color: colors.blue, fontWeight: '700', fontSize: 15 },
 });

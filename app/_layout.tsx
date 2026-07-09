@@ -3,11 +3,12 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { View, ActivityIndicator } from 'react-native';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { AppProvider, useApp } from '../contexts/AppContext';
-import { Colors } from '../constants/Theme';
+import { ThemeProvider, useTheme } from '../contexts/ThemeContext';
 
 function AuthRouter() {
   const { user, loading: authLoading, isConfigured } = useAuth();
   const { profile, loadingProfile } = useApp();
+  const { colors } = useTheme();
   const segments = useSegments();
   const router = useRouter();
 
@@ -39,14 +40,14 @@ function AuthRouter() {
 
   if (authLoading || loadingProfile) {
     return (
-      <View style={{ flex: 1, backgroundColor: Colors.background, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size="large" color={Colors.blue} />
+      <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color={colors.blue} />
       </View>
     );
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.background } }}>
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="(auth)" />
     </Stack>
@@ -55,10 +56,12 @@ function AuthRouter() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <AppProvider>
-        <AuthRouter />
-      </AppProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppProvider>
+          <AuthRouter />
+        </AppProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

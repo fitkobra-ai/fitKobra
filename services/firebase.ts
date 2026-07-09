@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { initializeAuth, getReactNativePersistence, getAuth } from 'firebase/auth';
+// @ts-ignore
+import { initializeAuth, getAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FIREBASE_CONFIG, IS_FIREBASE_CONFIGURED } from '../config/firebase.config';
@@ -20,8 +21,6 @@ if (IS_FIREBASE_CONFIGURED) {
     if (Platform.OS === 'web') {
       auth = getAuth(app);
     } else {
-      // Lazy load the react-native specific function so it doesn't crash the web bundler
-      const { initializeAuth, getReactNativePersistence } = require('firebase/auth');
       auth = initializeAuth(app, {
         persistence: getReactNativePersistence(AsyncStorage),
       });

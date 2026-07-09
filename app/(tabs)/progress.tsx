@@ -7,8 +7,9 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import { Feather } from '@expo/vector-icons';
-import { Colors, Radius, Spacing, Shadow } from '../../constants/Theme';
+import { Radius, Spacing, Shadow } from '../../constants/Theme';
 import { useApp } from '../../contexts/AppContext';
 
 // Mocked monthly data for visual presentation
@@ -27,6 +28,8 @@ const ALL_ACHIEVEMENTS: { id: string, title: string, desc: string, iconName: Rea
 ];
 
 export default function ProgressScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const { todayStats, goals, unlockedAchievements } = useApp();
   const maxVal = Math.max(...monthlyData.map((d) => d.steps));
 
@@ -36,7 +39,7 @@ export default function ProgressScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.bg} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.bg} />
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -57,7 +60,7 @@ export default function ProgressScreen() {
                       styles.monthBar,
                       {
                         height: `${(item.steps / maxVal) * 100}%`,
-                        backgroundColor: i === monthlyData.length - 1 ? Colors.purple : Colors.blue,
+                        backgroundColor: i === monthlyData.length - 1 ? colors.purple : colors.blue,
                       },
                     ]}
                   />
@@ -72,10 +75,10 @@ export default function ProgressScreen() {
         <View style={[styles.card, Shadow.card]}>
           <Text style={styles.sectionTitle}>Personal Records 🏆</Text>
           <View style={styles.prList}>
-            <PRRow iconName="map" label="Longest Run" value="21.1 km" date="Jun 15" color={Colors.green} />
-            <PRRow iconName="zap" label="Most Calories" value="892 kcal" date="Jun 22" color={Colors.orange} />
-            <PRRow iconName="activity" label="Most Steps" value="18,420" date="May 30" color={Colors.red} />
-            <PRRow iconName="heart" label="Longest Workout" value="95 min" date="Jul 1" color={Colors.blue} />
+            <PRRow iconName="map" label="Longest Run" value="21.1 km" date="Jun 15" color={colors.green} />
+            <PRRow iconName="zap" label="Most Calories" value="892 kcal" date="Jun 22" color={colors.orange} />
+            <PRRow iconName="activity" label="Most Steps" value="18,420" date="May 30" color={colors.red} />
+            <PRRow iconName="heart" label="Longest Workout" value="95 min" date="Jul 1" color={colors.blue} />
           </View>
         </View>
 
@@ -88,21 +91,21 @@ export default function ProgressScreen() {
               current={todayStats.steps}
               goal={stepsGoal}
               unit="steps"
-              color={Colors.red}
+              color={colors.red}
             />
             <GoalRow
               label="Calories Burned"
               current={todayStats.caloriesBurned}
               goal={calGoal}
               unit="kcal"
-              color={Colors.orange}
+              color={colors.orange}
             />
             <GoalRow
               label="Active Minutes"
               current={todayStats.activeMinutes}
               goal={activeGoal}
               unit="min"
-              color={Colors.green}
+              color={colors.green}
             />
           </View>
         </View>
@@ -124,7 +127,7 @@ export default function ProgressScreen() {
                   <Feather 
                     name={a.iconName} 
                     size={28} 
-                    color={unlocked ? Colors.purple : Colors.textMuted} 
+                    color={unlocked ? colors.purple : colors.textMuted} 
                     style={{ opacity: unlocked ? 1 : 0.5 }}
                   />
                   <Text style={[styles.badgeTitle, !unlocked && styles.badgeTextLocked]}>
@@ -146,6 +149,8 @@ export default function ProgressScreen() {
 function PRRow({
   iconName, label, value, date, color,
 }: { iconName: React.ComponentProps<typeof Feather>['name']; label: string; value: string; date: string; color: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   return (
     <View style={styles.prRow}>
       <Feather name={iconName} size={22} color={color} style={styles.prIcon} />
@@ -161,6 +166,8 @@ function PRRow({
 function GoalRow({
   label, current, goal, unit, color,
 }: { label: string; current: number; goal: number; unit: string; color: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const pct = Math.min(current / goal, 1);
   return (
     <View style={styles.goalRow}>
@@ -168,7 +175,7 @@ function GoalRow({
         <Text style={styles.goalLabel}>{label}</Text>
         <Text style={styles.goalValue}>
           <Text style={{ color }}>{current.toLocaleString()}</Text>
-          <Text style={{ color: Colors.textSecondary }}> / {goal.toLocaleString()} {unit}</Text>
+          <Text style={{ color: colors.textSecondary }}> / {goal.toLocaleString()} {unit}</Text>
         </Text>
       </View>
       <View style={styles.goalTrack}>
@@ -178,8 +185,8 @@ function GoalRow({
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.bg },
+const useStyles = (colors: any) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { flex: 1 },
   content: {
     padding: Spacing.md,
@@ -189,20 +196,20 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
   },
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: Radius.xl,
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     gap: Spacing.md,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
   },
   // Monthly chart
   monthlyChart: {
@@ -220,7 +227,7 @@ const styles = StyleSheet.create({
   },
   monthValue: {
     fontSize: 11,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '600',
   },
   monthBarTrack: {
@@ -235,7 +242,7 @@ const styles = StyleSheet.create({
   },
   monthLabel: {
     fontSize: 12,
-    color: Colors.textMuted,
+    color: colors.textMuted,
     fontWeight: '500',
   },
   // PRs
@@ -244,13 +251,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: Spacing.md,
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
     borderRadius: Radius.md,
     gap: Spacing.md,
   },
   prIcon: { width: 32, textAlign: 'center' },
-  prLabel: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
-  prDate: { fontSize: 12, color: Colors.textSecondary },
+  prLabel: { fontSize: 14, fontWeight: '600', color: colors.textPrimary },
+  prDate: { fontSize: 12, color: colors.textSecondary },
   prValue: { fontSize: 16, fontWeight: '700' },
   // Goals
   goalList: { gap: Spacing.md },
@@ -260,11 +267,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  goalLabel: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
+  goalLabel: { fontSize: 14, fontWeight: '600', color: colors.textPrimary },
   goalValue: { fontSize: 13 },
   goalTrack: {
     height: 6,
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
     borderRadius: Radius.full,
     overflow: 'hidden',
   },
@@ -280,11 +287,11 @@ const styles = StyleSheet.create({
   },
   badge: {
     width: '47%',
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
     borderRadius: Radius.md,
     padding: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     gap: 8,
     alignItems: 'center',
   },
@@ -294,13 +301,13 @@ const styles = StyleSheet.create({
   badgeTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
     textAlign: 'center',
   },
   badgeDesc: {
     fontSize: 11,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
-  badgeTextLocked: { color: Colors.textMuted },
+  badgeTextLocked: { color: colors.textMuted },
 });

@@ -2,8 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Platform,
 } from 'react-native';
+import { useTheme } from '../contexts/ThemeContext';
+import { Feather } from '@expo/vector-icons';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { Colors, Radius, Spacing, Shadow } from '../constants/Theme';
+import { Radius, Spacing, Shadow } from '../constants/Theme';
 import { workoutCalories, formatDuration } from '../utils/calculations';
 import { type WorkoutType } from '../constants/WorkoutTypes';
 
@@ -20,6 +22,8 @@ export default function WorkoutTimer({
   onStop,
   onCancel,
 }: WorkoutTimerProps) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -60,7 +64,7 @@ export default function WorkoutTimer({
     <View style={[styles.container, Shadow.card]}>
       {/* Workout Type Header */}
       <View style={styles.header}>
-        <Text style={styles.emoji}>{workoutType.emoji}</Text>
+        <Feather name={workoutType.iconName as any} size={28} color={workoutType.color} />
         <Text style={[styles.type, { color: workoutType.color }]}>{workoutType.label}</Text>
         <View style={[styles.liveBadge, isPaused && styles.pausedBadge]}>
           <Text style={styles.liveText}>{isPaused ? 'PAUSED' : '● LIVE'}</Text>
@@ -80,7 +84,7 @@ export default function WorkoutTimer({
         </View>
         <View style={styles.metricDivider} />
         <View style={styles.metric}>
-          <Text style={[styles.metricValue, { color: Colors.blue }]}>
+          <Text style={[styles.metricValue, { color: colors.blue }]}>
             {Math.floor(elapsedSeconds / 60)}
           </Text>
           <Text style={styles.metricLabel}>minutes</Text>
@@ -117,13 +121,13 @@ export default function WorkoutTimer({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = (colors: any) => StyleSheet.create({
   container: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: Radius.xl,
     padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     gap: Spacing.lg,
     alignItems: 'center',
   },
@@ -149,13 +153,13 @@ const styles = StyleSheet.create({
   liveText: {
     fontSize: 11,
     fontWeight: '700',
-    color: Colors.red,
+    color: colors.red,
     letterSpacing: 0.5,
   },
   timer: {
     fontSize: 64,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
     letterSpacing: -2,
     fontVariant: ['tabular-nums'],
   },
@@ -166,11 +170,11 @@ const styles = StyleSheet.create({
   },
   metric: { alignItems: 'center', gap: 4 },
   metricValue: { fontSize: 28, fontWeight: '700' },
-  metricLabel: { fontSize: 12, color: Colors.textSecondary },
+  metricLabel: { fontSize: 12, color: colors.textSecondary },
   metricDivider: {
     width: 1,
     height: 40,
-    backgroundColor: Colors.border,
+    backgroundColor: colors.border,
   },
   controls: {
     flexDirection: 'row',
@@ -184,7 +188,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelBtn: {
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
   },
   pauseBtn: {
     backgroundColor: 'rgba(139,92,246,0.2)',
@@ -192,9 +196,9 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(139,92,246,0.4)',
   },
   stopBtn: {
-    backgroundColor: Colors.blue,
+    backgroundColor: colors.blue,
   },
-  cancelText: { color: Colors.textSecondary, fontWeight: '600', fontSize: 13 },
-  pauseText: { color: Colors.purple, fontWeight: '600', fontSize: 13 },
+  cancelText: { color: colors.textSecondary, fontWeight: '600', fontSize: 13 },
+  pauseText: { color: colors.purple, fontWeight: '600', fontSize: 13 },
   stopText: { color: '#fff', fontWeight: '700', fontSize: 13 },
 });

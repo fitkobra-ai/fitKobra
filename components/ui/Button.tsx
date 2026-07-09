@@ -3,7 +3,8 @@ import {
   TouchableOpacity, Text, StyleSheet,
   ActivityIndicator, type TouchableOpacityProps,
 } from 'react-native';
-import { Colors, Radius } from '../../constants/Theme';
+import { useTheme } from '../../contexts/ThemeContext';
+import { Radius } from '../../constants/Theme';
 
 interface ButtonProps extends TouchableOpacityProps {
   label: string;
@@ -21,6 +22,8 @@ export default function Button({
   style,
   ...rest
 }: ButtonProps) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const isDisabled = disabled || loading;
 
   return (
@@ -38,7 +41,7 @@ export default function Button({
     >
       {loading ? (
         <ActivityIndicator
-          color={variant === 'primary' ? '#fff' : Colors.blue}
+          color={variant === 'primary' ? '#fff' : colors.blue}
           size="small"
         />
       ) : (
@@ -50,7 +53,7 @@ export default function Button({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = (colors: any) => StyleSheet.create({
   base: {
     borderRadius: Radius.md,
     alignItems: 'center',
@@ -59,18 +62,18 @@ const styles = StyleSheet.create({
   },
   // Variants
   primary: {
-    backgroundColor: Colors.blue,
+    backgroundColor: colors.blue,
   },
   secondary: {
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   ghost: {
     backgroundColor: 'transparent',
   },
   danger: {
-    backgroundColor: Colors.red,
+    backgroundColor: colors.red,
   },
   disabled: {
     opacity: 0.45,
@@ -83,8 +86,8 @@ const styles = StyleSheet.create({
   // Labels
   label: { fontWeight: '700' },
   label_primary: { color: '#fff' },
-  label_secondary: { color: Colors.textPrimary },
-  label_ghost: { color: Colors.blue },
+  label_secondary: { color: colors.textPrimary },
+  label_ghost: { color: colors.blue },
   label_danger: { color: '#fff' },
   labelSize_sm: { fontSize: 13 },
   labelSize_md: { fontSize: 16 },

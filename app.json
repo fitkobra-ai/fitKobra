@@ -2,9 +2,9 @@
   "expo": {
     "name": "KinexFit",
     "slug": "kinexfit",
-    "version": "1.0.0",
+    "version": "1.0.9",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/truefit-logo.png",
     "scheme": "kinexfit",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
@@ -14,11 +14,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "foregroundImage": "./assets/images/truefit-logo.png",
         "backgroundColor": "#0d1117"
       },
       "package": "com.kinexfit.app",
-      "versionCode": 1,
+      "versionCode": 10,
+      "softwareKeyboardLayoutMode": "pan",
       "permissions": [
         "android.permission.ACTIVITY_RECOGNITION",
         "android.permission.BODY_SENSORS"
@@ -27,14 +28,14 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/truefit-logo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/truefit-logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#0d1117"
@@ -44,6 +45,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a7b870f7-7f10-43cc-9da1-c4678df29ed8"
+      }
     }
   }
 }

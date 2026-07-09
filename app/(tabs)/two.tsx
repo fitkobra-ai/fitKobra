@@ -13,8 +13,9 @@ import {
   Animated,
   Easing,
 } from 'react-native';
+import { useTheme } from '../../contexts/ThemeContext';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing, Shadow } from '../../constants/Theme';
+import { Radius, Spacing, Shadow } from '../../constants/Theme';
 import { WORKOUT_TYPES, getWorkoutType } from '../../constants/WorkoutTypes';
 import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -22,51 +23,54 @@ import { saveWorkout, type WorkoutRecord } from '../../services/firestore';
 import { formatTime, relativeDate } from '../../utils/dates';
 import WorkoutTimer from '../../components/WorkoutTimer';
 
-const MUSCLE_GROUPS = [
-  { id: 'shoulders', name: 'Shoulders', icon: 'human-handsup', color: Colors.orange, desc: 'Deltoids & Traps' },
-  { id: 'chest', name: 'Chest', icon: 'human-male', color: Colors.blue, desc: 'Pectorals' },
-  { id: 'back', name: 'Back', icon: 'dumbbell', color: Colors.purple, desc: 'Lats & Rhomboids' },
-  { id: 'arms', name: 'Arms', icon: 'arm-flex', color: Colors.red, desc: 'Biceps & Triceps' },
-  { id: 'core', name: 'Core', icon: 'run', color: Colors.green, desc: 'Abs & Obliques' },
-  { id: 'legs', name: 'Legs', icon: 'shoe-sneaker', color: Colors.blue, desc: 'Quads, Hamstrings & Calves' },
-];
-
-const MUSCLE_EXERCISES: Record<string, {name: string, tips: string, image: string}[]> = {
+// MUSCLE_GROUPS moved inside component
+const MUSCLE_EXERCISES: Record<string, {name: string, tips: string, image: any}[]> = {
   shoulders: [
-    { name: 'Overhead Press', tips: 'Keep core tight, press straight up without arching back.', image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Lateral Raises', tips: 'Slight bend in elbows, raise until arms are parallel to floor.', image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Front Raises', tips: 'Control the descent, do not swing the weight.', image: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop' }
+    { name: 'Overhead Press', tips: 'Keep core tight, press straight up without arching back.', image: require('../../assets/exercises/overhead_press.gif') },
+    { name: 'Lateral Raises', tips: 'Slight bend in elbows, raise until arms are parallel to floor.', image: require('../../assets/exercises/lateral_raises.gif') },
+    { name: 'Front Raises', tips: 'Control the descent, do not swing the weight.', image: require('../../assets/exercises/front_raises.gif') }
   ],
   chest: [
-    { name: 'Bench Press', tips: 'Retract scapula, keep feet planted, push through chest.', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Push-ups', tips: 'Body in a straight line, lower until chest is near floor.', image: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Dumbbell Flyes', tips: 'Slight bend in elbows, stretch chest at the bottom.', image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop' }
+    { name: 'Bench Press', tips: 'Retract scapula, keep feet planted, push through chest.', image: require('../../assets/exercises/bench_press.gif') },
+    { name: 'Push-ups', tips: 'Body in a straight line, lower until chest is near floor.', image: require('../../assets/exercises/push_ups.gif') },
+    { name: 'Dumbbell Flyes', tips: 'Slight bend in elbows, stretch chest at the bottom.', image: require('../../assets/exercises/dumbbell_flyes.gif') }
   ],
   back: [
-    { name: 'Pull-ups', tips: 'Pull with your elbows, squeeze lats at the top.', image: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Barbell Rows', tips: 'Hinge at hips, keep back straight, pull to lower chest.', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Lat Pulldowns', tips: 'Lean slightly back, pull bar to upper chest.', image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=800&auto=format&fit=crop' }
+    { name: 'Pull-ups', tips: 'Pull with your elbows, squeeze lats at the top.', image: require('../../assets/exercises/pull_ups.gif') },
+    { name: 'Barbell Rows', tips: 'Hinge at hips, keep back straight, pull to lower chest.', image: require('../../assets/exercises/barbell_rows.gif') },
+    { name: 'Lat Pulldowns', tips: 'Lean slightly back, pull bar to upper chest.', image: require('../../assets/exercises/lat_pulldowns.gif') }
   ],
   arms: [
-    { name: 'Bicep Curls', tips: 'Keep elbows pinned to sides, squeeze at top.', image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Tricep Extensions', tips: 'Lock elbows in place, extend fully.', image: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Hammer Curls', tips: 'Neutral grip, target the brachialis.', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop' }
+    { name: 'Bicep Curls', tips: 'Keep elbows pinned to sides, squeeze at top.', image: require('../../assets/exercises/bicep_curls.gif') },
+    { name: 'Tricep Extensions', tips: 'Lock elbows in place, extend fully.', image: require('../../assets/exercises/tricep_extensions.gif') },
+    { name: 'Hammer Curls', tips: 'Neutral grip, target the brachialis.', image: require('../../assets/exercises/hammer_curls.gif') }
   ],
   core: [
-    { name: 'Plank', tips: 'Keep body straight, engage glutes and core.', image: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Crunches', tips: 'Lift shoulder blades off floor, do not pull neck.', image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Leg Raises', tips: 'Keep lower back pressed into the floor.', image: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop' }
+    { name: 'Plank', tips: 'Keep body straight, engage glutes and core.', image: require('../../assets/exercises/plank.gif') },
+    { name: 'Crunches', tips: 'Lift shoulder blades off floor, do not pull neck.', image: require('../../assets/exercises/crunches.gif') },
+    { name: 'Leg Raises', tips: 'Keep lower back pressed into the floor.', image: require('../../assets/exercises/leg_raises.gif') }
   ],
   legs: [
-    { name: 'Squats', tips: 'Keep chest up, push knees out, break parallel if possible.', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Romanian Deadlifts', tips: 'Hinge at hips, slight knee bend, feel stretch in hamstrings.', image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop' },
-    { name: 'Lunges', tips: 'Keep torso upright, back knee just above floor.', image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=800&auto=format&fit=crop' }
+    { name: 'Squats', tips: 'Keep chest up, push knees out, break parallel if possible.', image: require('../../assets/exercises/squats.gif') },
+    { name: 'Romanian Deadlifts', tips: 'Hinge at hips, slight knee bend, feel stretch in hamstrings.', image: require('../../assets/exercises/romanian_deadlifts.gif') },
+    { name: 'Lunges', tips: 'Keep torso upright, back knee just above floor.', image: require('../../assets/exercises/lunges.gif') }
   ]
 };
 
 export default function WorkoutsScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   const { workouts, profile, addWorkout } = useApp();
   const { user } = useAuth();
+  
+  const MUSCLE_GROUPS = [
+    { id: 'shoulders', name: 'Shoulders', icon: 'human-handsup', color: colors.orange, desc: 'Deltoids & Traps' },
+    { id: 'chest', name: 'Chest', icon: 'human-male', color: colors.blue, desc: 'Pectorals' },
+    { id: 'back', name: 'Back', icon: 'dumbbell', color: colors.purple, desc: 'Lats & Rhomboids' },
+    { id: 'arms', name: 'Arms', icon: 'arm-flex', color: colors.red, desc: 'Biceps & Triceps' },
+    { id: 'core', name: 'Core', icon: 'run', color: colors.green, desc: 'Abs & Obliques' },
+    { id: 'legs', name: 'Legs', icon: 'shoe-sneaker', color: colors.blue, desc: 'Quads, Hamstrings & Calves' },
+  ];
   
   const [activeTab, setActiveTab] = useState<'tracker' | 'guide'>('tracker');
 
@@ -76,7 +80,7 @@ export default function WorkoutsScreen() {
 
   const [guideModalVisible, setGuideModalVisible] = useState(false);
   const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null);
-  const [popupExercise, setPopupExercise] = useState<{name: string, tips: string, image: string} | null>(null);
+  const [popupExercise, setPopupExercise] = useState<{name: string, tips: string, image: any} | null>(null);
 
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
@@ -127,9 +131,9 @@ export default function WorkoutsScreen() {
   };
 
   const getIntensityTag = (met: number) => {
-    if (met < 4) return { label: 'Low Intensity 🧘', color: Colors.green };
-    if (met < 8) return { label: 'Medium Intensity ⚡', color: Colors.blue };
-    return { label: 'High Intensity 🔥', color: Colors.orange };
+    if (met < 4) return { label: 'Low Intensity 🧘', color: colors.green };
+    if (met < 8) return { label: 'Medium Intensity ⚡', color: colors.blue };
+    return { label: 'High Intensity 🔥', color: colors.orange };
   };
 
   const renderTracker = () => (
@@ -137,7 +141,7 @@ export default function WorkoutsScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Workouts 💪</Text>
         <TouchableOpacity
-          style={[styles.startBtn, Shadow.glow(Colors.blue)]}
+          style={[styles.startBtn, Shadow.glow(colors.blue)]}
           onPress={() => setModalVisible(true)}
           activeOpacity={0.8}
         >
@@ -148,11 +152,11 @@ export default function WorkoutsScreen() {
       <View style={[styles.summaryCard, Shadow.card]}>
         <Text style={styles.sectionTitle}>This Week</Text>
         <View style={styles.summaryRow}>
-          <SummaryStat label="Workouts" value={weeklyWorkouts.length.toString()} color={Colors.blue} />
+          <SummaryStat label="Workouts" value={weeklyWorkouts.length.toString()} color={colors.blue} />
           <View style={styles.divider} />
-          <SummaryStat label="Total Time" value={formatTime(weeklyTotalTime * 1000)} color={Colors.green} />
+          <SummaryStat label="Total Time" value={formatTime(weeklyTotalTime * 1000)} color={colors.green} />
           <View style={styles.divider} />
-          <SummaryStat label="Calories" value={weeklyTotalCals.toLocaleString()} color={Colors.orange} />
+          <SummaryStat label="Calories" value={weeklyTotalCals.toLocaleString()} color={colors.orange} />
         </View>
       </View>
 
@@ -213,7 +217,7 @@ export default function WorkoutsScreen() {
         <Text style={styles.subtitle}>Interactive 3D Anatomy</Text>
       </View>
       
-      <View style={[styles.anatomyContainer, Shadow.glow(Colors.purple)]}>
+      <View style={[styles.anatomyContainer, Shadow.glow(colors.purple)]}>
         <Image 
           source={{ uri: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop' }} 
           style={styles.anatomyImage} 
@@ -248,7 +252,7 @@ export default function WorkoutsScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.bg} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.bg} />
       
       {activeWorkout ? (
         <View style={styles.timerContainer}>
@@ -285,6 +289,9 @@ export default function WorkoutsScreen() {
         <View style={styles.modalOverlay}>
           <Pressable style={styles.modalBackdrop} onPress={() => setModalVisible(false)} />
           <View style={styles.modalSheet}>
+            <TouchableOpacity style={styles.guideCloseBtn} onPress={() => setModalVisible(false)}>
+              <Feather name="x" size={24} color={colors.textSecondary} />
+            </TouchableOpacity>
             <View style={styles.modalHandle} />
             <Text style={styles.modalTitle}>Choose Workout Type</Text>
             <View style={styles.typeGridModal}>
@@ -304,7 +311,7 @@ export default function WorkoutsScreen() {
                       <Feather name={wt.iconName as any} size={20} color={wt.color} />
                     </View>
                     <View style={styles.typeCardInfo}>
-                      <Text style={[styles.typeCardLabel, { color: Colors.textPrimary }]}>{wt.label}</Text>
+                      <Text style={[styles.typeCardLabel, { color: colors.textPrimary }]}>{wt.label}</Text>
                       <Text style={[styles.intensityTag, { color: intensity.color }]}>{intensity.label}</Text>
                     </View>
                   </TouchableOpacity>
@@ -333,9 +340,9 @@ export default function WorkoutsScreen() {
       <Modal visible={guideModalVisible} animationType="fade" transparent onRequestClose={() => setGuideModalVisible(false)}>
         <View style={styles.modalOverlay}>
           <Pressable style={styles.modalBackdrop} onPress={() => setGuideModalVisible(false)} />
-          <View style={[styles.guideModalSheet, Shadow.glow(Colors.purple)]}>
+          <View style={[styles.guideModalSheet, Shadow.glow(colors.purple)]}>
             <TouchableOpacity style={styles.guideCloseBtn} onPress={() => setGuideModalVisible(false)}>
-              <Feather name="x" size={24} color={Colors.textSecondary} />
+              <Feather name="x" size={24} color={colors.textSecondary} />
             </TouchableOpacity>
             
             {selectedMuscle && (
@@ -351,10 +358,10 @@ export default function WorkoutsScreen() {
                       activeOpacity={0.8}
                       onPress={() => setPopupExercise(ex)}
                     >
-                      <Image source={{ uri: ex.image }} style={styles.guideExerciseImage} />
+                      <Image source={ex.image} style={styles.guideExerciseImage} />
                       <View style={styles.guideExerciseContent}>
                         <View style={styles.guideExerciseHeader}>
-                          <Feather name="check-circle" size={18} color={Colors.purple} />
+                          <Feather name="check-circle" size={18} color={colors.purple} />
                           <Text style={styles.guideExerciseName}>{ex.name}</Text>
                         </View>
                         <Text style={styles.guideExerciseTips}>{ex.tips}</Text>
@@ -378,22 +385,22 @@ export default function WorkoutsScreen() {
         <View style={styles.modalOverlayCenter}>
           <Pressable style={styles.modalBackdrop} onPress={() => setPopupExercise(null)} />
           {popupExercise && (
-            <View style={[styles.popupSheet, Shadow.glow(Colors.blue)]}>
+            <View style={[styles.popupSheet, Shadow.glow(colors.blue)]}>
               <View style={styles.popupHeader}>
                 <Text style={styles.popupTitle}>{popupExercise.name}</Text>
                 <TouchableOpacity onPress={() => setPopupExercise(null)} style={styles.popupCloseBtn}>
-                  <Feather name="x" size={24} color={Colors.textSecondary} />
+                  <Feather name="x" size={24} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
               <View style={styles.popupAnimationContainer}>
                 <Animated.Image 
-                  source={{ uri: popupExercise.image }} 
+                  source={popupExercise.image} 
                   style={[styles.popupAnimationImage, { transform: [{ scale: scaleAnim }] }]} 
-                  resizeMode="cover"
+                  resizeMode="contain"
                 />
               </View>
               <View style={styles.popupFooter}>
-                <Feather name="info" size={16} color={Colors.blue} />
+                <Feather name="info" size={16} color={colors.blue} />
                 <Text style={styles.popupTips}>{popupExercise.tips}</Text>
               </View>
             </View>
@@ -406,6 +413,8 @@ export default function WorkoutsScreen() {
 }
 
 function SummaryStat({ label, value, color }: { label: string; value: string; color: string }) {
+  const { colors } = useTheme();
+  const styles = useStyles(colors);
   return (
     <View style={styles.summaryStat}>
       <Text style={[styles.summaryValue, { color }]}>{value}</Text>
@@ -414,8 +423,8 @@ function SummaryStat({ label, value, color }: { label: string; value: string; co
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.bg },
+const useStyles = (colors: any) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { flex: 1 },
   timerContainer: { flex: 1, padding: Spacing.md, justifyContent: 'center' },
   content: { padding: Spacing.md, paddingBottom: Spacing.xxl + Spacing.lg, gap: Spacing.md },
@@ -424,11 +433,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginHorizontal: Spacing.md,
     marginTop: Spacing.sm,
-    backgroundColor: Colors.surfaceHighlight,
+    backgroundColor: colors.surfaceHighlight,
     borderRadius: Radius.full,
     padding: 4,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   topTabBtn: {
     flex: 1,
@@ -436,39 +445,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: Radius.full,
   },
-  topTabBtnActive: { backgroundColor: Colors.surface },
-  topTabText: { fontSize: 14, fontWeight: '600', color: Colors.textSecondary },
-  topTabTextActive: { color: Colors.textPrimary },
+  topTabBtnActive: { backgroundColor: colors.surface },
+  topTabText: { fontSize: 14, fontWeight: '600', color: colors.textSecondary },
+  topTabTextActive: { color: colors.textPrimary },
 
-  emptyText: { textAlign: 'center', color: Colors.textSecondary, fontStyle: 'italic', paddingVertical: Spacing.xl },
+  emptyText: { textAlign: 'center', color: colors.textSecondary, fontStyle: 'italic', paddingVertical: Spacing.xl },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  title: { fontSize: 26, fontWeight: '700', color: Colors.textPrimary },
-  subtitle: { fontSize: 14, color: Colors.textSecondary, marginTop: 4 },
-  startBtn: { backgroundColor: Colors.blue, borderRadius: Radius.md, paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm },
+  title: { fontSize: 26, fontWeight: '700', color: colors.textPrimary },
+  subtitle: { fontSize: 14, color: colors.textSecondary, marginTop: 4 },
+  startBtn: { backgroundColor: colors.blue, borderRadius: Radius.md, paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm },
   startBtnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
   
-  summaryCard: { backgroundColor: Colors.surface, borderRadius: Radius.xl, padding: Spacing.lg, borderWidth: 1, borderColor: Colors.border, gap: Spacing.md },
+  summaryCard: { backgroundColor: colors.surface, borderRadius: Radius.xl, padding: Spacing.lg, borderWidth: 1, borderColor: colors.border, gap: Spacing.md },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
   summaryStat: { alignItems: 'center', gap: 2 },
   summaryValue: { fontSize: 22, fontWeight: '700' },
-  summaryLabel: { fontSize: 12, color: Colors.textSecondary },
-  divider: { width: 1, height: 40, backgroundColor: Colors.border },
+  summaryLabel: { fontSize: 12, color: colors.textSecondary },
+  divider: { width: 1, height: 40, backgroundColor: colors.border },
   
-  section: { backgroundColor: Colors.surface, borderRadius: Radius.xl, padding: Spacing.lg, borderWidth: 1, borderColor: Colors.border, gap: Spacing.md },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
+  section: { backgroundColor: colors.surface, borderRadius: Radius.xl, padding: Spacing.lg, borderWidth: 1, borderColor: colors.border, gap: Spacing.md },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: colors.textPrimary },
   typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   typeChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: Radius.full, borderWidth: 1 },
   typeLabel: { fontSize: 13, fontWeight: '600' },
   
   workoutList: { gap: Spacing.sm },
-  workoutItem: { flexDirection: 'row', alignItems: 'center', padding: Spacing.md, backgroundColor: Colors.surfaceHighlight, borderRadius: Radius.md, gap: Spacing.md },
+  workoutItem: { flexDirection: 'row', alignItems: 'center', padding: Spacing.md, backgroundColor: colors.surfaceHighlight, borderRadius: Radius.md, gap: Spacing.md },
   workoutIcon: { width: 48, height: 48, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
   workoutInfo: { flex: 1, gap: 2 },
-  workoutType: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
-  workoutMeta: { fontSize: 12, color: Colors.textSecondary },
+  workoutType: { fontSize: 15, fontWeight: '600', color: colors.textPrimary },
+  workoutMeta: { fontSize: 12, color: colors.textSecondary },
   workoutCalories: { alignItems: 'flex-end' },
   calValue: { fontSize: 16, fontWeight: '700' },
-  calUnit: { fontSize: 11, color: Colors.textSecondary },
+  calUnit: { fontSize: 11, color: colors.textSecondary },
 
   anatomyContainer: {
     width: '100%',
@@ -476,12 +485,12 @@ const styles = StyleSheet.create({
     borderRadius: Radius.xl,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     marginBottom: Spacing.sm,
   },
   anatomyImage: { width: '100%', height: '100%' },
   anatomyOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -490,55 +499,55 @@ const styles = StyleSheet.create({
   anatomySubtitle: { fontSize: 14, color: '#e0e0e0', fontWeight: '500' },
   
   muscleGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.md, justifyContent: 'space-between' },
-  muscleCard: { width: '47%', backgroundColor: Colors.surface, borderRadius: Radius.lg, padding: Spacing.md, borderWidth: 1, alignItems: 'center', gap: Spacing.sm },
+  muscleCard: { width: '47%', backgroundColor: colors.surface, borderRadius: Radius.lg, padding: Spacing.md, borderWidth: 1, alignItems: 'center', gap: Spacing.sm },
   muscleIconBox: { width: 48, height: 48, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
-  muscleName: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
-  muscleDesc: { fontSize: 11, color: Colors.textSecondary, textAlign: 'center' },
+  muscleName: { fontSize: 16, fontWeight: '700', color: colors.textPrimary },
+  muscleDesc: { fontSize: 11, color: colors.textSecondary, textAlign: 'center' },
 
   modalOverlay: { flex: 1, justifyContent: 'flex-end' },
-  modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.7)' },
-  modalSheet: { backgroundColor: Colors.surface, borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl, padding: Spacing.lg, paddingBottom: 40, borderWidth: 1, borderBottomWidth: 0, borderColor: Colors.border, gap: Spacing.md },
-  modalHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: Colors.surfaceHighlight, alignSelf: 'center', marginBottom: Spacing.sm },
-  modalTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary },
+  modalBackdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.7)' },
+  modalSheet: { backgroundColor: colors.surface, borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl, padding: Spacing.lg, paddingBottom: 40, borderWidth: 1, borderBottomWidth: 0, borderColor: colors.border, gap: Spacing.md },
+  modalHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: colors.surfaceHighlight, alignSelf: 'center', marginBottom: Spacing.sm },
+  modalTitle: { fontSize: 20, fontWeight: '700', color: colors.textPrimary },
   
   typeGridModal: { gap: Spacing.sm },
-  typeCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, padding: Spacing.md, borderRadius: Radius.md, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.surfaceHighlight },
+  typeCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, padding: Spacing.md, borderRadius: Radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceHighlight },
   typeIconBox: { width: 40, height: 40, borderRadius: Radius.sm, alignItems: 'center', justifyContent: 'center' },
   typeCardInfo: { flex: 1, gap: 4 },
   typeCardLabel: { fontSize: 16, fontWeight: '600' },
   intensityTag: { fontSize: 12, fontWeight: '500' },
   
-  beginBtn: { backgroundColor: Colors.blue, borderRadius: Radius.md, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.sm },
-  beginBtnDisabled: { backgroundColor: Colors.surfaceHighlight },
+  beginBtn: { backgroundColor: colors.blue, borderRadius: Radius.md, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.sm },
+  beginBtnDisabled: { backgroundColor: colors.surfaceHighlight },
   beginBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
 
   guideModalSheet: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     margin: Spacing.lg,
     marginTop: 100,
     borderRadius: Radius.xl,
     padding: Spacing.xl,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     maxHeight: '70%',
   },
   guideCloseBtn: { position: 'absolute', top: Spacing.md, right: Spacing.md, zIndex: 10, padding: 4 },
-  guideTitle: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginBottom: Spacing.lg },
+  guideTitle: { fontSize: 24, fontWeight: '800', color: colors.textPrimary, marginBottom: Spacing.lg },
   guideList: { gap: Spacing.md },
-  guideExerciseCard: { backgroundColor: Colors.surfaceHighlight, borderRadius: Radius.lg, overflow: 'hidden', marginBottom: Spacing.md, borderWidth: 1, borderColor: Colors.border },
+  guideExerciseCard: { backgroundColor: colors.surfaceHighlight, borderRadius: Radius.lg, overflow: 'hidden', marginBottom: Spacing.md, borderWidth: 1, borderColor: colors.border },
   guideExerciseImage: { width: '100%', height: 160 },
   guideExerciseContent: { padding: Spacing.md },
   guideExerciseHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.sm },
-  guideExerciseName: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
-  guideExerciseTips: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
+  guideExerciseName: { fontSize: 16, fontWeight: '700', color: colors.textPrimary },
+  guideExerciseTips: { fontSize: 13, color: colors.textSecondary, lineHeight: 20 },
   
   modalOverlayCenter: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.85)' },
-  popupSheet: { width: '90%', backgroundColor: Colors.surface, borderRadius: Radius.xl, overflow: 'hidden', borderWidth: 1, borderColor: Colors.border },
-  popupHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: Spacing.lg, borderBottomWidth: 1, borderBottomColor: Colors.border },
-  popupTitle: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
+  popupSheet: { width: '90%', backgroundColor: colors.surface, borderRadius: Radius.xl, overflow: 'hidden', borderWidth: 1, borderColor: colors.border },
+  popupHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: Spacing.lg, borderBottomWidth: 1, borderBottomColor: colors.border },
+  popupTitle: { fontSize: 20, fontWeight: '800', color: colors.textPrimary },
   popupCloseBtn: { padding: 4 },
   popupAnimationContainer: { width: '100%', height: 300, backgroundColor: '#000', overflow: 'hidden' },
   popupAnimationImage: { width: '100%', height: '100%', opacity: 0.8 },
-  popupFooter: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.sm, padding: Spacing.lg, backgroundColor: Colors.surfaceHighlight, borderTopWidth: 1, borderTopColor: Colors.border },
-  popupTips: { flex: 1, fontSize: 14, color: Colors.textSecondary, lineHeight: 22 },
+  popupFooter: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.sm, padding: Spacing.lg, backgroundColor: colors.surfaceHighlight, borderTopWidth: 1, borderTopColor: colors.border },
+  popupTips: { flex: 1, fontSize: 14, color: colors.textSecondary, lineHeight: 22 },
 });
