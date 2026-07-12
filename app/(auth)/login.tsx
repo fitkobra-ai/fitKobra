@@ -142,6 +142,7 @@ export default function LoginScreen() {
             <TouchableOpacity style={styles.socialBtn} onPress={() => handleSocialLogin('Google')} activeOpacity={0.7}>
               <MaterialCommunityIcons name="google" size={24} color="#DB4437" />
             </TouchableOpacity>
+            
             {/* Hidden for now: Apple and Microsoft */}
           </View>
         </View>

@@ -1,4 +1,7 @@
 import { app } from './firebase';
+import 'web-streams-polyfill/polyfill';
+import 'react-native-get-random-values';
+import { getAI, getGenerativeModel, GoogleAIBackend } from 'firebase/ai';
 
 let ai: any = null;
 let visionModel: any = null;
@@ -7,10 +10,7 @@ let textModel: any = null;
 async function initAI() {
   if (!ai) {
     try {
-      await import('web-streams-polyfill/polyfill');
-      await import('react-native-get-random-values');
-      const { getAI, getGenerativeModel } = await import('firebase/ai');
-      ai = getAI(app);
+      ai = getAI(app, { backend: new GoogleAIBackend() });
       visionModel = getGenerativeModel(ai, { model: 'gemini-1.5-flash' });
       textModel = getGenerativeModel(ai, { model: 'gemini-1.5-pro' });
     } catch (e) {

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   View, Text, StyleSheet, TextInput, TouchableOpacity, 
   FlatList, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator
@@ -8,6 +8,8 @@ import { Feather } from '@expo/vector-icons';
 import { Spacing, Radius, Shadow } from '../../constants/Theme';
 import { generateWorkoutAdvice } from '../../services/ai';
 import { useApp } from '../../contexts/AppContext';
+import Markdown from 'react-native-markdown-display';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface Message {
   id: string;
@@ -26,6 +28,16 @@ export default function AiCoachScreen() {
   const [loading, setLoading] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
+  const markdownStyles = {
+    body: { color: colors.text, fontSize: 15, lineHeight: 22 },
+    heading1: { color: colors.text, fontSize: 20, fontWeight: 'bold' as const, marginTop: 10, marginBottom: 5 },
+    heading2: { color: colors.text, fontSize: 18, fontWeight: 'bold' as const, marginTop: 10, marginBottom: 5 },
+    strong: { color: colors.text, fontWeight: 'bold' as const },
+    bullet_list: { marginBottom: 10 },
+    list_item: { marginBottom: 5 },
+    code_block: { backgroundColor: colors.surfaceHighlight, padding: 10, borderRadius: 5, color: colors.text },
+  };
+
   const styles = StyleSheet.create({
     safe: {
       flex: 1,
@@ -40,60 +52,103 @@ export default function AiCoachScreen() {
       alignItems: 'center',
       paddingTop: Platform.OS === 'android' ? 40 : Spacing.m,
     },
+    headerIconContainer: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: Spacing.s,
+    },
     headerTitle: {
       color: colors.text,
-      fontSize: 20,
+      fontSize: 22,
       fontWeight: 'bold',
-      marginLeft: Spacing.s,
+    },
+    headerSubtitle: {
+      color: colors.textMuted,
+      fontSize: 12,
     },
     chatContainer: {
-      flex: 1,
+      flexGrow: 1,
       padding: Spacing.m,
+    },
+    messageRow: {
+      flexDirection: 'row',
+      marginBottom: Spacing.l,
+      alignItems: 'flex-end',
+    },
+    modelRow: {
+      justifyContent: 'flex-start',
+    },
+    userRow: {
+      justifyContent: 'flex-end',
+    },
+    avatar: {
+      width: 30,
+      height: 30,
+      borderRadius: 15,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: Spacing.s,
+      marginBottom: 4,
     },
     messageBubble: {
-      maxWidth: '85%',
-      padding: Spacing.m,
-      borderRadius: Radius.l,
-      marginBottom: Spacing.m,
+      maxWidth: '80%',
+      paddingHorizontal: Spacing.l,
+      paddingVertical: Spacing.m,
+      ...Shadow.card,
     },
     userBubble: {
-      alignSelf: 'flex-end',
       backgroundColor: colors.primary,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      borderBottomLeftRadius: 20,
       borderBottomRightRadius: 4,
     },
     modelBubble: {
-      alignSelf: 'flex-start',
       backgroundColor: colors.card,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      borderBottomRightRadius: 20,
       borderBottomLeftRadius: 4,
       borderWidth: 1,
       borderColor: colors.border,
     },
     messageText: {
-      color: colors.text,
+      color: 'white',
       fontSize: 15,
       lineHeight: 22,
     },
-    inputContainer: {
-      flexDirection: 'row',
-      padding: Spacing.m,
+    inputWrapper: {
       backgroundColor: colors.surfaceHighlight,
+      padding: Spacing.m,
+      paddingBottom: Platform.OS === 'ios' ? 30 : Spacing.m,
       borderTopWidth: 1,
       borderTopColor: colors.border,
+    },
+    inputContainer: {
+      flexDirection: 'row',
+      backgroundColor: colors.bg,
+      borderRadius: 25,
+      paddingHorizontal: Spacing.m,
+      paddingVertical: Spacing.s,
       alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
     },
     input: {
       flex: 1,
-      backgroundColor: colors.bg,
       color: colors.text,
-      padding: Spacing.m,
-      borderRadius: Radius.full,
-      maxHeight: 100,
+      fontSize: 16,
+      maxHeight: 120,
+      paddingTop: Spacing.s,
+      paddingBottom: Spacing.s,
     },
     sendBtn: {
-      backgroundColor: colors.primary,
-      width: 44,
-      height: 44,
-      borderRadius: 22,
+      width: 36,
+      height: 36,
+      borderRadius: 18,
       justifyContent: 'center',
       alignItems: 'center',
       marginLeft: Spacing.s,
@@ -101,8 +156,23 @@ export default function AiCoachScreen() {
     disclaimer: {
       textAlign: 'center',
       color: colors.textMuted,
-      fontSize: 11,
-      marginVertical: Spacing.s,
+      fontSize: 12,
+      marginBottom: Spacing.xl,
+    },
+    typingIndicator: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      padding: Spacing.m,
+      borderRadius: 20,
+      borderBottomLeftRadius: 4,
+      alignSelf: 'flex-start',
+      marginLeft: 38,
+    },
+    typingText: {
+      color: colors.textMuted,
+      marginLeft: Spacing.s,
+      fontSize: 14,
     }
   });
 
@@ -115,7 +185,6 @@ export default function AiCoachScreen() {
     setInput('');
     setLoading(true);
 
-    // Build context
     const context = `
       Today steps: ${todayStats.steps}. 
       Recent workouts: ${workouts.slice(0, 5).map(w => `${w.type} for ${Math.round(w.durationSeconds/60)}min`).join(', ')}.
@@ -139,11 +208,19 @@ export default function AiCoachScreen() {
       <KeyboardAvoidingView 
         style={{ flex: 1 }} 
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
         <View style={styles.header}>
-          <Feather name="cpu" size={24} color={colors.primary} />
-          <Text style={styles.headerTitle}>AI Coach</Text>
+          <LinearGradient
+            colors={['#8A2387', '#E94057', '#F27121']}
+            style={styles.headerIconContainer}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+          >
+            <Feather name="cpu" size={20} color="white" />
+          </LinearGradient>
+          <View>
+            <Text style={styles.headerTitle}>FitPulse AI</Text>
+            <Text style={styles.headerSubtitle}>Always here to help</Text>
+          </View>
         </View>
 
         <FlatList
@@ -154,30 +231,63 @@ export default function AiCoachScreen() {
           onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
           ListHeaderComponent={
             <Text style={styles.disclaimer}>
-              FitPulse AI provides general fitness advice, not medical instruction.
+              FitPulse AI provides general fitness advice. It is not a substitute for professional medical instruction.
             </Text>
           }
           renderItem={({ item }) => (
-            <View style={[styles.messageBubble, item.role === 'user' ? styles.userBubble : styles.modelBubble]}>
-              <Text style={styles.messageText}>{item.text}</Text>
+            <View style={[styles.messageRow, item.role === 'user' ? styles.userRow : styles.modelRow]}>
+              {item.role === 'model' && (
+                <LinearGradient
+                  colors={['#8A2387', '#E94057']}
+                  style={styles.avatar}
+                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                >
+                  <Feather name="cpu" size={14} color="white" />
+                </LinearGradient>
+              )}
+              
+              <View style={[styles.messageBubble, item.role === 'user' ? styles.userBubble : styles.modelBubble]}>
+                {item.role === 'user' ? (
+                  <Text style={styles.messageText}>{item.text}</Text>
+                ) : (
+                  <Markdown style={markdownStyles}>
+                    {item.text}
+                  </Markdown>
+                )}
+              </View>
             </View>
           )}
-          ListFooterComponent={loading ? <ActivityIndicator color={colors.primary} style={{ margin: Spacing.m }} /> : null}
+          ListFooterComponent={
+            loading ? (
+              <View style={styles.typingIndicator}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={styles.typingText}>AI is thinking...</Text>
+              </View>
+            ) : null
+          }
         />
 
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Ask for a workout..."
-            placeholderTextColor={colors.textMuted}
-            value={input}
-            onChangeText={setInput}
-            multiline
-            maxLength={300}
-          />
-          <TouchableOpacity style={styles.sendBtn} onPress={sendMessage} disabled={loading || !input.trim()}>
-            <Feather name="send" size={20} color="white" />
-          </TouchableOpacity>
+        <View style={styles.inputWrapper}>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Message FitPulse AI..."
+              placeholderTextColor={colors.textMuted}
+              value={input}
+              onChangeText={setInput}
+              multiline
+              maxLength={500}
+            />
+            <TouchableOpacity onPress={sendMessage} disabled={loading || !input.trim()}>
+              <LinearGradient
+                colors={input.trim() ? ['#8A2387', '#E94057'] : [colors.border, colors.border]}
+                style={styles.sendBtn}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+              >
+                <Feather name="arrow-up" size={18} color={input.trim() ? "white" : colors.textMuted} />
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

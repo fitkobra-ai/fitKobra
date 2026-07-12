@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Image, ScrollView, Linking } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Feather } from '@expo/vector-icons';
@@ -126,15 +126,36 @@ export default function RecipeScannerScreen() {
   });
 
   if (!permission) {
-    return <View style={styles.container} />;
+    return (
+      <View style={styles.centerContent}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
   }
 
   if (!permission.granted) {
     return (
       <View style={styles.centerContent}>
-        <Text style={styles.text}>We need your permission to show the camera</Text>
-        <TouchableOpacity style={styles.btn} onPress={requestPermission}>
-          <Text style={styles.btnText}>Grant Permission</Text>
+        <Feather name="camera-off" size={64} color={colors.textMuted} style={{ marginBottom: Spacing.m }} />
+        <Text style={[styles.text, { fontSize: 18, fontWeight: 'bold' }]}>Camera Access Needed</Text>
+        <Text style={[styles.text, { marginBottom: Spacing.xl }]}>
+          We need your permission to scan food items for recipe and calorie estimation.
+        </Text>
+        <TouchableOpacity 
+          style={styles.btn} 
+          onPress={() => {
+            if (!permission.canAskAgain) {
+              Linking.openSettings();
+            } else {
+              requestPermission();
+            }
+          }}
+        >
+          <Text style={styles.btnText}>{!permission.canAskAgain ? "Open Settings" : "Grant Permission"}</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={{ marginTop: Spacing.l }} onPress={() => router.back()}>
+          <Text style={{ color: colors.textMuted }}>Go Back</Text>
         </TouchableOpacity>
       </View>
     );
