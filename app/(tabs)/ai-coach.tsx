@@ -121,8 +121,14 @@ export default function AiCoachScreen() {
       Recent workouts: ${workouts.slice(0, 5).map(w => `${w.type} for ${Math.round(w.durationSeconds/60)}min`).join(', ')}.
     `;
 
-    const response = await generateWorkoutAdvice(context, userText);
-    
+    let response: string;
+    try {
+      response = await generateWorkoutAdvice(context, userText);
+    } catch (error) {
+      console.error('AI coach error:', error);
+      response = "I'm having trouble connecting right now. Please try again in a moment!";
+    }
+
     const botMsg: Message = { id: (Date.now() + 1).toString(), role: 'model', text: response };
     setMessages(prev => [...prev, botMsg]);
     setLoading(false);

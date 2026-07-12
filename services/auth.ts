@@ -10,11 +10,6 @@ import {
   type User,
 } from 'firebase/auth';
 import { auth } from './firebase';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
-
-GoogleSignin.configure({
-  webClientId: '1062137796931-cnvf4pmeqkkkofj0q2qmsv216m8revs3.apps.googleusercontent.com', // Firebase Web Client ID
-});
 
 export async function signUpWithEmail(
   email: string,
@@ -32,13 +27,7 @@ export async function signInWithEmail(email: string, password: string): Promise<
 }
 
 export async function signInWithGoogle(): Promise<User> {
-  await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-  const { data } = await GoogleSignin.signIn();
-  if (!data?.idToken) throw new Error('No ID token returned from Google Sign-In');
-  
-  const credential = GoogleAuthProvider.credential(data.idToken);
-  const cred = await signInWithCredential(auth, credential);
-  return cred.user;
+  throw new Error('Google Sign-in is currently disabled for Native compatibility.');
 }
 
 export async function signOut(): Promise<void> {

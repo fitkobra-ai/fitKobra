@@ -6,6 +6,7 @@ import {
   ScrollView,
   StatusBar,
   SafeAreaView,
+  TouchableOpacity,
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Feather } from '@expo/vector-icons';

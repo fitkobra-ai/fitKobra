@@ -1,12 +1,23 @@
-import { getVertexAI, getGenerativeModel } from 'firebase/vertexai';
 import { app } from './firebase';
 
-// Initialize Vertex AI
-const vertexAI = getVertexAI(app);
+let ai: any = null;
+let visionModel: any = null;
+let textModel: any = null;
 
-// Initialize Models
-const visionModel = getGenerativeModel(vertexAI, { model: 'gemini-1.5-flash' });
-const textModel = getGenerativeModel(vertexAI, { model: 'gemini-1.5-pro' });
+async function initAI() {
+  if (!ai) {
+    try {
+      await import('web-streams-polyfill/polyfill');
+      await import('react-native-get-random-values');
+      const { getAI, getGenerativeModel } = await import('firebase/ai');
+      ai = getAI(app);
+      visionModel = getGenerativeModel(ai, { model: 'gemini-1.5-flash' });
+      textModel = getGenerativeModel(ai, { model: 'gemini-1.5-pro' });
+    } catch (e) {
+      console.error("Failed to initialize Vertex AI:", e);
+    }
+  }
+}
 
 export interface RecipeResult {
   recipeName: string;
@@ -19,6 +30,9 @@ export interface RecipeResult {
 }
 
 export async function generateRecipeFromImage(base64Image: string, mimeType: string): Promise<RecipeResult | null> {
+  await initAI();
+  if (!visionModel) return null;
+  
   try {
     const prompt = `
       Analyze this image of food or ingredients. 
@@ -62,6 +76,10 @@ export async function generateRecipeFromImage(base64Image: string, mimeType: str
 }
 
 export async function generateWorkoutAdvice(historyContext: string, userMessage: string): Promise<string> {
+  await initAI();
+  if (!textModel) {
+    return "I'm having trouble loading my AI model right now. Please check your internet connection and try again!";
+  }
   try {
     const systemPrompt = `
       You are an expert AI Personal Trainer for FitPulse.
@@ -88,6 +106,9 @@ export async function generateWorkoutAdvice(historyContext: string, userMessage:
 }
 
 export async function parseVoiceWorkout(transcription: string): Promise<any | null> {
+  await initAI();
+  if (!textModel) return null;
+  
   try {
     const prompt = `
       You are a fitness parsing assistant.

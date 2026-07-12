@@ -1,9 +1,20 @@
+import 'react-native-url-polyfill/auto';
+import 'react-native-get-random-values';
+import 'web-streams-polyfill/polyfill';
 import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Alert } from 'react-native';
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { AppProvider, useApp } from '../contexts/AppContext';
 import { ThemeProvider, useTheme } from '../contexts/ThemeContext';
+
+const defaultErrorHandler = (global as any).ErrorUtils?.getGlobalHandler?.();
+if ((global as any).ErrorUtils) {
+  (global as any).ErrorUtils.setGlobalHandler((error: any, isFatal: boolean) => {
+    Alert.alert("JS Crash Caught!", `${error.name}: ${error.message}\n\n${error.stack}`);
+    // Not calling default handler so it doesn't crash to home screen immediately
+  });
+}
 
 function AuthRouter() {
   const { user, loading: authLoading, isConfigured } = useAuth();
