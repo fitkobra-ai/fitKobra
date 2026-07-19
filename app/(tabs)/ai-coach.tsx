@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { 
   View, Text, StyleSheet, TextInput, TouchableOpacity, 
-  FlatList, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator
+  FlatList, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator, Image
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Feather } from '@expo/vector-icons';
@@ -210,13 +210,12 @@ export default function AiCoachScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={styles.header}>
-          <LinearGradient
-            colors={['#8A2387', '#E94057', '#F27121']}
-            style={styles.headerIconContainer}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          >
-            <Feather name="cpu" size={20} color="white" />
-          </LinearGradient>
+          <View style={styles.headerIconContainer}>
+            <Image 
+              source={require('../../assets/images/ai-avatar.png')} 
+              style={{ width: 40, height: 40, borderRadius: 20 }} 
+            />
+          </View>
           <View>
             <Text style={styles.headerTitle}>FitPulse AI</Text>
             <Text style={styles.headerSubtitle}>Always here to help</Text>
@@ -237,13 +236,12 @@ export default function AiCoachScreen() {
           renderItem={({ item }) => (
             <View style={[styles.messageRow, item.role === 'user' ? styles.userRow : styles.modelRow]}>
               {item.role === 'model' && (
-                <LinearGradient
-                  colors={['#8A2387', '#E94057']}
-                  style={styles.avatar}
-                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                >
-                  <Feather name="cpu" size={14} color="white" />
-                </LinearGradient>
+                <View style={styles.avatar}>
+                  <Image 
+                    source={require('../../assets/images/ai-avatar.png')} 
+                    style={{ width: 30, height: 30, borderRadius: 15 }} 
+                  />
+                </View>
               )}
               
               <View style={[styles.messageBubble, item.role === 'user' ? styles.userBubble : styles.modelBubble]}>
