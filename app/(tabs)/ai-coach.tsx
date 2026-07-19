@@ -212,7 +212,7 @@ export default function AiCoachScreen() {
         <View style={styles.header}>
           <View style={styles.headerIconContainer}>
             <Image 
-              source={require('../../assets/images/ai-avatar.png')} 
+              source={require('../../assets/images/ai-avatar.jpg')} 
               style={{ width: 40, height: 40, borderRadius: 20 }} 
             />
           </View>
@@ -238,7 +238,7 @@ export default function AiCoachScreen() {
               {item.role === 'model' && (
                 <View style={styles.avatar}>
                   <Image 
-                    source={require('../../assets/images/ai-avatar.png')} 
+                    source={require('../../assets/images/ai-avatar.jpg')} 
                     style={{ width: 30, height: 30, borderRadius: 15 }} 
                   />
                 </View>
