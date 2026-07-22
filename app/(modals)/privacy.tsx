@@ -75,18 +75,18 @@ export default function PrivacyScreen() {
         <View style={styles.disclaimerBox}>
           <Text style={styles.disclaimerText}>Medical Disclaimer</Text>
           <Text style={[styles.paragraph, { color: colors.text, marginBottom: 0 }]}>
-            FitPulse and its AI Coach provide educational fitness suggestions and estimations, NOT medical advice. Always consult a physician or healthcare provider before starting any rigorous exercise program or making significant dietary changes.
+            KinexFit and its AI Coach provide educational fitness suggestions and estimations, NOT medical advice. Always consult a physician or healthcare provider before starting any rigorous exercise program or making significant dietary changes.
           </Text>
         </View>
 
         <Text style={styles.sectionTitle}>1. Data Collection & Privacy</Text>
         <Text style={styles.paragraph}>
-          We take your privacy seriously. FitPulse does not sell your personal data. Workout logs, goals, and statistics are stored securely to provide you with insights and track your progress over time.
+          We take your privacy seriously. KinexFit does not sell your personal data. Workout logs, goals, and statistics are stored securely to provide you with insights and track your progress over time.
         </Text>
 
         <Text style={styles.sectionTitle}>2. AI Features & Permissions</Text>
         <Text style={styles.paragraph}>
-          FitPulse utilizes artificial intelligence (Google Gemini) to power features like Snap-to-Recipe, AI Coach, and Voice Logging. 
+          KinexFit utilizes artificial intelligence (Google Gemini) to power features like Snap-to-Recipe, AI Coach, and Voice Logging. 
         </Text>
         <Text style={styles.paragraph}>
           • **Camera Access:** When using the Snap-to-Recipe feature, photos are securely processed by the AI to identify ingredients and estimate nutrition. These photos are NEVER stored permanently on our servers or used for model training without consent.

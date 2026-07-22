@@ -1,9 +1,16 @@
 import 'react-native-url-polyfill/auto';
 import 'react-native-get-random-values';
-import 'web-streams-polyfill/polyfill';
+import { ReadableStream, TransformStream, WritableStream } from 'web-streams-polyfill';
+if (typeof global.ReadableStream === 'undefined') {
+  global.ReadableStream = ReadableStream as any;
+  global.TransformStream = TransformStream as any;
+  global.WritableStream = WritableStream as any;
+}
 import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
-import { View, ActivityIndicator, Alert } from 'react-native';
+import { View, ActivityIndicator, Alert, LogBox } from 'react-native';
+
+LogBox.ignoreAllLogs();
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { AppProvider, useApp } from '../contexts/AppContext';
 import { ThemeProvider, useTheme } from '../contexts/ThemeContext';
@@ -15,6 +22,19 @@ if ((global as any).ErrorUtils) {
     // Not calling default handler so it doesn't crash to home screen immediately
   });
 }
+
+// Suppress specific harmless console.error messages (like Metro HMR timeouts on web)
+const originalConsoleError = console.error;
+console.error = (...args) => {
+  const firstArg = args[0];
+  const isTimeoutString = typeof firstArg === 'string' && firstArg.includes('12000ms timeout exceeded');
+  const isTimeoutError = firstArg instanceof Error && firstArg.message.includes('12000ms timeout exceeded');
+  
+  if (isTimeoutString || isTimeoutError) {
+    return;
+  }
+  originalConsoleError(...args);
+};
 
 function AuthRouter() {
   const { user, loading: authLoading, isConfigured } = useAuth();

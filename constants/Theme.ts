@@ -7,6 +7,7 @@ export const DarkColors = {
   border: '#2A2A2A',
 
   // Text
+  text: '#FFFFFF',
   textPrimary: '#FFFFFF',
   textSecondary: '#A1A1AA',
   textMuted: '#52525B',
@@ -43,6 +44,7 @@ export const LightColors = {
   surfaceHighlight: '#E4E4E7',
   border: '#D4D4D8',
 
+  text: '#000000',
   textPrimary: '#000000',
   textSecondary: '#52525B',
   textMuted: '#A1A1AA',

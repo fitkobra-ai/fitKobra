@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, Text, StyleSheet, TextInput, TouchableOpacity, 
-  FlatList, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator, Image
+  FlatList, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator, Image,
+  LayoutAnimation, UIManager, ScrollView
 } from 'react-native';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Feather } from '@expo/vector-icons';
@@ -11,31 +12,46 @@ import { useApp } from '../../contexts/AppContext';
 import Markdown from 'react-native-markdown-display';
 import { LinearGradient } from 'expo-linear-gradient';
 
+// Enable LayoutAnimation for Android
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
 interface Message {
   id: string;
   role: 'user' | 'model';
   text: string;
 }
 
+const SUGGESTED_PROMPTS = [
+  "🔥 Plan a 20-min HIIT workout",
+  "🥗 What should I eat post-workout?",
+  "🧘‍♀️ Guide me through a stretching routine",
+  "😴 How can I improve my sleep?"
+];
+
 export default function AiCoachScreen() {
   const { colors } = useTheme();
   const { workouts, todayStats } = useApp();
   
   const [messages, setMessages] = useState<Message[]>([
-    { id: '1', role: 'model', text: "Hi! I'm your FitPulse AI Coach. Tell me how you're feeling today or ask me to generate a workout plan for you!" }
+    { id: '1', role: 'model', text: "Hi! I'm your KinexFit AI Coach. How can I help you crush your fitness goals today?" }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
   const markdownStyles = {
-    body: { color: colors.text, fontSize: 15, lineHeight: 22 },
-    heading1: { color: colors.text, fontSize: 20, fontWeight: 'bold' as const, marginTop: 10, marginBottom: 5 },
-    heading2: { color: colors.text, fontSize: 18, fontWeight: 'bold' as const, marginTop: 10, marginBottom: 5 },
+    body: { color: colors.text, fontSize: 15, lineHeight: 22, flexShrink: 1 },
+    paragraph: { marginTop: 4, marginBottom: 4 },
+    heading1: { color: colors.text, fontSize: 20, fontWeight: 'bold' as const, marginTop: 8, marginBottom: 8 },
+    heading2: { color: colors.text, fontSize: 18, fontWeight: 'bold' as const, marginTop: 8, marginBottom: 8 },
     strong: { color: colors.text, fontWeight: 'bold' as const },
-    bullet_list: { marginBottom: 10 },
-    list_item: { marginBottom: 5 },
-    code_block: { backgroundColor: colors.surfaceHighlight, padding: 10, borderRadius: 5, color: colors.text },
+    bullet_list: { marginBottom: 8 },
+    ordered_list: { marginBottom: 8 },
+    list_item: { marginBottom: 4 },
+    code_block: { backgroundColor: colors.bg, padding: 8, borderRadius: Radius.m, color: colors.text, overflow: 'hidden' as const },
+    fence: { backgroundColor: colors.bg, padding: 8, borderRadius: Radius.m, color: colors.text, overflow: 'hidden' as const },
   };
 
   const styles = StyleSheet.create({
@@ -53,30 +69,34 @@ export default function AiCoachScreen() {
       paddingTop: Platform.OS === 'android' ? 40 : Spacing.m,
     },
     headerIconContainer: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
+      width: 44,
+      height: 44,
+      borderRadius: 22,
       justifyContent: 'center',
       alignItems: 'center',
-      marginRight: Spacing.s,
+      marginRight: Spacing.m,
+      ...Shadow.light,
     },
     headerTitle: {
       color: colors.text,
-      fontSize: 22,
-      fontWeight: 'bold',
+      fontSize: 20,
+      fontWeight: '800',
     },
     headerSubtitle: {
-      color: colors.textMuted,
-      fontSize: 12,
+      color: colors.primary,
+      fontSize: 13,
+      fontWeight: '600',
     },
     chatContainer: {
       flexGrow: 1,
       padding: Spacing.m,
+      paddingBottom: Spacing.xl,
     },
     messageRow: {
       flexDirection: 'row',
       marginBottom: Spacing.l,
       alignItems: 'flex-end',
+      width: '100%',
     },
     modelRow: {
       justifyContent: 'flex-start',
@@ -85,43 +105,47 @@ export default function AiCoachScreen() {
       justifyContent: 'flex-end',
     },
     avatar: {
-      width: 30,
-      height: 30,
-      borderRadius: 15,
+      width: 32,
+      height: 32,
+      borderRadius: 16,
       justifyContent: 'center',
       alignItems: 'center',
       marginRight: Spacing.s,
       marginBottom: 4,
+      backgroundColor: colors.surfaceHighlight,
+      ...Shadow.light,
     },
     messageBubble: {
-      maxWidth: '80%',
+      maxWidth: '85%',
+      flexShrink: 1,
       paddingHorizontal: Spacing.l,
       paddingVertical: Spacing.m,
       ...Shadow.card,
     },
     userBubble: {
-      backgroundColor: colors.primary,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      borderBottomLeftRadius: 20,
-      borderBottomRightRadius: 4,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      borderBottomLeftRadius: 24,
+      borderBottomRightRadius: 6,
     },
     modelBubble: {
       backgroundColor: colors.card,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      borderBottomRightRadius: 20,
-      borderBottomLeftRadius: 4,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      borderBottomRightRadius: 24,
+      borderBottomLeftRadius: 6,
       borderWidth: 1,
       borderColor: colors.border,
+      overflow: 'hidden', // Prevents markdown text from breaking out of border radius
     },
-    messageText: {
+    userMessageText: {
       color: 'white',
-      fontSize: 15,
-      lineHeight: 22,
+      fontSize: 16,
+      lineHeight: 24,
+      fontWeight: '500',
     },
     inputWrapper: {
-      backgroundColor: colors.surfaceHighlight,
+      backgroundColor: colors.bg,
       padding: Spacing.m,
       paddingBottom: Platform.OS === 'ios' ? 30 : Spacing.m,
       borderTopWidth: 1,
@@ -129,26 +153,28 @@ export default function AiCoachScreen() {
     },
     inputContainer: {
       flexDirection: 'row',
-      backgroundColor: colors.bg,
-      borderRadius: 25,
+      backgroundColor: colors.card,
+      borderRadius: 28,
       paddingHorizontal: Spacing.m,
-      paddingVertical: Spacing.s,
+      paddingVertical: Spacing.xs,
       alignItems: 'center',
       borderWidth: 1,
       borderColor: colors.border,
+      ...Shadow.card,
     },
     input: {
       flex: 1,
       color: colors.text,
       fontSize: 16,
       maxHeight: 120,
-      paddingTop: Spacing.s,
-      paddingBottom: Spacing.s,
+      paddingTop: Spacing.m,
+      paddingBottom: Spacing.m,
+      paddingHorizontal: Spacing.xs,
     },
     sendBtn: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
       justifyContent: 'center',
       alignItems: 'center',
       marginLeft: Spacing.s,
@@ -164,30 +190,72 @@ export default function AiCoachScreen() {
       alignItems: 'center',
       backgroundColor: colors.card,
       padding: Spacing.m,
-      borderRadius: 20,
-      borderBottomLeftRadius: 4,
+      borderRadius: 24,
+      borderBottomLeftRadius: 6,
       alignSelf: 'flex-start',
-      marginLeft: 38,
+      marginLeft: 40,
+      ...Shadow.light,
+      borderWidth: 1,
+      borderColor: colors.border,
     },
     typingText: {
       color: colors.textMuted,
       marginLeft: Spacing.s,
       fontSize: 14,
+      fontWeight: '600',
+    },
+    suggestedContainer: {
+      marginTop: Spacing.l,
+      marginBottom: Spacing.xl,
+      paddingHorizontal: Spacing.m,
+    },
+    suggestedTitle: {
+      color: colors.textMuted,
+      fontSize: 14,
+      fontWeight: '600',
+      marginBottom: Spacing.l,
+      marginLeft: Spacing.xs,
+    },
+    suggestedList: {
+      flexDirection: 'column',
+      gap: Spacing.m,
+    },
+    suggestedItem: {
+      backgroundColor: colors.card,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: Spacing.l,
+      paddingVertical: Spacing.l,
+      borderRadius: Radius.l,
+      borderWidth: 1,
+      borderColor: colors.border,
+      ...Shadow.light,
+    },
+    suggestedItemText: {
+      color: colors.text,
+      fontSize: 15,
+      fontWeight: '500',
     }
   });
 
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+  const animateLayout = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  };
 
-    const userText = input.trim();
+  const handleSend = async (text: string) => {
+    if (!text.trim() || loading) return;
+
+    animateLayout();
+    const userText = text.trim();
     const newMsg: Message = { id: Date.now().toString(), role: 'user', text: userText };
     setMessages(prev => [...prev, newMsg]);
     setInput('');
     setLoading(true);
 
     const context = `
-      Today steps: ${todayStats.steps}. 
-      Recent workouts: ${workouts.slice(0, 5).map(w => `${w.type} for ${Math.round(w.durationSeconds/60)}min`).join(', ')}.
+      Today steps: ${todayStats?.steps || 0}. 
+      Recent workouts: ${(workouts || []).slice(0, 5).map(w => `${w.type} for ${Math.round(w.durationSeconds/60)}min`).join(', ')}.
     `;
 
     let response: string;
@@ -198,6 +266,7 @@ export default function AiCoachScreen() {
       response = "I'm having trouble connecting right now. Please try again in a moment!";
     }
 
+    animateLayout();
     const botMsg: Message = { id: (Date.now() + 1).toString(), role: 'model', text: response };
     setMessages(prev => [...prev, botMsg]);
     setLoading(false);
@@ -213,12 +282,12 @@ export default function AiCoachScreen() {
           <View style={styles.headerIconContainer}>
             <Image 
               source={require('../../assets/images/ai-avatar.jpg')} 
-              style={{ width: 40, height: 40, borderRadius: 20 }} 
+              style={{ width: 44, height: 44, borderRadius: 22 }} 
             />
           </View>
           <View>
-            <Text style={styles.headerTitle}>FitPulse AI</Text>
-            <Text style={styles.headerSubtitle}>Always here to help</Text>
+            <Text style={styles.headerTitle}>KinexFit AI</Text>
+            <Text style={styles.headerSubtitle}>● Online</Text>
           </View>
         </View>
 
@@ -230,36 +299,59 @@ export default function AiCoachScreen() {
           onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
           ListHeaderComponent={
             <Text style={styles.disclaimer}>
-              FitPulse AI provides general fitness advice. It is not a substitute for professional medical instruction.
+              KinexFit AI provides general fitness advice. It is not a substitute for professional medical instruction.
             </Text>
           }
-          renderItem={({ item }) => (
-            <View style={[styles.messageRow, item.role === 'user' ? styles.userRow : styles.modelRow]}>
-              {item.role === 'model' && (
-                <View style={styles.avatar}>
-                  <Image 
-                    source={require('../../assets/images/ai-avatar.jpg')} 
-                    style={{ width: 30, height: 30, borderRadius: 15 }} 
-                  />
-                </View>
-              )}
-              
-              <View style={[styles.messageBubble, item.role === 'user' ? styles.userBubble : styles.modelBubble]}>
+          renderItem={({ item, index }) => (
+            <View>
+              <View style={[styles.messageRow, item.role === 'user' ? styles.userRow : styles.modelRow]}>
+                {item.role === 'model' && (
+                  <View style={styles.avatar}>
+                    <Image 
+                      source={require('../../assets/images/ai-avatar.jpg')} 
+                      style={{ width: 32, height: 32, borderRadius: 16 }} 
+                    />
+                  </View>
+                )}
+                
                 {item.role === 'user' ? (
-                  <Text style={styles.messageText}>{item.text}</Text>
+                  <LinearGradient
+                    colors={['#8A2387', '#E94057', '#F27121']}
+                    start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                    style={[styles.messageBubble, styles.userBubble]}
+                  >
+                    <Text style={styles.userMessageText}>{item.text}</Text>
+                  </LinearGradient>
                 ) : (
-                  <Markdown style={markdownStyles}>
-                    {item.text}
-                  </Markdown>
+                  <View style={[styles.messageBubble, styles.modelBubble]}>
+                    <Markdown style={markdownStyles}>
+                      {item.text}
+                    </Markdown>
+                  </View>
                 )}
               </View>
+
+              {/* Show Suggested Prompts only after the very first AI message */}
+              {index === 0 && messages.length === 1 && !loading && (
+                <View style={styles.suggestedContainer}>
+                  <Text style={styles.suggestedTitle}>✨ Suggested for you</Text>
+                  <View style={styles.suggestedList}>
+                    {SUGGESTED_PROMPTS.map((prompt, i) => (
+                      <TouchableOpacity key={i} onPress={() => handleSend(prompt)} style={styles.suggestedItem}>
+                        <Text style={styles.suggestedItemText}>{prompt}</Text>
+                        <Feather name="chevron-right" size={18} color={colors.primary} />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
             </View>
           )}
           ListFooterComponent={
             loading ? (
               <View style={styles.typingIndicator}>
                 <ActivityIndicator size="small" color={colors.primary} />
-                <Text style={styles.typingText}>AI is thinking...</Text>
+                <Text style={styles.typingText}>KinexFit AI is typing...</Text>
               </View>
             ) : null
           }
@@ -269,14 +361,14 @@ export default function AiCoachScreen() {
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              placeholder="Message FitPulse AI..."
+              placeholder="Ask anything..."
               placeholderTextColor={colors.textMuted}
               value={input}
               onChangeText={setInput}
               multiline
               maxLength={500}
             />
-            <TouchableOpacity onPress={sendMessage} disabled={loading || !input.trim()}>
+            <TouchableOpacity onPress={() => handleSend(input)} disabled={loading || !input.trim()}>
               <LinearGradient
                 colors={input.trim() ? ['#8A2387', '#E94057'] : [colors.border, colors.border]}
                 style={styles.sendBtn}

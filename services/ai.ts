@@ -1,7 +1,6 @@
 import { app } from './firebase';
-import 'web-streams-polyfill/polyfill';
 import 'react-native-get-random-values';
-import { getAI, getGenerativeModel, VertexAIBackend } from 'firebase/ai';
+import { getAI, getGenerativeModel, GoogleAIBackend } from 'firebase/ai';
 
 let ai: any = null;
 let visionModel: any = null;
@@ -10,9 +9,9 @@ let textModel: any = null;
 async function initAI() {
   if (!ai) {
     try {
-      ai = getAI(app, { backend: new VertexAIBackend() });
-      visionModel = getGenerativeModel(ai, { model: 'gemini-1.5-flash' });
-      textModel = getGenerativeModel(ai, { model: 'gemini-1.5-pro' });
+      ai = getAI(app, { backend: new GoogleAIBackend() });
+      visionModel = getGenerativeModel(ai, { model: 'gemini-flash-latest' });
+      textModel = getGenerativeModel(ai, { model: 'gemini-flash-latest' });
     } catch (e) {
       console.error("Failed to initialize Vertex AI:", e);
     }
@@ -75,25 +74,49 @@ export async function generateRecipeFromImage(base64Image: string, mimeType: str
   }
 }
 
+const FAQ_CACHE: Record<string, string> = {
+  "hi": "Hello! I'm KinexFit AI, your elite personal fitness and nutrition coach. How can we crush your goals today? 💪",
+  "hello": "Hi there! I'm your KinexFit AI Coach. Ready to get 1% better today?",
+  "who are you": "I'm KinexFit AI, your world-class personal trainer and nutritionist! I'm here to build custom workouts, analyze your nutrition, and keep you motivated.",
+  "what can you do": "I can create tailored workout routines, suggest healthy meals based on your macros, answer complex fitness questions, and analyze your workout history to keep you progressing!",
+  "thanks": "You're very welcome! Keep up the amazing work. Let me know if you need anything else! 🔥",
+  "thank you": "You got it! I'm always here to help you push your limits.",
+  "how are you": "I'm fully charged and ready to help you train! What are we focusing on today?",
+  "good morning": "Good morning! Rise and grind. Ready for today's workout?",
+  "good night": "Good night! Rest up—recovery is just as important as the workout. Catch you tomorrow!"
+};
+
 export async function generateWorkoutAdvice(historyContext: string, userMessage: string): Promise<string> {
+  const cleanUserMsg = userMessage.trim().toLowerCase().replace(/[^a-z0-9 ]/g, '');
+  if (FAQ_CACHE[cleanUserMsg]) {
+    return FAQ_CACHE[cleanUserMsg];
+  }
+
   await initAI();
   if (!textModel) {
     return "I'm having trouble loading my AI model right now. Please check your internet connection and try again!";
   }
   try {
     const systemPrompt = `
-      You are an expert AI Personal Trainer for FitPulse.
-      The user will ask for workout advice. 
-      You have access to their recent workout history:
+      You are KinexFit AI, an elite, world-class personal trainer and sports nutritionist.
+      Your goal is to provide highly accurate, science-based fitness and nutrition advice.
+      
+      Tone: Encouraging, professional, energetic, and deeply knowledgeable.
+      Format: Use clear bullet points, bold text for emphasis, and keep paragraphs short and punchy.
+      
+      Always tailor your advice based on the user's recent workout history and daily steps:
       ${historyContext}
       
-      Keep your responses concise, motivating, and actionable. Do not use markdown headers, just plain text and bullet points.
+      CRITICAL INSTRUCTIONS:
+      - Keep responses engaging but concise. Avoid long walls of text.
+      - Never break character. You are a passionate fitness coach.
+      - If asked generic questions, be helpful but bring it back to their fitness journey.
     `;
     
     const chat = textModel.startChat({
       history: [
         { role: 'user', parts: [{ text: systemPrompt }] },
-        { role: 'model', parts: [{ text: 'Understood. I am ready to coach.' }] }
+        { role: 'model', parts: [{ text: 'Understood. I am fully primed and ready to coach my client to greatness.' }] }
       ]
     });
 

@@ -7,7 +7,6 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Radius, Spacing, Shadow } from '../../constants/Theme';
-import { Audio } from 'expo-av';
 import { parseVoiceWorkout } from '../../services/ai';
 import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -19,7 +18,6 @@ export default function AddWorkoutScreen() {
   const { addWorkout } = useApp();
   const { user } = useAuth();
   
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [processingVoice, setProcessingVoice] = useState(false);
   
@@ -61,26 +59,13 @@ export default function AddWorkoutScreen() {
   });
 
   const startRecording = async () => {
-    try {
-      await Audio.requestPermissionsAsync();
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
-      const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
-      setRecording(recording);
-      setIsRecording(true);
-    } catch (err) {
-      console.error('Failed to start recording', err);
-    }
+    setIsRecording(true);
   };
 
   const stopRecording = async () => {
-    setRecording(null);
     setIsRecording(false);
-    if (!recording) return;
-
-    await recording.stopAndUnloadAsync();
-    const uri = recording.getURI();
     
-    // In a real app, we would send the `uri` audio file to Whisper or Google Speech-to-Text here.
+    // In a real app, we would send the actual audio file to Whisper or Google Speech-to-Text here.
     // For this implementation, we will mock the transcription result from the audio file
     // to pass into our Vertex AI parsing logic. 
     
@@ -123,24 +108,7 @@ export default function AddWorkoutScreen() {
       </View>
 
       <View style={styles.content}>
-        <View style={styles.aiBox}>
-          <Text style={{ color: colors.text, fontWeight: 'bold' }}>AI Voice Logger</Text>
-          <Text style={{ color: colors.textMuted, textAlign: 'center', marginTop: 4 }}>
-            Tap the mic and say: "I ran 5km in 30 minutes"
-          </Text>
-          
-          <TouchableOpacity 
-            style={styles.micBtn} 
-            onPress={isRecording ? stopRecording : startRecording}
-          >
-            {processingVoice ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <Feather name={isRecording ? "square" : "mic"} size={32} color="white" />
-            )}
-          </TouchableOpacity>
-          {isRecording && <Text style={{ color: colors.red }}>Listening...</Text>}
-        </View>
+        {/* Voice Logger removed from UI */}
 
         <Text style={styles.label}>Workout Type</Text>
         <TextInput style={styles.input} value={type} onChangeText={setType} placeholderTextColor={colors.textMuted} />

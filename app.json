@@ -2,7 +2,7 @@
   "expo": {
     "name": "KinexFit",
     "slug": "kinexfit",
-    "version": "1.0.24",
+    "version": "1.0.29",
     "orientation": "portrait",
     "icon": "./assets/images/truefit-logo.png",
     "scheme": "kinexfit",
@@ -22,7 +22,7 @@
         "backgroundColor": "#0d1117"
       },
       "package": "com.kinexfit.app",
-      "versionCode": 27,
+      "versionCode": 32,
       "softwareKeyboardLayoutMode": "pan",
       "permissions": [
         "android.permission.ACTIVITY_RECOGNITION",
@@ -44,12 +44,7 @@
           "cameraPermission": "KinexFit needs access to your camera to scan food items for recipe and calorie estimation."
         }
       ],
-      [
-        "expo-av",
-        {
-          "microphonePermission": "KinexFit needs access to your microphone so you can log workouts using your voice."
-        }
-      ],
+
       [
         "expo-splash-screen",
         {
