@@ -83,11 +83,16 @@ const FAQ_CACHE: Record<string, string> = {
   "thank you": "You got it! I'm always here to help you push your limits.",
   "how are you": "I'm fully charged and ready to help you train! What are we focusing on today?",
   "good morning": "Good morning! Rise and grind. Ready for today's workout?",
-  "good night": "Good night! Rest up—recovery is just as important as the workout. Catch you tomorrow!"
+  "good night": "Good night! Rest up—recovery is just as important as the workout. Catch you tomorrow!",
+  // Pre-cached suggested prompts for instant replies
+  "plan a 20min hiit workout": "**Here is a 20-Minute Fat-Burning HIIT Routine:**\n\n- **Warm-up (3 mins):** Jumping jacks, arm circles, high knees.\n- **Circuit (repeat 4x):**\n  - 40s Burpees\n  - 20s Rest\n  - 40s Mountain Climbers\n  - 20s Rest\n  - 40s Jump Squats\n  - 20s Rest\n  - 40s Plank Hold\n  - 20s Rest\n- **Cooldown (2 mins):** Light stretching and deep breathing.\n\nLet's go crush it! 🔥",
+  "what should i eat postworkout": "**Post-Workout Nutrition Basics:**\n\nTo recover properly, aim for a mix of **Protein** and **Carbs** within 45 minutes of finishing your session.\n\n**Great Options:**\n- 🍗 Grilled chicken breast with sweet potato\n- 🥤 Whey protein shake with a banana\n- 🍳 3 scrambled eggs with a slice of whole-grain toast\n- 🥣 Greek yogurt with berries and honey\n\nFuel your body to build that muscle! 💪",
+  "guide me through a stretching routine": "**10-Minute Full Body Stretch Routine:**\n\nHold each pose for 30-45 seconds, breathing deeply.\n\n- **Child's Pose:** Great for the lower back and lats.\n- **Downward Dog:** Stretches the calves and hamstrings.\n- **Cobra Pose:** Opens up the chest and abs.\n- **Pigeon Pose:** Releases tension in the glutes and hips.\n- **Seated Forward Fold:** Lengthens the entire posterior chain.\n\nRelax and recover! 🧘‍♀️",
+  "how can i improve my sleep": "**Top Tips for Better Sleep & Recovery:**\n\n1. **Consistent Schedule:** Go to bed and wake up at the same time every day.\n2. **Limit Blue Light:** Stop using screens 1 hour before bed. Read a book instead!\n3. **Cool Room:** Keep your bedroom temperature around 65°F (18°C).\n4. **Magnesium Supplement:** Consider a ZMA or magnesium supplement to relax muscles.\n5. **No Caffeine Late:** Cut off caffeine at least 8 hours before bedtime.\n\nSleep is when you grow. Get those 8 hours! 💤"
 };
 
 export async function generateWorkoutAdvice(historyContext: string, userMessage: string): Promise<string> {
-  const cleanUserMsg = userMessage.trim().toLowerCase().replace(/[^a-z0-9 ]/g, '');
+  const cleanUserMsg = userMessage.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim().replace(/\s+/g, ' ');
   if (FAQ_CACHE[cleanUserMsg]) {
     return FAQ_CACHE[cleanUserMsg];
   }

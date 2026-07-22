@@ -42,7 +42,7 @@ export default function AiCoachScreen() {
   const flatListRef = useRef<FlatList>(null);
 
   const markdownStyles = {
-    body: { color: colors.text, fontSize: 15, lineHeight: 22, flexShrink: 1 },
+    body: { color: colors.text, fontSize: 15, lineHeight: 22, flexShrink: 1, padding: 0, margin: 0 },
     paragraph: { marginTop: 4, marginBottom: 4 },
     heading1: { color: colors.text, fontSize: 20, fontWeight: 'bold' as const, marginTop: 8, marginBottom: 8 },
     heading2: { color: colors.text, fontSize: 18, fontWeight: 'bold' as const, marginTop: 8, marginBottom: 8 },
@@ -118,11 +118,11 @@ export default function AiCoachScreen() {
     messageBubble: {
       maxWidth: '85%',
       flexShrink: 1,
-      paddingHorizontal: Spacing.l,
-      paddingVertical: Spacing.m,
       ...Shadow.card,
     },
     userBubble: {
+      paddingHorizontal: Spacing.l,
+      paddingVertical: Spacing.m,
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
       borderBottomLeftRadius: 24,
@@ -136,7 +136,12 @@ export default function AiCoachScreen() {
       borderBottomLeftRadius: 6,
       borderWidth: 1,
       borderColor: colors.border,
-      overflow: 'hidden', // Prevents markdown text from breaking out of border radius
+      overflow: 'hidden',
+    },
+    markdownWrapper: {
+      paddingHorizontal: Spacing.l,
+      paddingVertical: Spacing.m,
+      overflow: 'hidden',
     },
     userMessageText: {
       color: 'white',
@@ -324,9 +329,11 @@ export default function AiCoachScreen() {
                   </LinearGradient>
                 ) : (
                   <View style={[styles.messageBubble, styles.modelBubble]}>
-                    <Markdown style={markdownStyles}>
-                      {item.text}
-                    </Markdown>
+                    <View style={styles.markdownWrapper}>
+                      <Markdown style={markdownStyles}>
+                        {item.text}
+                      </Markdown>
+                    </View>
                   </View>
                 )}
               </View>

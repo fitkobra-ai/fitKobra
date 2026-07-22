@@ -195,14 +195,7 @@ export default function DashboardScreen() {
           {weeklyData.length > 0 && <WeeklyBarChart data={weeklyData} highlightIndex={6} />}
         </View>
       </ScrollView>
-      
-      {/* FAB for Add Workout */}
-      <TouchableOpacity 
-        style={[styles.fab, Shadow.glow(colors.primary)]}
-        onPress={() => router.push('/(modals)/add-workout')}
-      >
-        <Feather name="plus" size={28} color="white" />
-      </TouchableOpacity>
+
     </SafeAreaView>
   );
 }
