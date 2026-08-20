@@ -43,9 +43,9 @@ export default function Header({ onOpenIosModal, activeSection, setActiveSection
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-[#00FF75] to-[#00E5FF] rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
               <img 
-                src="/media/cute-cobra-mascot-transparent.png" 
-                alt="FitKobra Logo" 
-                className="relative w-10 h-10 rounded-xl object-contain bg-slate-900 border border-emerald-500/30 p-1"
+                src="/media/fitkobra-icon-emblem.png" 
+                alt="FitKobra App Icon" 
+                className="relative w-10 h-10 rounded-xl object-cover border border-[#00FF75]/50 shadow-md shadow-emerald-500/20"
               />
             </div>
             <div>

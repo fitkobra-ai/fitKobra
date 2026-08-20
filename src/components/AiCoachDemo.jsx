@@ -134,9 +134,9 @@ export default function AiCoachDemo() {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <img 
-                      src="/media/cute-cobra-mascot-transparent.png" 
-                      alt="FitKobra AI" 
-                      className="w-10 h-10 rounded-xl object-contain bg-slate-900 border border-purple-500/40 p-1" 
+                      src="/media/fitkobra-icon-emblem.png" 
+                      alt="FitKobra App Icon" 
+                      className="w-10 h-10 rounded-xl object-cover border border-purple-500/40" 
                     />
                     <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#00FF75] border-2 border-slate-950 animate-pulse"></span>
                   </div>
