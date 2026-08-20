@@ -57,15 +57,13 @@ export default function PrivacyPolicyModal({ isOpen, onClose }) {
           {/* Section 2 */}
           <section className="space-y-2">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Server className="w-4 h-4 text-cyan-400" /> 2. How We Use Your Information
+              <Server className="w-4 h-4 text-cyan-400" /> 2. AI Technologies, Visual Media & Content Standards
             </h3>
-            <p className="text-xs">We process your data strictly to perform core app functions:</p>
+            <p className="text-xs">FitKobra integrates advanced artificial intelligence models (such as Google Gemini) to deliver personalized wellness capabilities:</p>
             <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-400">
-              <li>Calculate precise step counts, distance walked, and energy expenditure.</li>
-              <li>Provide personalized exercise form video guides and 3D joint skeleton biomechanics.</li>
-              <li>Generate AI macro estimations and customized non-therapeutic workout plans.</li>
-              <li>Manage your referral rewards and redeemable user profile milestones.</li>
-              <li>Ensure security, prevent fraudulent activity, and comply with legal requirements.</li>
+              <li><strong className="text-slate-200">AI-Generated Exercise Guides:</strong> Biomechanical exercise demonstrations and 3D muscle anatomy guides are produced with generative AI modeling. All exercise models are presented in standard, appropriate athletic sportswear (gym shorts, tops) designed strictly to illustrate correct physiological posture, joint alignment, and muscular engagement with zero sexually explicit or suggestive content.</li>
+              <li><strong className="text-slate-200">AI Vision Meal Estimations:</strong> Recipe and meal photos captured with your device camera are analyzed in real-time to calculate approximate calories and macronutrients. Photos are processed Ephemerally and never permanently stored.</li>
+              <li><strong className="text-slate-200">Informational Medical Disclaimer:</strong> All AI-generated fitness recommendations, workout plans, and nutritional estimations are provided exclusively for general educational and athletic purposes and do not substitute for certified clinical or medical diagnosis.</li>
             </ul>
           </section>
 
