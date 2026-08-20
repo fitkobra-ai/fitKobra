@@ -1,6 +1,75 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { videoLibrary, categories } from '../data/videoLibrary';
 import { Play, Search, Dumbbell, Sparkles, X, CheckCircle, Flame, Filter, Zap, Volume2, VolumeX, Smartphone, ArrowRight } from 'lucide-react';
+
+// Web Audio API Synth Engine for guaranteed workout audio sound on Audio ON
+let audioCtx = null;
+let audioTimer = null;
+
+function startWorkoutAudioEngine() {
+  stopWorkoutAudioEngine();
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    audioCtx = new AudioContextClass();
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+
+    let step = 0;
+    const playBeat = () => {
+      if (!audioCtx || audioCtx.state !== 'running') return;
+      const now = audioCtx.currentTime;
+
+      // Punchy kick drum on beats 0 & 2
+      if (step % 2 === 0) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(38, now + 0.14);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.14);
+      }
+
+      // Energetic workout synth pulse on every beat
+      const synthOsc = audioCtx.createOscillator();
+      const synthGain = audioCtx.createGain();
+      const freqs = [220, 277.18, 329.63, 440];
+      synthOsc.type = 'triangle';
+      synthOsc.frequency.setValueAtTime(freqs[step % freqs.length], now);
+      synthGain.gain.setValueAtTime(0.1, now);
+      synthGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      synthOsc.connect(synthGain);
+      synthGain.connect(audioCtx.destination);
+      synthOsc.start(now);
+      synthOsc.stop(now + 0.18);
+
+      step = (step + 1) % 4;
+    };
+
+    audioTimer = setInterval(playBeat, 250); // 120 BPM energetic rhythm
+  } catch (err) {
+    console.warn('Audio synth failed:', err);
+  }
+}
+
+function stopWorkoutAudioEngine() {
+  if (audioTimer) {
+    clearInterval(audioTimer);
+    audioTimer = null;
+  }
+  if (audioCtx) {
+    try {
+      audioCtx.close();
+    } catch (e) {}
+    audioCtx = null;
+  }
+}
 
 // Subcomponent for Video Card with Smooth Lazy Video Preview
 function ExerciseVideoCard({ video, onClick }) {
@@ -70,6 +139,23 @@ export default function MuscleGuideExplorer() {
 
   const modalVideoRef = useRef(null);
 
+  // Synchronize HTML5 video element unmuting and Web Audio engine
+  useEffect(() => {
+    if (modalVideoRef.current) {
+      modalVideoRef.current.muted = isModalMuted;
+      if (!isModalMuted) {
+        modalVideoRef.current.volume = 1.0;
+        modalVideoRef.current.play().catch(() => {});
+        startWorkoutAudioEngine();
+      } else {
+        stopWorkoutAudioEngine();
+      }
+    }
+    return () => {
+      stopWorkoutAudioEngine();
+    };
+  }, [isModalMuted, activeVideoModal]);
+
   // Filter video library based on category and search query
   const filteredVideos = videoLibrary.filter(video => {
     const matchesCategory = selectedCategory === 'All' || video.category === selectedCategory;
@@ -81,11 +167,11 @@ export default function MuscleGuideExplorer() {
   });
 
   const toggleModalMute = () => {
+    const nextMuted = !isModalMuted;
+    setIsModalMuted(nextMuted);
     if (modalVideoRef.current) {
-      const nextMuted = !isModalMuted;
       modalVideoRef.current.muted = nextMuted;
       modalVideoRef.current.volume = nextMuted ? 0 : 1.0;
-      setIsModalMuted(nextMuted);
       if (!nextMuted) {
         modalVideoRef.current.play().catch(() => {});
       }
@@ -93,6 +179,7 @@ export default function MuscleGuideExplorer() {
   };
 
   const scrollToDownload = () => {
+    stopWorkoutAudioEngine();
     setActiveVideoModal(null);
     const el = document.getElementById('download');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -195,7 +282,7 @@ export default function MuscleGuideExplorer() {
                 <h3 className="text-lg font-bold text-white">{activeVideoModal.title}</h3>
               </div>
               <button
-                onClick={() => setActiveVideoModal(null)}
+                onClick={() => { stopWorkoutAudioEngine(); setActiveVideoModal(null); }}
                 className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
