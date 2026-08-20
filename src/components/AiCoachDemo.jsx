@@ -1,182 +1,209 @@
-import React, { useState } from 'react';
-import { Bot, Send, Sparkles, User, Dumbbell, Zap, CheckCircle2, MessageSquare } from 'lucide-react';
-import { logoUrl } from '../data/videoLibrary';
+import React, { useState, useEffect } from 'react';
+import { Bot, Sparkles, User, Dumbbell, Zap, Play, Pause, Smartphone, ArrowRight, Activity, Flame, ShieldAlert, Cpu } from 'lucide-react';
+
+const SCENARIOS = [
+  {
+    id: 'shoulders',
+    category: 'Hypertrophy & Form',
+    title: '3D Shoulder Cap Routine',
+    userMsg: 'What is the absolute best exercise setup for wide, capped 3D lateral delts?',
+    aiReply: 'For maximum lateral delt width, prioritize **Cable Lateral Raises** set at wrist height. Cables maintain constant mechanical tension at the lengthened position where dumbbells drop to zero load.\n\n💡 **Form Cue:** Tilt your torso 15° forward and sweep outward in a "Y" pattern rather than straight sideways to align with the scapular plane.'
+  },
+  {
+    id: 'protein',
+    category: 'Nutrition & Macros',
+    title: 'Optimal Protein & Macro Intake',
+    userMsg: 'How much daily protein do I need to build lean muscle without gaining fat?',
+    aiReply: 'Target **1.8 to 2.2 grams of protein per kilogram of body weight** (approx. 1.0g/lb).\n\n🍗 **Optimization Protocol:** Spread your intake across 4-5 meal pulses spaced 3-4 hours apart. Each meal should contain at least 3g of Leucine to trigger Muscle Protein Synthesis (MPS) peak.'
+  },
+  {
+    id: 'rdl-form',
+    category: 'Injury Prevention',
+    title: 'Lower Back Pain & RDL Cues',
+    userMsg: 'My lower back aches during Romanian Deadlifts. How do I fix my form?',
+    aiReply: 'Lower back fatigue occurs when spinal extension compensates for limited hip hinge range.\n\n🛡️ **3-Step Fix:**\n1. Keep the barbell in constant contact with your shins.\n2. Push your hips straight back toward the wall as if closing a door with your glutes.\n3. Stop descent the instant your hamstrings reach maximum stretch—do NOT reach down with your arms.'
+  },
+  {
+    id: 'preworkout',
+    category: 'Performance Timing',
+    title: 'Pre-Workout Nutrient Timing',
+    userMsg: 'What should I eat 60 minutes before a heavy leg or chest session?',
+    aiReply: 'Consume **30-40g of fast-digesting carbohydrates** paired with **20g of lean protein**.\n\n⚡ **Ideal Pre-Workout:** Oatmeal with whey protein & honey, or rice cakes with sliced banana. Keep dietary fat under 5g so digestion does not draw blood away from working muscles.'
+  }
+];
 
 export default function AiCoachDemo() {
-  const samplePrompts = [
-    {
-      q: "How much protein do I need per day?",
-      a: "For optimal muscle hypertrophy and recovery, target **1.6 to 2.2 grams of protein per kilogram of body weight** (0.8 - 1.0g per lb). Distribute your protein across 3-5 meals containing 30-40g each to maximize Muscle Protein Synthesis (MPS)."
-    },
-    {
-      q: "What's the best exercise for wide 3D shoulders?",
-      a: "Focus heavily on **Cable Lateral Raises** and **Dumbbell Side Raises**. Cable raises keep constant mechanical tension on the lateral head throughout the movement. Check out our **Side Delts Video Guide** in FitKobra for exact elbow placement!"
-    },
-    {
-      q: "How do I fix lower back pain during Romanian Deadlifts?",
-      a: "Keep the barbell glued close to your shins, push your hips straight backward (hip hinge), and stop the descent once your hamstrings reach maximum stretch. Do NOT round your lumbar spine. Watch our **Back & Hamstrings Video Guide** for a form breakdown!"
-    },
-    {
-      q: "What should I eat 1 hour before a heavy workout?",
-      a: "Opt for 25-35g of fast-digesting simple carbs with 15-20g of lean protein (e.g. Oatmeal with protein powder, or Rice cakes with almond butter & honey). Keep fats under 5g to prevent stomach sluggishness."
-    }
-  ];
-
-  const [messages, setMessages] = useState([
-    {
-      sender: 'ai',
-      text: "👋 Hey there! I'm your FitKobra 24/7 AI Coach. Ask me anything about workout routines, form cues, or custom macro plans!"
-    }
-  ]);
-  const [inputText, setInputText] = useState('');
+  const [activeTab, setActiveTab] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [typedReply, setTypedReply] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
-  const handleSend = (userQuestion, predefinedAnswer = null) => {
-    if (!userQuestion.trim()) return;
+  const scenario = SCENARIOS[activeTab];
 
-    const newMessages = [...messages, { sender: 'user', text: userQuestion }];
-    setMessages(newMessages);
-    setInputText('');
+  // Auto-play / Scenario Typewriter Effect
+  useEffect(() => {
+    setTypedReply('');
     setIsTyping(true);
+    let i = 0;
+    const fullText = scenario.aiReply;
 
-    setTimeout(() => {
-      let reply = predefinedAnswer;
-      if (!reply) {
-        reply = `That's a great fitness question! In FitKobra, our AI Coach provides custom recommendations based on your personal bio-data, daily step count, and scanned meals. Try downloading the free app to unlock unlimited personalized coaching!`;
+    const interval = setInterval(() => {
+      if (i < fullText.length) {
+        setTypedReply(fullText.substring(0, i + 1));
+        i++;
+      } else {
+        setIsTyping(false);
+        clearInterval(interval);
       }
-      setMessages([...newMessages, { sender: 'ai', text: reply }]);
-      setIsTyping(false);
-    }, 900);
+    }, 14);
+
+    return () => clearInterval(interval);
+  }, [activeTab]);
+
+  // Auto-switch scenarios every 12 seconds if playing
+  useEffect(() => {
+    if (!isPlaying) return;
+    const timer = setInterval(() => {
+      setActiveTab((prev) => (prev + 1) % SCENARIOS.length);
+    }, 11000);
+    return () => clearInterval(timer);
+  }, [isPlaying]);
+
+  const scrollToDownload = () => {
+    const el = document.getElementById('download');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <section id="ai-coach" className="py-24 relative bg-[#080B11]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="ai-coach" className="py-24 relative bg-[#080B11] overflow-hidden">
+      {/* Glow Effects */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[140px] pointer-events-none"></div>
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#00FF75]/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-xs font-bold text-purple-400">
-            <Bot className="w-3.5 h-3.5" />
-            24/7 INTELLIGENT AI TRAINER & DIETITIAN
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-xs font-extrabold text-purple-400">
+            <Cpu className="w-3.5 h-3.5 animate-pulse text-purple-400" />
+            24/7 AI TRAINER & NUTRITION ENGINE
           </div>
           <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight">
-            TALK TO THE <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-[#00FF75] bg-clip-text text-transparent">FITKOBRA AI COACH</span>
+            SEE THE <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-[#00FF75] bg-clip-text text-transparent">FITKOBRA AI COACH</span> IN ACTION
           </h2>
-          <p className="text-slate-300 text-sm sm:text-base">
-            Get instant answers to form corrections, plateau breaking, meal prep questions, and custom training programming.
+          <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
+            Experience real-time form corrections, hyper-customized meal timing, and biomechanical feedback delivered instantly inside the app.
           </p>
         </div>
 
-        {/* Simulator Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Motion Showcase Phone Frame */}
+        <div className="max-w-4xl mx-auto">
           
-          {/* Left Column: Sample Quick Questions */}
-          <div className="lg:col-span-4 space-y-4">
-            <h3 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">
-              Tap a Question to Ask:
-            </h3>
-            <div className="space-y-3">
-              {samplePrompts.map((prompt, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSend(prompt.q, prompt.a)}
-                  className="w-full text-left p-4 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-purple-400/50 hover:bg-slate-800/80 transition-all text-xs font-medium text-slate-200 flex items-start gap-3 group"
-                >
-                  <MessageSquare className="w-4 h-4 text-purple-400 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
-                  <span>"{prompt.q}"</span>
-                </button>
-              ))}
-            </div>
+          {/* Top Scenario Selector Tabs */}
+          <div className="flex items-center justify-center gap-2 flex-wrap mb-6">
+            {SCENARIOS.map((sc, idx) => (
+              <button
+                key={sc.id}
+                onClick={() => { setActiveTab(idx); setIsPlaying(false); }}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
+                  activeTab === idx
+                    ? 'bg-gradient-to-r from-purple-600 to-[#00FF75] text-black font-extrabold shadow-lg shadow-purple-500/20 scale-105'
+                    : 'bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 border border-white/10'
+                }`}
+              >
+                <span>{sc.title}</span>
+              </button>
+            ))}
 
-            <div className="glass-panel p-4 rounded-2xl border border-purple-500/20 text-xs text-slate-300 space-y-2">
-              <div className="flex items-center gap-2 font-bold text-white">
-                <Zap className="w-4 h-4 text-purple-400" /> Context-Aware Training
-              </div>
-              <p className="text-[11px] text-slate-400">
-                FitKobra AI connects directly to your daily step logs and scanned meal history to tailor its recommendations specifically for your body composition.
-              </p>
-            </div>
+            <button
+              onClick={() => setIsPlaying(!isPlaying)}
+              className="p-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 ml-2"
+              title={isPlaying ? "Pause auto-scroll" : "Play auto-scroll"}
+            >
+              {isPlaying ? <Pause className="w-3.5 h-3.5 text-purple-400" /> : <Play className="w-3.5 h-3.5 text-[#00FF75]" />}
+              <span className="text-[11px] font-semibold">{isPlaying ? 'Autoplay ON' : 'Paused'}</span>
+            </button>
           </div>
 
-          {/* Right Column: Interactive Chat Interface */}
-          <div className="lg:col-span-8">
-            <div className="glass-panel rounded-3xl border border-purple-500/30 overflow-hidden shadow-2xl flex flex-col h-[520px]">
+          {/* Simulated App Screen Showcase Container */}
+          <div className="relative rounded-3xl p-[1px] bg-gradient-to-b from-purple-500/40 via-purple-900/20 to-[#00FF75]/30 shadow-2xl shadow-purple-950/50">
+            <div className="bg-[#0D1117] rounded-[23px] overflow-hidden">
               
-              {/* Chat Header */}
-              <div className="px-6 py-4 bg-slate-900/90 border-b border-white/10 flex items-center justify-between">
+              {/* App Phone Header Bar */}
+              <div className="px-6 py-4 bg-slate-950/90 border-b border-white/10 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <img src={logoUrl} alt="FitKobra AI" className="w-9 h-9 rounded-xl object-cover border border-purple-500/40" />
-                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#00FF75] border-2 border-slate-950"></span>
+                    <img 
+                      src="/media/cute-cobra-mascot-transparent.png" 
+                      alt="FitKobra AI" 
+                      className="w-10 h-10 rounded-xl object-contain bg-slate-900 border border-purple-500/40 p-1" 
+                    />
+                    <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#00FF75] border-2 border-slate-950 animate-pulse"></span>
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-white flex items-center gap-1.5">
-                      FitKobra AI Coach
+                    <div className="text-sm font-extrabold text-white flex items-center gap-1.5">
+                      FitKobra AI Companion
                       <Sparkles className="w-3.5 h-3.5 text-purple-400" />
                     </div>
-                    <div className="text-[10px] text-emerald-400">Online • 24/7 Active Guidance</div>
-                  </div>
-                </div>
-                <span className="px-3 py-1 bg-purple-500/10 text-purple-300 text-[10px] font-extrabold uppercase rounded-full border border-purple-500/20">
-                  Interactive Simulator
-                </span>
-              </div>
-
-              {/* Chat Messages Body */}
-              <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-slate-950/60">
-                {messages.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`flex items-start gap-3 ${msg.sender === 'user' ? 'flex-row-reverse' : ''}`}
-                  >
-                    {msg.sender === 'ai' ? (
-                      <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 shrink-0">
-                        <Bot className="w-4 h-4" />
-                      </div>
-                    ) : (
-                      <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
-                        <User className="w-4 h-4" />
-                      </div>
-                    )}
-                    <div
-                      className={`max-w-[80%] p-4 rounded-2xl text-xs leading-relaxed ${
-                        msg.sender === 'user'
-                          ? 'bg-gradient-to-r from-[#00FF75] to-[#00E5FF] text-black font-semibold rounded-tr-none'
-                          : 'bg-slate-900/90 border border-white/10 text-slate-200 rounded-tl-none'
-                      }`}
-                    >
-                      {msg.text}
+                    <div className="text-[11px] text-emerald-400 font-semibold flex items-center gap-2">
+                      <span>● Active Voice & Form Logic</span>
+                      <span className="text-slate-500">•</span>
+                      <span className="text-purple-300">{scenario.category}</span>
                     </div>
                   </div>
-                ))}
+                </div>
 
-                {isTyping && (
-                  <div className="flex items-center gap-2 text-xs text-purple-400 italic">
-                    <Bot className="w-4 h-4 animate-bounce" /> FitKobra AI is formulating answer...
-                  </div>
-                )}
+                {/* Animated Waveform / Live Status Indicator */}
+                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-[11px] font-bold">
+                  <Activity className="w-3.5 h-3.5 text-[#00FF75] animate-spin" />
+                  <span>APP MOTION PREVIEW</span>
+                </div>
               </div>
 
-              {/* Chat Input Bar */}
-              <form
-                onSubmit={(e) => { e.preventDefault(); handleSend(inputText); }}
-                className="p-4 bg-slate-900/90 border-t border-white/10 flex items-center gap-3"
-              >
-                <input
-                  type="text"
-                  placeholder="Ask any fitness or nutrition question..."
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  className="flex-1 bg-slate-950 border border-white/15 focus:border-purple-400 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-400 focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="px-5 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-[#00FF75] text-black font-bold text-xs flex items-center gap-2 shadow-lg shadow-purple-500/20 hover:scale-105 transition-all"
-                >
-                  <Send className="w-4 h-4" />
-                  Send
-                </button>
-              </form>
+              {/* Chat Motion Screen Body */}
+              <div className="p-6 sm:p-8 space-y-6 bg-slate-950/50 min-h-[380px] flex flex-col justify-between">
+                
+                <div className="space-y-6">
+                  {/* User Question Bubble */}
+                  <div className="flex items-start gap-3 flex-row-reverse">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0 shadow-lg shadow-emerald-500/10">
+                      <User className="w-4 h-4" />
+                    </div>
+                    <div className="max-w-[85%] sm:max-w-[75%] p-4 rounded-2xl bg-gradient-to-r from-[#00FF75] to-[#00E5FF] text-black font-extrabold text-xs sm:text-sm leading-relaxed rounded-tr-none shadow-md">
+                      {scenario.userMsg}
+                    </div>
+                  </div>
+
+                  {/* AI Response Bubble with Real-time Typing Effect */}
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 shrink-0 shadow-lg shadow-purple-500/10">
+                      <Bot className="w-4 h-4" />
+                    </div>
+                    <div className="max-w-[88%] sm:max-w-[82%] p-5 rounded-2xl bg-slate-900/90 border border-purple-500/30 text-slate-200 text-xs sm:text-sm leading-relaxed rounded-tl-none whitespace-pre-line shadow-xl">
+                      {typedReply}
+                      {isTyping && <span className="inline-block w-2 h-4 ml-1 bg-[#00FF75] animate-pulse"></span>}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom App Footer Banner */}
+                <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-900/80 -mx-6 -mb-6 p-6">
+                  <div className="flex items-center gap-2 text-xs text-slate-300 font-medium">
+                    <Zap className="w-4 h-4 text-[#00FF75]" />
+                    <span>Get personalized AI coaching tailored to your body data inside the mobile app.</span>
+                  </div>
+
+                  <button
+                    onClick={scrollToDownload}
+                    className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-[#00FF75] to-[#00E5FF] text-black font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 hover:scale-105 transition-transform"
+                  >
+                    <Smartphone className="w-4 h-4" />
+                    <span>Download Free Mobile App</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+
+              </div>
 
             </div>
           </div>
