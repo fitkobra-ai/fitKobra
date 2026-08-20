@@ -66,7 +66,7 @@ export default function MuscleGuideExplorer() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeVideoModal, setActiveVideoModal] = useState(null);
-  const [isModalMuted, setIsModalMuted] = useState(false);
+  const [isModalMuted, setIsModalMuted] = useState(true);
 
   const modalVideoRef = useRef(null);
 
@@ -84,8 +84,11 @@ export default function MuscleGuideExplorer() {
     if (modalVideoRef.current) {
       const nextMuted = !isModalMuted;
       modalVideoRef.current.muted = nextMuted;
+      modalVideoRef.current.volume = nextMuted ? 0 : 1.0;
       setIsModalMuted(nextMuted);
-      modalVideoRef.current.play().catch(() => {});
+      if (!nextMuted) {
+        modalVideoRef.current.play().catch(() => {});
+      }
     }
   };
 
@@ -159,7 +162,7 @@ export default function MuscleGuideExplorer() {
               <ExerciseVideoCard
                 key={video.id}
                 video={video}
-                onClick={() => { setIsModalMuted(false); setActiveVideoModal(video); }}
+                onClick={() => { setIsModalMuted(true); setActiveVideoModal(video); }}
               />
             ))}
           </div>
@@ -207,13 +210,14 @@ export default function MuscleGuideExplorer() {
                 
                 {/* Audio Unmute Toggle Button Overlay */}
                 <button
+                  type="button"
                   onClick={toggleModalMute}
                   className="absolute top-4 right-4 z-20 px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-white/20 backdrop-blur-xl text-white text-xs font-extrabold flex items-center gap-2 shadow-2xl hover:scale-105 transition-transform"
                 >
                   {isModalMuted ? (
                     <>
                       <VolumeX className="w-4 h-4 text-rose-400" />
-                      <span>Click to Unmute Audio</span>
+                      <span>Tap to Enable Audio</span>
                     </>
                   ) : (
                     <>
@@ -231,6 +235,11 @@ export default function MuscleGuideExplorer() {
                   loop
                   playsInline
                   muted={isModalMuted}
+                  onVolumeChange={(e) => {
+                    if (e.target) {
+                      setIsModalMuted(e.target.muted || e.target.volume === 0);
+                    }
+                  }}
                   preload="auto"
                   onCanPlay={(e) => e.target.play().catch(() => {})}
                   className="w-full max-h-[480px] object-contain"
