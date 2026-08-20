@@ -2,7 +2,7 @@
   "expo": {
     "name": "FitKobra",
     "slug": "fitkobra",
-    "version": "1.0.136",
+    "version": "1.0.137",
     "orientation": "portrait",
     "icon": "./assets/images/fitkobra-icon-emblem.png",
     "scheme": "fitkobra",
@@ -22,7 +22,7 @@
         "backgroundColor": "#0d1117"
       },
       "package": "com.fitkobra.app",
-      "versionCode": 136,
+      "versionCode": 137,
       "softwareKeyboardLayoutMode": "pan",
       "permissions": [
         "android.permission.ACTIVITY_RECOGNITION",
