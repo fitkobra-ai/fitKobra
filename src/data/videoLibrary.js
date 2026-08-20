@@ -12,7 +12,7 @@ export const categories = [
   "Calves"
 ];
 
-export const logoUrl = "/media/fitkobra-logo.jpeg";
+export const logoUrl = "/media/fitkobra-icon-emblem.png";
 export const appMockupUrl = "/media/fitkobra-app-mockup.jpeg";
 
 export const videoLibrary = [

@@ -8,9 +8,9 @@ export default function HeroMascotBanner() {
       {/* Floating Cute Mascot Avatar */}
       <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-[#00FF75] bg-slate-900 shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
         <img
-          src="/media/cute-cobra-mascot-transparent.png"
-          alt="Cute FitKobra"
-          className="w-full h-full object-cover transform scale-110 translate-y-0.5"
+          src="/media/fitkobra-icon-emblem.png"
+          alt="FitKobra App Icon"
+          className="w-full h-full object-cover"
         />
       </div>
 

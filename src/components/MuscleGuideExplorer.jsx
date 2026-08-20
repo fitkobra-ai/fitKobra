@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { videoLibrary, categories } from '../data/videoLibrary';
-import { Play, Search, Dumbbell, Sparkles, X, CheckCircle, Flame, Filter, Zap } from 'lucide-react';
+import { Play, Search, Dumbbell, Sparkles, X, CheckCircle, Flame, Filter, Zap, Volume2, VolumeX, Smartphone, ArrowRight } from 'lucide-react';
 
 // Subcomponent for Video Card with Smooth Lazy Video Preview
 function ExerciseVideoCard({ video, onClick }) {
@@ -41,36 +41,21 @@ function ExerciseVideoCard({ video, onClick }) {
           </div>
         </div>
 
-        {/* Top Badges */}
-        <div className="absolute top-3 left-3 right-3 flex justify-between items-center pointer-events-none">
-          <span className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase bg-black/70 text-emerald-400 backdrop-blur-md border border-emerald-500/30">
+        {/* Category Pill */}
+        <div className="absolute top-3 left-3 z-10">
+          <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-slate-950/80 border border-white/10 text-[#00FF75] backdrop-blur-md">
             {video.category}
-          </span>
-          <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-900/80 text-slate-300 backdrop-blur-md border border-white/10">
-            {video.difficulty}
           </span>
         </div>
       </div>
 
-      {/* Card Text Content */}
-      <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
-        <div>
-          <h3 className="text-base font-bold text-white group-hover:text-[#00FF75] transition-colors line-clamp-1">
-            {video.title}
-          </h3>
-          <p className="text-xs text-emerald-400 font-medium mt-1">
-            Target: {video.targetMuscle}
-          </p>
-        </div>
-
-        <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
-          <span className="flex items-center gap-1 text-slate-300 font-semibold">
-            <Zap className="w-3.5 h-3.5 text-amber-400" />
-            {video.setsReps}
-          </span>
-          <span className="text-[11px] text-cyan-400 font-bold group-hover:underline">
-            Watch Video →
-          </span>
+      <div className="p-4 space-y-2">
+        <h3 className="font-bold text-white text-sm group-hover:text-[#00FF75] transition-colors line-clamp-1">
+          {video.title}
+        </h3>
+        <div className="flex items-center justify-between text-[11px] text-slate-400">
+          <span>Target: <strong className="text-slate-200">{video.targetMuscle}</strong></span>
+          <span className="text-cyan-400 font-semibold">{video.setsReps}</span>
         </div>
       </div>
     </div>
@@ -81,6 +66,9 @@ export default function MuscleGuideExplorer() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeVideoModal, setActiveVideoModal] = useState(null);
+  const [isModalMuted, setIsModalMuted] = useState(false);
+
+  const modalVideoRef = useRef(null);
 
   // Filter video library based on category and search query
   const filteredVideos = videoLibrary.filter(video => {
@@ -91,6 +79,21 @@ export default function MuscleGuideExplorer() {
       video.category.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const toggleModalMute = () => {
+    if (modalVideoRef.current) {
+      const nextMuted = !isModalMuted;
+      modalVideoRef.current.muted = nextMuted;
+      setIsModalMuted(nextMuted);
+      modalVideoRef.current.play().catch(() => {});
+    }
+  };
+
+  const scrollToDownload = () => {
+    setActiveVideoModal(null);
+    const el = document.getElementById('download');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <section id="muscle-guide" className="py-24 relative bg-[#080B11]">
@@ -132,63 +135,50 @@ export default function MuscleGuideExplorer() {
           </div>
         </div>
 
-        {/* Category Pill Filters */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar scroll-smooth">
-          {categories.map((cat) => {
-            const count = cat === 'All' 
-              ? videoLibrary.length 
-              : videoLibrary.filter(v => v.category === cat).length;
-            const isSelected = selectedCategory === cat;
-
-            return (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 border ${
-                  isSelected
-                    ? 'bg-gradient-to-r from-[#00FF75] to-[#00E5FF] text-black border-transparent shadow-lg shadow-emerald-500/20'
-                    : 'bg-slate-900/80 text-slate-300 border-white/10 hover:border-white/30 hover:text-white'
-                }`}
-              >
-                <span>{cat}</span>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] ${
-                  isSelected ? 'bg-black/20 text-black font-extrabold' : 'bg-white/10 text-slate-400'
-                }`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+        {/* Category Pills Filter */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 ${
+                selectedCategory === cat
+                  ? 'bg-gradient-to-r from-[#00FF75] to-[#00E5FF] text-black shadow-lg shadow-emerald-500/20 scale-105'
+                  : 'bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
 
-        {/* Video Cards Grid */}
-        {filteredVideos.length === 0 ? (
-          <div className="glass-panel p-12 rounded-3xl text-center space-y-4">
-            <Filter className="w-12 h-12 text-slate-500 mx-auto" />
-            <h3 className="text-xl font-bold text-white">No exercises found</h3>
-            <p className="text-slate-400 text-sm">Try tweaking your search term or selecting a different category.</p>
-            <button
-              onClick={() => { setSelectedCategory('All'); setSearchQuery(''); }}
-              className="px-4 py-2 bg-[#00FF75] text-black font-bold text-xs rounded-xl"
-            >
-              Reset Filters
-            </button>
-          </div>
-        ) : (
+        {/* Video Grid */}
+        {filteredVideos.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredVideos.map((video) => (
               <ExerciseVideoCard
                 key={video.id}
                 video={video}
-                onClick={() => setActiveVideoModal(video)}
+                onClick={() => { setIsModalMuted(false); setActiveVideoModal(video); }}
               />
             ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 space-y-3 bg-slate-900/40 rounded-3xl border border-white/10">
+            <Filter className="w-8 h-8 text-slate-500 mx-auto" />
+            <p className="text-slate-300 font-semibold text-sm">No exercises found matching "{searchQuery}"</p>
+            <button
+              onClick={() => { setSelectedCategory('All'); setSearchQuery(''); }}
+              className="text-xs text-[#00FF75] underline hover:text-white font-bold"
+            >
+              Reset Filters
+            </button>
           </div>
         )}
 
       </div>
 
-      {/* HD Video Modal Popup */}
+      {/* HD Video Modal Popup with Audio Controls */}
       {activeVideoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in">
           <div className="relative w-full max-w-4xl glass-panel bg-slate-950 rounded-3xl border border-emerald-500/30 overflow-hidden shadow-2xl space-y-0">
@@ -212,14 +202,35 @@ export default function MuscleGuideExplorer() {
             {/* Modal Body: Video + Cues */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
               
-              {/* Video Player */}
-              <div className="lg:col-span-7 bg-black relative flex items-center justify-center">
+              {/* Video Player Box with Audio Toggle */}
+              <div className="lg:col-span-7 bg-black relative flex items-center justify-center min-h-[300px]">
+                
+                {/* Audio Unmute Toggle Button Overlay */}
+                <button
+                  onClick={toggleModalMute}
+                  className="absolute top-4 right-4 z-20 px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-white/20 backdrop-blur-xl text-white text-xs font-extrabold flex items-center gap-2 shadow-2xl hover:scale-105 transition-transform"
+                >
+                  {isModalMuted ? (
+                    <>
+                      <VolumeX className="w-4 h-4 text-rose-400" />
+                      <span>Click to Unmute Audio</span>
+                    </>
+                  ) : (
+                    <>
+                      <Volume2 className="w-4 h-4 text-[#00FF75]" />
+                      <span>Audio ON</span>
+                    </>
+                  )}
+                </button>
+
                 <video
+                  ref={modalVideoRef}
                   src={activeVideoModal.videoUrl}
                   controls
                   autoPlay
                   loop
                   playsInline
+                  muted={isModalMuted}
                   preload="auto"
                   onCanPlay={(e) => e.target.play().catch(() => {})}
                   className="w-full max-h-[480px] object-contain"
@@ -227,44 +238,44 @@ export default function MuscleGuideExplorer() {
               </div>
 
               {/* Form Guidance & Rep Recommendations */}
-              <div className="lg:col-span-5 p-6 space-y-6 bg-slate-900/60 overflow-y-auto max-h-[480px]">
+              <div className="lg:col-span-5 p-6 space-y-6 bg-slate-900/60 overflow-y-auto max-h-[480px] flex flex-col justify-between">
                 
-                {/* Target Muscle Box */}
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 space-y-1">
-                  <div className="text-xs text-slate-400 font-semibold uppercase">Target Muscle Group</div>
-                  <div className="text-sm font-bold text-[#00FF75]">{activeVideoModal.targetMuscle}</div>
-                  <div className="text-xs text-slate-300 pt-1">
-                    Recommended Volume: <strong className="text-white">{activeVideoModal.setsReps}</strong>
+                <div className="space-y-6">
+                  {/* Target Muscle Box */}
+                  <div className="bg-white/5 p-4 rounded-2xl border border-white/10 space-y-1">
+                    <div className="text-xs text-slate-400 font-semibold uppercase">Target Muscle Group</div>
+                    <div className="text-sm font-bold text-[#00FF75]">{activeVideoModal.targetMuscle}</div>
+                    <div className="text-xs text-slate-300 pt-1">
+                      Recommended Volume: <strong className="text-white">{activeVideoModal.setsReps}</strong>
+                    </div>
+                  </div>
+
+                  {/* Form Execution Tips */}
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-extrabold uppercase text-slate-300 tracking-wider flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-cyan-400" /> Form Execution Cues
+                    </h4>
+                    <ul className="space-y-2.5">
+                      {activeVideoModal.tips.map((tip, idx) => (
+                        <li key={idx} className="flex items-start gap-2.5 text-xs text-slate-300">
+                          <CheckCircle className="w-4 h-4 text-[#00FF75] shrink-0 mt-0.5" />
+                          <span>{tip}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
 
-                {/* Form Execution Tips */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-extrabold uppercase text-slate-300 tracking-wider flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-cyan-400" /> Form Execution Cues
-                  </h4>
-                  <ul className="space-y-2.5">
-                    {activeVideoModal.tips.map((tip, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5 text-xs text-slate-300">
-                        <CheckCircle className="w-4 h-4 text-[#00FF75] shrink-0 mt-0.5" />
-                        <span>{tip}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* App CTA Badge inside Modal */}
-                <div className="p-4 rounded-2xl bg-gradient-to-r from-[#00FF75]/10 to-cyan-500/10 border border-[#00FF75]/30 flex items-center justify-between">
-                  <div className="text-xs font-bold text-white">
-                    Unlock AI Form Corrections in App
-                  </div>
-                  <a
-                    href="#download"
-                    onClick={() => setActiveVideoModal(null)}
-                    className="px-3 py-1.5 bg-[#00FF75] text-black text-xs font-extrabold rounded-xl"
+                {/* App CTA */}
+                <div className="pt-4 border-t border-white/10">
+                  <button
+                    onClick={scrollToDownload}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-[#00FF75] to-[#00E5FF] text-black font-extrabold text-xs flex items-center justify-center gap-2 hover:scale-102 transition-transform shadow-lg shadow-emerald-500/20"
                   >
-                    Get App Free
-                  </a>
+                    <Smartphone className="w-4 h-4" />
+                    <span>Unlock AI Form Corrections in App</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
                 </div>
 
               </div>
