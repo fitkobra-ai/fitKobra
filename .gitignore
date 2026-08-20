@@ -37,7 +37,6 @@ Side Delts*/
 Traps*/
 Triceps/
 public/media_backup/
-*.jpeg
-*.mp4
+public/media/temp_fast_video_*.mp4
 *.traineddata
 *.json.bak
