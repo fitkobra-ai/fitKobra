@@ -1,28 +1,28 @@
 {
   "expo": {
-    "name": "KinexFit",
-    "slug": "kinexfit",
-    "version": "1.0.29",
+    "name": "FitKobra",
+    "slug": "fitkobra",
+    "version": "1.0.135",
     "orientation": "portrait",
-    "icon": "./assets/images/truefit-logo.png",
-    "scheme": "kinexfit",
+    "icon": "./assets/images/fitkobra-icon-emblem.png",
+    "scheme": "fitkobra",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.kinexfit.app",
+      "bundleIdentifier": "com.fitkobra.app",
       "infoPlist": {
-        "NSCameraUsageDescription": "KinexFit needs access to your camera to scan food items for recipe and calorie estimation.",
-        "NSMicrophoneUsageDescription": "KinexFit needs access to your microphone so you can log workouts using your voice."
+        "NSCameraUsageDescription": "FitKobra needs access to your camera to scan food items for recipe and calorie estimation.",
+        "NSMicrophoneUsageDescription": "FitKobra needs access to your microphone so you can log workouts using your voice."
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "foregroundImage": "./assets/images/fitkobra-icon-emblem.png",
         "backgroundColor": "#0d1117"
       },
-      "package": "com.kinexfit.app",
-      "versionCode": 34,
+      "package": "com.fitkobra.app",
+      "versionCode": 135,
       "softwareKeyboardLayoutMode": "pan",
       "permissions": [
         "android.permission.ACTIVITY_RECOGNITION",
@@ -41,10 +41,9 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "KinexFit needs access to your camera to scan food items for recipe and calorie estimation."
+          "cameraPermission": "FitKobra needs access to your camera to scan food items for recipe and calorie estimation."
         }
       ],
-
       [
         "expo-splash-screen",
         {
@@ -53,7 +52,11 @@
           "resizeMode": "contain",
           "backgroundColor": "#0d1117"
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker",
+      "@react-native-google-signin/google-signin",
+      "expo-sharing",
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true

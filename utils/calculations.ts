@@ -33,29 +33,34 @@ export function calculateTDEE(bmr: number, activityLevel: string): number {
 
 /**
  * Estimated stride length from height (De Vito formula).
- * Returns stride length in METERS.
+ * Returns stride length in METERS. Default height 175cm (~0.725m stride).
  */
-export function estimateStrideLengthM(heightCm: number): number {
-  return heightCm * 0.00414; // ~0.74 m for 178 cm person
+export function estimateStrideLengthM(heightCm?: number): number {
+  const validHeight = (heightCm && heightCm >= 100 && heightCm <= 250) ? heightCm : 175;
+  return validHeight * 0.00414;
 }
 
 /**
  * Steps → distance in km.
  */
-export function stepsToDistanceKm(steps: number, heightCm: number): number {
+export function stepsToDistanceKm(steps: number, heightCm?: number): number {
+  if (!steps || steps <= 0) return 0;
   const stride = estimateStrideLengthM(heightCm);
-  return parseFloat(((steps * stride) / 1000).toFixed(2));
+  const distanceKm = (steps * stride) / 1000;
+  return parseFloat(distanceKm.toFixed(2));
 }
 
 /**
- * Steps → calories burned (walking MET = 3.5, assumed 5 km/h pace).
+ * Steps → calories burned (walking MET = 3.5, assumed 4.8 km/h pace).
  */
-export function stepsToCalories(steps: number, weightKg: number, heightCm: number): number {
+export function stepsToCalories(steps: number, weightKg?: number, heightCm?: number): number {
+  if (!steps || steps <= 0) return 0;
+  const validWeight = (weightKg && weightKg >= 30 && weightKg <= 300) ? weightKg : 70;
   const distanceKm = stepsToDistanceKm(steps, heightCm);
   const MET = 3.5;
-  const speedKmH = 5;
+  const speedKmH = 4.8;
   const durationHours = distanceKm / speedKmH;
-  return Math.round(MET * weightKg * durationHours);
+  return Math.round(MET * validWeight * durationHours);
 }
 
 /**

@@ -7,6 +7,67 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:1062137796931:android:c59ebeaf84aa055c0a37f6",
+        "android_client_info": {
+          "package_name": "com.fitkobra.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1062137796931-631pllgagtq3vu68qa3fdm0pccgppbjt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fitkobra.app",
+            "certificate_hash": "2084ddce233cb1358c5148d5d258da595aab886c"
+          }
+        },
+        {
+          "client_id": "1062137796931-e9m05v7886dp6hnc6r2i9lm6ouiuonf1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fitkobra.app",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "1062137796931-u1f0nca032jeimrmukpcjdop37lsc0ca.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fitkobra.app",
+            "certificate_hash": "dd206f9d3a45a785febe32f777fc784ecefa9fda"
+          }
+        },
+        {
+          "client_id": "1062137796931-deploycertkey.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fitkobra.app",
+            "certificate_hash": "9dd4ec4e31a05a5fced320e46cef5d21e340fa1c"
+          }
+        },
+        {
+          "client_id": "1062137796931-cnvf4pmeqkkkofj0q2qmsv216m8revs3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtFve9t-CnC3E9VtAVEEi-0Wtr0eViFYM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1062137796931-cnvf4pmeqkkkofj0q2qmsv216m8revs3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:1062137796931:android:933a8caae9588f0f0a37f6",
         "android_client_info": {
           "package_name": "com.kinexfit.app"

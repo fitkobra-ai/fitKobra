@@ -40,11 +40,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="nutrition"
         options={{
-          title: 'Workouts',
+          title: 'Nutrition',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name="activity" focused={focused} color={color} />
+            <TabBarIcon name="coffee" focused={focused} color={color} />
           ),
         }}
       />
@@ -67,11 +67,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="nutrition"
+        name="two"
         options={{
-          title: 'Nutrition',
+          title: 'Workouts',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name="coffee" focused={focused} color={color} />
+            <TabBarIcon name="activity" focused={focused} color={color} />
           ),
         }}
       />

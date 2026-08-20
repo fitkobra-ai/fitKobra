@@ -26,10 +26,10 @@ export function GoalMasterPlanModal({ visible, onClose, profile, onSaveGoal }: G
   const [selectedGoal, setSelectedGoal] = useState<string>(profile?.goal || 'weight_loss');
 
   const GOALS = [
-    { id: 'weight_loss', title: 'Weight Loss', icon: 'fire' as const, color: colors.orange },
-    { id: 'build_muscle', title: 'Build Muscle', icon: 'arm-flex' as const, color: colors.purple },
-    { id: 'improve_endurance', title: 'Endurance', icon: 'run' as const, color: colors.blue },
-    { id: 'general_health', title: 'General Health', icon: 'heart-pulse' as const, color: colors.green },
+    { id: 'weight_loss', title: 'Weight Loss', icon: 'fire' as const, color: colors.orange, subtitle: 'Burn fat & lean out' },
+    { id: 'build_muscle', title: 'Build Muscle', icon: 'arm-flex' as const, color: colors.purple, subtitle: 'Gain strength' },
+    { id: 'improve_endurance', title: 'Endurance', icon: 'run-fast' as const, color: colors.blue, subtitle: 'Train harder' },
+    { id: 'general_health', title: 'Overall Health', icon: 'heart-pulse' as const, color: colors.green, subtitle: 'Stay active' },
   ];
 
   const { tdee, targetCalories, macros, strategy } = useMemo(() => {
@@ -108,47 +108,65 @@ export function GoalMasterPlanModal({ visible, onClose, profile, onSaveGoal }: G
     onClose();
   };
 
+  const currentGoalColor = GOALS.find(g => g.id === selectedGoal)?.color || colors.blue;
+
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
         <View style={styles.sheet}>
           <View style={styles.handle} />
-          <Text style={styles.title}>Goal Master Plan 🎯</Text>
-          <Text style={styles.subtitle}>Select a goal to generate your custom blueprint.</Text>
-
-          {/* Goal Selector */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.selectorScroll} contentContainerStyle={styles.selectorContent}>
-            {GOALS.map(goal => {
-              const isSelected = selectedGoal === goal.id;
-              return (
-                <TouchableOpacity
-                  key={goal.id}
-                  style={[styles.goalBtn, isSelected && { borderColor: goal.color, backgroundColor: goal.color + '20' }]}
-                  onPress={() => setSelectedGoal(goal.id)}
-                  activeOpacity={0.7}
-                >
-                  <MaterialCommunityIcons name={goal.icon} size={28} color={isSelected ? goal.color : colors.textSecondary} />
-                  <Text style={[styles.goalText, isSelected && { color: goal.color }]}>{goal.title}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+          <Text style={styles.title}>Generate Master Plan ✨</Text>
+          <Text style={styles.subtitle}>Select your primary fitness goal below to reveal your customized blueprint.</Text>
 
           <ScrollView style={styles.planScroll} showsVerticalScrollIndicator={false} contentContainerStyle={styles.planContent}>
             
+            {/* Goal Selector Grid */}
+            <View style={styles.gridContainer}>
+              {GOALS.map(goal => {
+                const isSelected = selectedGoal === goal.id;
+                return (
+                  <TouchableOpacity
+                    key={goal.id}
+                    style={[
+                      styles.goalBtn, 
+                      isSelected && { borderColor: goal.color, backgroundColor: goal.color + '15' },
+                      isSelected && Shadow.glow(goal.color)
+                    ]}
+                    onPress={() => setSelectedGoal(goal.id)}
+                    activeOpacity={0.8}
+                  >
+                    <View style={[styles.iconWrapper, { backgroundColor: isSelected ? goal.color : colors.surfaceHighlight }]}>
+                      <MaterialCommunityIcons name={goal.icon} size={32} color={isSelected ? '#fff' : colors.textSecondary} />
+                    </View>
+                    <Text style={[styles.goalText, isSelected && { color: goal.color }]}>{goal.title}</Text>
+                    <Text style={styles.goalSubtitle}>{goal.subtitle}</Text>
+                    
+                    {isSelected && (
+                      <View style={[styles.checkBadge, { backgroundColor: goal.color }]}>
+                        <Feather name="check" size={14} color="#fff" />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            
             {/* The Blueprint */}
-            <View style={[styles.card, Shadow.card]}>
-              <Text style={styles.cardTitle}>Daily Targets ⚡</Text>
+            <View style={[styles.card, Shadow.card, { borderColor: currentGoalColor + '40', marginTop: Spacing.md }]}>
+              <View style={styles.cardHeader}>
+                <Feather name="target" size={20} color={currentGoalColor} />
+                <Text style={styles.cardTitle}>Your Daily Targets</Text>
+              </View>
               
               <View style={styles.calorieRow}>
                 <View style={styles.calBox}>
                   <Text style={styles.calLabel}>Maintenance</Text>
-                  <Text style={styles.calValueSm}>{tdee} kcal</Text>
+                  <Text style={styles.calValueSm}>{tdee} <Text style={styles.calUnitSm}>kcal</Text></Text>
                 </View>
-                <Feather name="arrow-right" size={20} color={colors.textSecondary} />
+                <Feather name="chevrons-right" size={24} color={currentGoalColor} style={{ opacity: 0.6 }} />
                 <View style={styles.calBoxMain}>
-                  <Text style={styles.calLabelMain}>Target Intake</Text>
+                  <Text style={[styles.calLabelMain, { color: currentGoalColor }]}>Target Intake</Text>
                   <Text style={styles.calValueMain}>{targetCalories} <Text style={styles.calUnit}>kcal</Text></Text>
                 </View>
               </View>
@@ -160,10 +178,25 @@ export function GoalMasterPlanModal({ visible, onClose, profile, onSaveGoal }: G
               </View>
             </View>
 
+            {/* Activity Targets */}
+            <View style={[styles.card, Shadow.card, { marginTop: Spacing.md }]}>
+              <View style={styles.cardHeader}>
+                <Feather name="activity" size={20} color={colors.red} />
+                <Text style={styles.cardTitle}>Activity Targets</Text>
+              </View>
+              <View style={styles.macroSplit}>
+                <MacroBox label="Steps" value={(selectedGoal === 'weight_loss' ? 12000 : (selectedGoal === 'build_muscle' ? 8000 : (selectedGoal === 'improve_endurance' ? 15000 : 10000))).toLocaleString()} color={colors.red} />
+                <MacroBox label="Burn" value={`${selectedGoal === 'weight_loss' ? 500 : 300} kcal`} color={colors.orange} />
+                <MacroBox label="Active" value="30 min" color={colors.green} />
+              </View>
+            </View>
+
             {/* Strategy */}
             <View style={[styles.card, Shadow.card]}>
               <View style={styles.strategyRow}>
-                <MaterialCommunityIcons name="silverware-fork-knife" size={24} color={colors.green} />
+                <View style={[styles.strategyIcon, { backgroundColor: colors.green + '20' }]}>
+                  <MaterialCommunityIcons name="silverware-fork-knife" size={22} color={colors.green} />
+                </View>
                 <View style={styles.strategyTextCol}>
                   <Text style={styles.strategyTitle}>Nutrition Strategy</Text>
                   <Text style={styles.strategyDesc}>{strategy.diet}</Text>
@@ -173,7 +206,9 @@ export function GoalMasterPlanModal({ visible, onClose, profile, onSaveGoal }: G
               <View style={styles.divider} />
               
               <View style={styles.strategyRow}>
-                <MaterialCommunityIcons name="weight-lifter" size={24} color={colors.purple} />
+                <View style={[styles.strategyIcon, { backgroundColor: colors.purple + '20' }]}>
+                  <MaterialCommunityIcons name="weight-lifter" size={22} color={colors.purple} />
+                </View>
                 <View style={styles.strategyTextCol}>
                   <Text style={styles.strategyTitle}>Training Strategy</Text>
                   <Text style={styles.strategyDesc}>{strategy.training}</Text>
@@ -183,8 +218,13 @@ export function GoalMasterPlanModal({ visible, onClose, profile, onSaveGoal }: G
 
           </ScrollView>
 
-          <TouchableOpacity style={styles.saveBtn} activeOpacity={0.8} onPress={handleSave}>
+          <TouchableOpacity 
+            style={[styles.saveBtn, { backgroundColor: currentGoalColor, shadowColor: currentGoalColor }]} 
+            activeOpacity={0.9} 
+            onPress={handleSave}
+          >
             <Text style={styles.saveBtnText}>Set As My Goal</Text>
+            <Feather name="arrow-right" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>
@@ -205,92 +245,123 @@ function MacroBox({ label, value, color }: { label: string; value: string; color
 
 const useStyles = (colors: any) => StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.7)' },
+  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.75)' },
   sheet: {
     backgroundColor: colors.bg,
     borderTopLeftRadius: Radius.xl,
     borderTopRightRadius: Radius.xl,
     padding: Spacing.lg,
-    height: '85%',
+    height: '92%',
     gap: Spacing.md,
   },
-  handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border, alignSelf: 'center', marginBottom: Spacing.xs },
-  title: { fontSize: 24, fontWeight: '800', color: colors.textPrimary },
-  subtitle: { fontSize: 14, color: colors.textSecondary, marginBottom: Spacing.sm },
+  handle: { width: 40, height: 5, borderRadius: 3, backgroundColor: colors.border, alignSelf: 'center', marginBottom: Spacing.xs },
+  title: { fontSize: 28, fontWeight: '800', color: colors.textPrimary },
+  subtitle: { fontSize: 15, color: colors.textSecondary, marginBottom: Spacing.sm, lineHeight: 22 },
   
-  selectorScroll: { flexGrow: 0, minHeight: 110, maxHeight: 110 },
-  selectorContent: { gap: Spacing.md, paddingRight: Spacing.xl },
-  goalBtn: {
-    width: 100,
-    height: 90,
-    backgroundColor: colors.surface,
-    borderRadius: Radius.lg,
-    borderWidth: 2,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  goalText: { fontSize: 13, fontWeight: '700', color: colors.textSecondary, textAlign: 'center' },
-
   planScroll: { flex: 1 },
   planContent: { gap: Spacing.lg, paddingBottom: Spacing.xxl },
   
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.md,
+    justifyContent: 'space-between',
+  },
+  goalBtn: {
+    width: '47.5%',
+    backgroundColor: colors.surface,
+    borderRadius: Radius.xl,
+    borderWidth: 2,
+    borderColor: colors.border,
+    padding: Spacing.md,
+    alignItems: 'center',
+    gap: Spacing.sm,
+    position: 'relative',
+  },
+  iconWrapper: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  goalText: { fontSize: 16, fontWeight: '800', color: colors.textPrimary, textAlign: 'center' },
+  goalSubtitle: { fontSize: 12, color: colors.textSecondary, textAlign: 'center', marginTop: -4 },
+  checkBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: colors.bg,
+  },
+
   card: {
     backgroundColor: colors.surface,
     borderRadius: Radius.xl,
     padding: Spacing.lg,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.border,
     gap: Spacing.md,
   },
-  cardTitle: { fontSize: 18, fontWeight: '700', color: colors.textPrimary },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  cardTitle: { fontSize: 18, fontWeight: '800', color: colors.textPrimary },
   
   calorieRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.surfaceHighlight,
-    padding: Spacing.md,
-    borderRadius: Radius.lg,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    padding: Spacing.lg,
+    borderRadius: Radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   calBox: { alignItems: 'center' },
-  calLabel: { fontSize: 12, color: colors.textSecondary, marginBottom: 4 },
-  calValueSm: { fontSize: 16, fontWeight: '600', color: colors.textPrimary },
+  calLabel: { fontSize: 12, color: colors.textSecondary, marginBottom: 4, fontWeight: '700', textTransform: 'uppercase' },
+  calValueSm: { fontSize: 20, fontWeight: '700', color: colors.textPrimary },
+  calUnitSm: { fontSize: 12, fontWeight: '600', color: colors.textSecondary },
   
   calBoxMain: { alignItems: 'center' },
-  calLabelMain: { fontSize: 13, color: colors.green, fontWeight: '700', marginBottom: 2 },
-  calValueMain: { fontSize: 26, fontWeight: '800', color: '#fff' },
-  calUnit: { fontSize: 14, fontWeight: '600', color: colors.textSecondary },
+  calLabelMain: { fontSize: 14, fontWeight: '800', marginBottom: 2, textTransform: 'uppercase' },
+  calValueMain: { fontSize: 36, fontWeight: '900', color: '#fff' },
+  calUnit: { fontSize: 16, fontWeight: '600', color: colors.textSecondary },
 
   macroSplit: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.xs },
   macroBox: {
     flex: 1,
-    padding: Spacing.sm,
-    borderRadius: Radius.md,
+    padding: Spacing.md,
+    borderRadius: Radius.lg,
     borderWidth: 1,
     alignItems: 'center',
   },
-  macroVal: { fontSize: 16, fontWeight: '800' },
-  macroLabel: { fontSize: 12, color: colors.textPrimary, fontWeight: '600', marginTop: 2 },
+  macroVal: { fontSize: 18, fontWeight: '800' },
+  macroLabel: { fontSize: 13, color: colors.textPrimary, fontWeight: '700', marginTop: 4 },
 
-  strategyRow: { flexDirection: 'row', gap: Spacing.md, alignItems: 'flex-start' },
+  strategyRow: { flexDirection: 'row', gap: Spacing.md, alignItems: 'center' },
+  strategyIcon: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   strategyTextCol: { flex: 1, gap: 4 },
-  strategyTitle: { fontSize: 16, fontWeight: '700', color: colors.textPrimary },
-  strategyDesc: { fontSize: 14, color: colors.textSecondary, lineHeight: 20 },
+  strategyTitle: { fontSize: 16, fontWeight: '800', color: colors.textPrimary },
+  strategyDesc: { fontSize: 14, color: colors.textSecondary, lineHeight: 22 },
   divider: { height: 1, backgroundColor: colors.border, marginVertical: Spacing.sm },
 
   saveBtn: {
-    backgroundColor: colors.purple,
+    flexDirection: 'row',
     paddingVertical: Spacing.lg,
     borderRadius: Radius.full,
     alignItems: 'center',
-    shadowColor: colors.purple,
+    justifyContent: 'center',
+    gap: Spacing.sm,
     shadowOpacity: 0.4,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
     elevation: 8,
-    marginTop: 'auto',
+    marginTop: Spacing.md,
   },
-  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  saveBtnText: { color: '#fff', fontSize: 18, fontWeight: '900' },
 });

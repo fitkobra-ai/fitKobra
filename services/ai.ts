@@ -1,6 +1,7 @@
 import { app } from './firebase';
 import 'react-native-get-random-values';
 import { getAI, getGenerativeModel, GoogleAIBackend } from 'firebase/ai';
+import { queryOfflineKnowledge, findHighConfidenceKnowledgeMatch, checkMedicalSafetyGuardrail } from '../constants/OfflineAIKnowledgeBase';
 
 let ai: any = null;
 let visionModel: any = null;
@@ -26,20 +27,32 @@ export interface RecipeResult {
   protein: number;
   carbs: number;
   fats: number;
+  servingGrams?: number;
+  isFood?: boolean;
 }
 
-export async function generateRecipeFromImage(base64Image: string, mimeType: string): Promise<RecipeResult | null> {
+export async function generateRecipeFromImages(base64Images: string[], mimeType: string): Promise<RecipeResult | null> {
   await initAI();
   if (!visionModel) return null;
   
   try {
     const prompt = `
-      Analyze this image of food or ingredients. 
-      Identify the food and suggest a healthy recipe. 
+      Analyze the provided image(s). 
+      FIRST, determine if the images contain food, ingredients, or a meal. If they DO NOT contain food (e.g. they are a person, a computer screen, code, an object, a building, etc.), you MUST return exactly this JSON and nothing else:
+      { "isFood": false }
+      
+      If they DO contain food:
+      1. If it's a SINGLE raw ingredient (like just an apple, or just a bowl of rice), identify it simply (e.g. "Apple" or "White Rice"). Do not invent a complex recipe for it. Just provide its macros and maybe a simple tip in instructions.
+      2. If multiple ingredients are shown across the images, identify them and suggest a healthy recipe or meal prep idea that can be made using these combined ingredients.
+      
+      IMPORTANT: Be highly aware of Indian cuisine and dishes. If the food resembles an Indian dish (like Besan Chilla, Dosa, Idli, Poha, Dal, Sabzi), identify it correctly rather than giving a Western equivalent (e.g. use "Besan Chilla / Savory Pancake" rather than just "Oatmeal Pancake").
+      Provide alternative names separated by a slash if it crosses cultural boundaries.
       You MUST respond with a perfectly formatted JSON object with NO markdown wrapping (no \`\`\`json or \`\`\`).
       The JSON object must have exactly this structure:
       {
-        "recipeName": "Name of the dish",
+        "isFood": true,
+        "recipeName": "Name of the dish / Item",
+        "servingGrams": 200,
         "ingredients": ["ingredient 1", "ingredient 2"],
         "instructions": ["step 1", "step 2"],
         "calories": 450,
@@ -49,14 +62,14 @@ export async function generateRecipeFromImage(base64Image: string, mimeType: str
       }
     `;
 
-    const imagePart = {
+    const imageParts = base64Images.map(base64 => ({
       inlineData: {
-        data: base64Image,
+        data: base64,
         mimeType
       }
-    };
+    }));
 
-    const result = await visionModel.generateContent([prompt, imagePart]);
+    const result = await visionModel.generateContent([prompt, ...imageParts]);
     const responseText = result.response.text();
     
     // Clean up potential markdown formatting if the model disobeys
@@ -74,63 +87,79 @@ export async function generateRecipeFromImage(base64Image: string, mimeType: str
   }
 }
 
-const FAQ_CACHE: Record<string, string> = {
-  "hi": "Hello! I'm KinexFit AI, your elite personal fitness and nutrition coach. How can we crush your goals today? 💪",
-  "hello": "Hi there! I'm your KinexFit AI Coach. Ready to get 1% better today?",
-  "who are you": "I'm KinexFit AI, your world-class personal trainer and nutritionist! I'm here to build custom workouts, analyze your nutrition, and keep you motivated.",
-  "what can you do": "I can create tailored workout routines, suggest healthy meals based on your macros, answer complex fitness questions, and analyze your workout history to keep you progressing!",
-  "thanks": "You're very welcome! Keep up the amazing work. Let me know if you need anything else! 🔥",
-  "thank you": "You got it! I'm always here to help you push your limits.",
-  "how are you": "I'm fully charged and ready to help you train! What are we focusing on today?",
-  "good morning": "Good morning! Rise and grind. Ready for today's workout?",
-  "good night": "Good night! Rest up—recovery is just as important as the workout. Catch you tomorrow!",
-  // Pre-cached suggested prompts for instant replies
-  "plan a 20min hiit workout": "**Here is a 20-Minute Fat-Burning HIIT Routine:**\n\n- **Warm-up (3 mins):** Jumping jacks, arm circles, high knees.\n- **Circuit (repeat 4x):**\n  - 40s Burpees\n  - 20s Rest\n  - 40s Mountain Climbers\n  - 20s Rest\n  - 40s Jump Squats\n  - 20s Rest\n  - 40s Plank Hold\n  - 20s Rest\n- **Cooldown (2 mins):** Light stretching and deep breathing.\n\nLet's go crush it! 🔥",
-  "what should i eat postworkout": "**Post-Workout Nutrition Basics:**\n\nTo recover properly, aim for a mix of **Protein** and **Carbs** within 45 minutes of finishing your session.\n\n**Great Options:**\n- 🍗 Grilled chicken breast with sweet potato\n- 🥤 Whey protein shake with a banana\n- 🍳 3 scrambled eggs with a slice of whole-grain toast\n- 🥣 Greek yogurt with berries and honey\n\nFuel your body to build that muscle! 💪",
-  "guide me through a stretching routine": "**10-Minute Full Body Stretch Routine:**\n\nHold each pose for 30-45 seconds, breathing deeply.\n\n- **Child's Pose:** Great for the lower back and lats.\n- **Downward Dog:** Stretches the calves and hamstrings.\n- **Cobra Pose:** Opens up the chest and abs.\n- **Pigeon Pose:** Releases tension in the glutes and hips.\n- **Seated Forward Fold:** Lengthens the entire posterior chain.\n\nRelax and recover! 🧘‍♀️",
-  "how can i improve my sleep": "**Top Tips for Better Sleep & Recovery:**\n\n1. **Consistent Schedule:** Go to bed and wake up at the same time every day.\n2. **Limit Blue Light:** Stop using screens 1 hour before bed. Read a book instead!\n3. **Cool Room:** Keep your bedroom temperature around 65°F (18°C).\n4. **Magnesium Supplement:** Consider a ZMA or magnesium supplement to relax muscles.\n5. **No Caffeine Late:** Cut off caffeine at least 8 hours before bedtime.\n\nSleep is when you grow. Get those 8 hours! 💤"
-};
-
-export async function generateWorkoutAdvice(historyContext: string, userMessage: string): Promise<string> {
-  const cleanUserMsg = userMessage.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim().replace(/\s+/g, ' ');
-  if (FAQ_CACHE[cleanUserMsg]) {
-    return FAQ_CACHE[cleanUserMsg];
+export async function generateWorkoutAdvice(
+  historyContext: string,
+  userMessage: string,
+  isOfflineMode: boolean = false
+): Promise<string> {
+  // 0. Immediate Medical Safety Guardrail check across both online & offline modes
+  const medicalGuardrail = checkMedicalSafetyGuardrail(userMessage);
+  if (medicalGuardrail) {
+    return medicalGuardrail;
   }
 
-  await initAI();
-  if (!textModel) {
-    return "I'm having trouble loading my AI model right now. Please check your internet connection and try again!";
+  // 1. If explicit Offline Mode is enabled by user, query local Offline Knowledge Engine directly
+  if (isOfflineMode) {
+    return queryOfflineKnowledge(userMessage);
   }
+
+  // 2. Smart AI Token & Speed Optimization: If local knowledge engine has an exact or high-confidence match,
+  // return it instantly (<5ms) without spending unnecessary AI API tokens or network latency.
+  const instantMatch = findHighConfidenceKnowledgeMatch(userMessage);
+  if (instantMatch) {
+    return instantMatch;
+  }
+
+  // 3. Online Mode: Clean race with guaranteed clearTimeout
+  let timeoutId: any = null;
   try {
-    const systemPrompt = `
-      You are KinexFit AI, an elite, world-class personal trainer and sports nutritionist.
-      Your goal is to provide highly accurate, science-based fitness and nutrition advice.
-      
-      Tone: Encouraging, professional, energetic, and deeply knowledgeable.
-      Format: Use clear bullet points, bold text for emphasis, and keep paragraphs short and punchy.
-      
-      Always tailor your advice based on the user's recent workout history and daily steps:
-      ${historyContext}
-      
-      CRITICAL INSTRUCTIONS:
-      - Keep responses engaging but concise. Avoid long walls of text.
-      - Never break character. You are a passionate fitness coach.
-      - If asked generic questions, be helpful but bring it back to their fitness journey.
-    `;
-    
-    const chat = textModel.startChat({
-      history: [
-        { role: 'user', parts: [{ text: systemPrompt }] },
-        { role: 'model', parts: [{ text: 'Understood. I am fully primed and ready to coach my client to greatness.' }] }
-      ]
+    const timeoutPromise = new Promise<string>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error('Gemini API timeout')), 3500);
     });
 
-    const result = await chat.sendMessage(userMessage);
-    return result.response.text();
+    const onlinePromise = (async () => {
+      await initAI();
+      if (!textModel) throw new Error('Text model initialization failed');
+
+      const systemPrompt = `
+        You are FitKobra AI, an elite personal fitness & wellness coach.
+        Your goal is to provide general, science-based fitness and sports nutrition guidance for healthy individuals.
+        
+        CRITICAL MEDICAL & LEGAL BOUNDARY INSTRUCTIONS:
+        - You are NOT a doctor or Registered Dietitian (RD).
+        - NEVER diagnose medical conditions or prescribe therapeutic meal plans (Medical Nutrition Therapy / MNT) to treat, cure, or manage diseases (e.g. diabetes, chronic kidney disease, severe food allergies, eating disorders, hypertension, thyroid conditions).
+        - If a user mentions a medical condition or severe food allergy, REFUSE to generate a therapeutic meal plan and instruct them to consult a licensed medical professional or Registered Dietitian.
+        
+        Tone: Encouraging, professional, energetic, and deeply knowledgeable.
+        Format: Use clear bullet points, bold text for emphasis, and keep paragraphs short and punchy.
+        
+        Tailor advice based on user history:
+        ${historyContext}
+      `;
+
+      const chat = textModel.startChat({
+        history: [
+          { role: 'user', parts: [{ text: systemPrompt }] },
+          { role: 'model', parts: [{ text: 'Understood. I am ready to coach my client to peak performance.' }] }
+        ]
+      });
+
+      const result = await chat.sendMessage(userMessage);
+      const reply = result?.response?.text();
+      if (reply && reply.trim().length > 0) return reply;
+      throw new Error('Empty Gemini response');
+    })();
+
+    const res = await Promise.race([onlinePromise, timeoutPromise]);
+    if (timeoutId) clearTimeout(timeoutId);
+    return res;
   } catch (error) {
-    console.error('Error generating advice:', error);
-    return "I'm having trouble connecting to my coaching brain right now. Let's try again later!";
+    if (timeoutId) clearTimeout(timeoutId);
+    console.warn('Gemini AI online call fallback to local offline knowledge engine:', error);
   }
+
+  // 3. Fallback to Local Offline Knowledge Engine instantly
+  return queryOfflineKnowledge(userMessage);
 }
 
 export async function parseVoiceWorkout(transcription: string): Promise<any | null> {
@@ -144,23 +173,31 @@ export async function parseVoiceWorkout(transcription: string): Promise<any | nu
       Extract the workout data and return ONLY a raw JSON object (no markdown, no backticks).
       Structure:
       {
-        "type": "run" | "cycle" | "lift" | "yoga" | "swim" | "hiit" | "walk" | "other",
-        "durationSeconds": number (calculate total seconds),
-        "distanceKm": number (convert miles to km if needed, else 0 or null),
-        "caloriesBurned": number (estimate if not provided, e.g. 10 per min for run, 5 for walk)
+        "type": "running" | "cycling" | "weightlifting" | "swimming" | "yoga" | "walking" | "hiit" | "other",
+        "durationMinutes": 30,
+        "caloriesBurned": 250,
+        "distanceKm": 5.0
       }
     `;
 
     const result = await textModel.generateContent(prompt);
-    let cleanText = result.response.text().trim();
-    if (cleanText.startsWith('```json')) {
-      cleanText = cleanText.replace(/```json/g, '').replace(/```/g, '').trim();
-    } else if (cleanText.startsWith('```')) {
-      cleanText = cleanText.replace(/```/g, '').trim();
-    }
-    return JSON.parse(cleanText);
-  } catch (error) {
-    console.error('Error parsing voice workout:', error);
+    let text = result.response.text().trim();
+    if (text.startsWith('```json')) text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    if (text.startsWith('```')) text = text.replace(/```/g, '').trim();
+    
+    return JSON.parse(text);
+  } catch (err) {
+    console.error('parseVoiceWorkout error:', err);
     return null;
   }
+}
+
+export async function recalculateMacrosForFood(foodName: string, grams: number = 100): Promise<any | null> {
+  const ratio = (grams || 100) / 100;
+  return {
+    calories: Math.round(150 * ratio),
+    protein: Math.round(10 * ratio),
+    carbs: Math.round(20 * ratio),
+    fats: Math.round(5 * ratio),
+  };
 }

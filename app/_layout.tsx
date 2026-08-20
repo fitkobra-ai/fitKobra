@@ -1,25 +1,33 @@
 import 'react-native-url-polyfill/auto';
 import 'react-native-get-random-values';
 import { ReadableStream, TransformStream, WritableStream } from 'web-streams-polyfill';
-if (typeof global.ReadableStream === 'undefined') {
-  global.ReadableStream = ReadableStream as any;
-  global.TransformStream = TransformStream as any;
-  global.WritableStream = WritableStream as any;
-}
+declare var global: any;
+(global as any).ReadableStream = ReadableStream;
+(global as any).TransformStream = TransformStream;
+(global as any).WritableStream = WritableStream;
+(globalThis as any).ReadableStream = ReadableStream;
+(globalThis as any).TransformStream = TransformStream;
+(globalThis as any).WritableStream = WritableStream;
 import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
-import { View, ActivityIndicator, Alert, LogBox } from 'react-native';
+import { View, Text, ActivityIndicator, Alert, LogBox } from 'react-native';
 
 LogBox.ignoreAllLogs();
 import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import { AppProvider, useApp } from '../contexts/AppContext';
 import { ThemeProvider, useTheme } from '../contexts/ThemeContext';
 
-const defaultErrorHandler = (global as any).ErrorUtils?.getGlobalHandler?.();
-if ((global as any).ErrorUtils) {
-  (global as any).ErrorUtils.setGlobalHandler((error: any, isFatal: boolean) => {
-    Alert.alert("JS Crash Caught!", `${error.name}: ${error.message}\n\n${error.stack}`);
-    // Not calling default handler so it doesn't crash to home screen immediately
+import * as SplashScreen from 'expo-splash-screen';
+
+// Prevent splash screen from auto-hiding before auth state & profile are ready
+SplashScreen.preventAutoHideAsync().catch(() => {});
+
+if ((globalThis as any).ErrorUtils) {
+  (globalThis as any).ErrorUtils.setGlobalHandler((error: any, isFatal: boolean) => {
+    console.error('[KinexFit] Uncaught Global JS Exception:', error);
+    try {
+      Alert.alert("JS Error Caught!", `${error?.name || 'Error'}: ${error?.message || error}`);
+    } catch {}
   });
 }
 
@@ -43,8 +51,13 @@ function AuthRouter() {
   const segments = useSegments();
   const router = useRouter();
 
+  const isReady = !authLoading && !loadingProfile;
+
   useEffect(() => {
-    if (authLoading || loadingProfile) return;
+    if (!isReady) return;
+
+    // Hide splash screen smoothly once initialization is complete
+    SplashScreen.hideAsync().catch(() => {});
 
     const inAuthGroup = segments[0] === '(auth)';
     const inOnboarding = segments[1] === 'onboarding';
@@ -59,17 +72,19 @@ function AuthRouter() {
       router.replace('/(auth)/login');
     } else if (user) {
       // Logged in
-      if (!profile && !inOnboarding) {
-        // No profile -> Onboarding
+      const hasCompletedProfile = !!profile?.heightCm;
+      
+      if (!hasCompletedProfile && !inOnboarding) {
+        // No complete profile -> Onboarding
         router.replace('/(auth)/onboarding');
-      } else if (profile && inAuthGroup) {
+      } else if (hasCompletedProfile && inAuthGroup) {
         // Has profile and in auth -> Main app
         router.replace('/(tabs)');
       }
     }
-  }, [user, authLoading, profile, loadingProfile, segments, isConfigured, router]);
+  }, [isReady, user, profile, segments, isConfigured, router]);
 
-  if (authLoading || loadingProfile) {
+  if (!isReady) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center' }}>
         <ActivityIndicator size="large" color={colors.blue} />
@@ -79,20 +94,53 @@ function AuthRouter() {
 
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
+      <Stack.Screen name="index" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(modals)/leaderboard" options={{ presentation: 'modal' }} />
     </Stack>
   );
 }
 
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: any }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error('ErrorBoundary caught error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={{ flex: 1, backgroundColor: '#0d1117', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <Text style={{ color: '#ff7b72', fontSize: 20, fontWeight: 'bold', marginBottom: 12 }}>Something went wrong</Text>
+          <Text style={{ color: '#8b949e', fontSize: 14, textAlign: 'center' }}>
+            {this.state.error?.toString() || 'An unexpected error occurred.'}
+          </Text>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AppProvider>
-          <AuthRouter />
-        </AppProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppProvider>
+            <AuthRouter />
+          </AppProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }

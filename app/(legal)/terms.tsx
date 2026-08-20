@@ -23,17 +23,17 @@ export default function TermsScreen() {
         <Text style={styles.lastUpdated}>Last Updated: July 2026</Text>
 
         <Text style={styles.paragraph}>
-          Please read these Terms of Service completely before using KinexFit.
+          Please read these Terms of Service completely before using FitKobra.
         </Text>
 
         <Text style={styles.sectionTitle}>1. Acceptance of Terms</Text>
         <Text style={styles.paragraph}>
-          By registering for, accessing, or using KinexFit, you agree to be bound by these Terms. If you do not agree, you may not use the App.
+          By registering for, accessing, or using FitKobra, you agree to be bound by these Terms. If you do not agree, you may not use the App.
         </Text>
 
         <Text style={styles.sectionTitle}>2. Medical Disclaimer</Text>
         <Text style={styles.paragraph}>
-          KinexFit provides fitness and nutritional tracking features for informational purposes only. The app does not provide medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider before beginning any new diet or exercise program.
+          FitKobra provides fitness and nutritional tracking features for informational purposes only. The app does not provide medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider before beginning any new diet or exercise program.
         </Text>
 
         <Text style={styles.sectionTitle}>3. User Accounts</Text>

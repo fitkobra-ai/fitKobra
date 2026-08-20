@@ -22,40 +22,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import { saveWorkout, type WorkoutRecord } from '../../services/firestore';
 import { formatTime, relativeDate } from '../../utils/dates';
 import WorkoutTimer from '../../components/WorkoutTimer';
-
-// MUSCLE_GROUPS moved inside component
-const MUSCLE_EXERCISES: Record<string, {name: string, tips: string, image: any}[]> = {
-  shoulders: [
-    { name: 'Overhead Press', tips: 'Keep core tight, press straight up without arching back.', image: require('../../assets/exercises/overhead_press.gif') },
-    { name: 'Lateral Raises', tips: 'Slight bend in elbows, raise until arms are parallel to floor.', image: require('../../assets/exercises/lateral_raises.gif') },
-    { name: 'Front Raises', tips: 'Control the descent, do not swing the weight.', image: require('../../assets/exercises/front_raises.gif') }
-  ],
-  chest: [
-    { name: 'Bench Press', tips: 'Retract scapula, keep feet planted, push through chest.', image: require('../../assets/exercises/bench_press.gif') },
-    { name: 'Push-ups', tips: 'Body in a straight line, lower until chest is near floor.', image: require('../../assets/exercises/push_ups.gif') },
-    { name: 'Dumbbell Flyes', tips: 'Slight bend in elbows, stretch chest at the bottom.', image: require('../../assets/exercises/dumbbell_flyes.gif') }
-  ],
-  back: [
-    { name: 'Pull-ups', tips: 'Pull with your elbows, squeeze lats at the top.', image: require('../../assets/exercises/pull_ups.gif') },
-    { name: 'Barbell Rows', tips: 'Hinge at hips, keep back straight, pull to lower chest.', image: require('../../assets/exercises/barbell_rows.gif') },
-    { name: 'Lat Pulldowns', tips: 'Lean slightly back, pull bar to upper chest.', image: require('../../assets/exercises/lat_pulldowns.gif') }
-  ],
-  arms: [
-    { name: 'Bicep Curls', tips: 'Keep elbows pinned to sides, squeeze at top.', image: require('../../assets/exercises/bicep_curls.gif') },
-    { name: 'Tricep Extensions', tips: 'Lock elbows in place, extend fully.', image: require('../../assets/exercises/tricep_extensions.gif') },
-    { name: 'Hammer Curls', tips: 'Neutral grip, target the brachialis.', image: require('../../assets/exercises/hammer_curls.gif') }
-  ],
-  core: [
-    { name: 'Plank', tips: 'Keep body straight, engage glutes and core.', image: require('../../assets/exercises/plank.gif') },
-    { name: 'Crunches', tips: 'Lift shoulder blades off floor, do not pull neck.', image: require('../../assets/exercises/crunches.gif') },
-    { name: 'Leg Raises', tips: 'Keep lower back pressed into the floor.', image: require('../../assets/exercises/leg_raises.gif') }
-  ],
-  legs: [
-    { name: 'Squats', tips: 'Keep chest up, push knees out, break parallel if possible.', image: require('../../assets/exercises/squats.gif') },
-    { name: 'Romanian Deadlifts', tips: 'Hinge at hips, slight knee bend, feel stretch in hamstrings.', image: require('../../assets/exercises/romanian_deadlifts.gif') },
-    { name: 'Lunges', tips: 'Keep torso upright, back knee just above floor.', image: require('../../assets/exercises/lunges.gif') }
-  ]
-};
+import AnimatedExerciseSkeleton from '../../components/AnimatedExerciseSkeleton';
+import { ExerciseVideoPlayer } from '../../components/ExerciseVideoPlayer';
+import { MUSCLE_EXERCISES_DATA, ExerciseGuide } from '../../constants/MuscleGuideData';
+import { Platform } from 'react-native';
 
 export default function WorkoutsScreen() {
   const { colors } = useTheme();
@@ -80,7 +50,7 @@ export default function WorkoutsScreen() {
 
   const [guideModalVisible, setGuideModalVisible] = useState(false);
   const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null);
-  const [popupExercise, setPopupExercise] = useState<{name: string, tips: string, image: any} | null>(null);
+  const [popupExercise, setPopupExercise] = useState<ExerciseGuide | null>(null);
 
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
@@ -132,7 +102,7 @@ export default function WorkoutsScreen() {
 
   const getIntensityTag = (met: number) => {
     if (met < 4) return { label: 'Low Intensity 🧘', color: colors.green };
-    if (met < 8) return { label: 'Medium Intensity ⚡', color: colors.blue };
+    if (met < 8) return { label: 'Medium Intensity 🏋️', color: colors.blue };
     return { label: 'High Intensity 🔥', color: colors.orange };
   };
 
@@ -288,11 +258,30 @@ export default function WorkoutsScreen() {
         <View style={styles.modalOverlay}>
           <Pressable style={styles.modalBackdrop} onPress={() => setModalVisible(false)} />
           <View style={styles.modalSheet}>
-            <TouchableOpacity style={styles.guideCloseBtn} onPress={() => setModalVisible(false)}>
-              <Feather name="x" size={24} color={colors.textSecondary} />
-            </TouchableOpacity>
             <View style={styles.modalHandle} />
-            <Text style={styles.modalTitle}>Choose Workout Type</Text>
+            
+            {/* High-Contrast Header Navigation Bar with Back Button */}
+            <View style={styles.modalHeaderRow}>
+              <TouchableOpacity 
+                style={styles.modalBackBtn} 
+                onPress={() => setModalVisible(false)}
+                activeOpacity={0.7}
+              >
+                <Feather name="arrow-left" size={22} color={colors.textPrimary} />
+                <Text style={styles.modalBackBtnText}>Back</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.modalTitle}>Choose Workout Type</Text>
+
+              <TouchableOpacity 
+                style={styles.modalCloseIconBtn} 
+                onPress={() => setModalVisible(false)}
+                activeOpacity={0.7}
+              >
+                <Feather name="x" size={22} color={colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
             <View style={styles.typeGridModal}>
               {WORKOUT_TYPES.map((wt) => {
                 const intensity = getIntensityTag(wt.met);
@@ -317,20 +306,32 @@ export default function WorkoutsScreen() {
                 );
               })}
             </View>
-            <TouchableOpacity
-              style={[styles.beginBtn, !selectedType && styles.beginBtnDisabled]}
-              onPress={() => {
-                if (selectedType) {
-                  setActiveWorkout(selectedType);
-                  setModalVisible(false);
-                  setSelectedType(null);
-                }
-              }}
-              activeOpacity={0.8}
-              disabled={!selectedType}
-            >
-              <Text style={styles.beginBtnText}>🏁 Begin Workout</Text>
-            </TouchableOpacity>
+
+            {/* Action Row with Back & Begin Workout buttons */}
+            <View style={styles.modalActionRow}>
+              <TouchableOpacity
+                style={styles.modalCancelBtn}
+                onPress={() => setModalVisible(false)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.modalCancelBtnText}>Back</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.beginBtn, { flex: 2, marginTop: 0 }, !selectedType && styles.beginBtnDisabled]}
+                onPress={() => {
+                  if (selectedType) {
+                    setActiveWorkout(selectedType);
+                    setModalVisible(false);
+                    setSelectedType(null);
+                  }
+                }}
+                activeOpacity={0.8}
+                disabled={!selectedType}
+              >
+                <Text style={styles.beginBtnText}>🏁 Begin Workout</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -350,20 +351,21 @@ export default function WorkoutsScreen() {
                   {MUSCLE_GROUPS.find(m => m.id === selectedMuscle)?.name} Exercises
                 </Text>
                 <ScrollView style={styles.guideList} showsVerticalScrollIndicator={false}>
-                  {MUSCLE_EXERCISES[selectedMuscle]?.map((ex, i) => (
+                  {(MUSCLE_EXERCISES_DATA[selectedMuscle] || []).map((ex) => (
                     <TouchableOpacity 
-                      key={i} 
+                      key={ex.id} 
                       style={styles.guideExerciseCard}
                       activeOpacity={0.8}
                       onPress={() => setPopupExercise(ex)}
                     >
-                      <Image source={ex.image} style={styles.guideExerciseImage} />
+                      <Image source={ex.thumb || ex.gif} style={styles.guideExerciseImage} resizeMode="cover" />
                       <View style={styles.guideExerciseContent}>
                         <View style={styles.guideExerciseHeader}>
-                          <Feather name="check-circle" size={18} color={colors.purple} />
+                          <Feather name="play-circle" size={18} color={colors.purple} />
                           <Text style={styles.guideExerciseName}>{ex.name}</Text>
                         </View>
-                        <Text style={styles.guideExerciseTips}>{ex.tips}</Text>
+                        <Text style={{ fontSize: 11, color: colors.purple, fontWeight: 'bold', marginBottom: 2 }}>{ex.subCategory}</Text>
+                        <Text style={styles.guideExerciseTips} numberOfLines={2}>{ex.tips}</Text>
                       </View>
                     </TouchableOpacity>
                   ))}
@@ -374,7 +376,7 @@ export default function WorkoutsScreen() {
         </View>
       </Modal>
 
-      {/* Animated Image Popup Modal */}
+      {/* HD Video & AI Skeleton Popup Modal */}
       <Modal 
         visible={!!popupExercise} 
         animationType="fade" 
@@ -384,24 +386,55 @@ export default function WorkoutsScreen() {
         <View style={styles.modalOverlayCenter}>
           <Pressable style={styles.modalBackdrop} onPress={() => setPopupExercise(null)} />
           {popupExercise && (
-            <View style={[styles.popupSheet, Shadow.glow(colors.blue)]}>
+            <View style={[styles.popupSheet, Shadow.glow(colors.purple), { maxWidth: 500, width: '92%' }]}>
               <View style={styles.popupHeader}>
-                <Text style={styles.popupTitle}>{popupExercise.name}</Text>
+                <View>
+                  <Text style={styles.popupTitle}>{popupExercise.name}</Text>
+                  <Text style={{ fontSize: 12, color: colors.purple, fontWeight: 'bold' }}>{popupExercise.subCategory}</Text>
+                </View>
                 <TouchableOpacity onPress={() => setPopupExercise(null)} style={styles.popupCloseBtn}>
                   <Feather name="x" size={24} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
-              <View style={styles.popupAnimationContainer}>
-                <Animated.Image 
-                  source={popupExercise.image} 
-                  style={[styles.popupAnimationImage, { transform: [{ scale: scaleAnim }] }]} 
-                  resizeMode="contain"
-                />
-              </View>
-              <View style={styles.popupFooter}>
-                <Feather name="info" size={16} color={colors.blue} />
-                <Text style={styles.popupTips}>{popupExercise.tips}</Text>
-              </View>
+
+              <ScrollView contentContainerStyle={{ gap: Spacing.md, paddingBottom: Spacing.sm }} showsVerticalScrollIndicator={false}>
+                {/* Ultra High-Definition Native Video Player */}
+                <View style={{ width: '100%', height: 220, borderRadius: Radius.lg, overflow: 'hidden', backgroundColor: '#000', borderWidth: 1, borderColor: colors.border }}>
+                  <ExerciseVideoPlayer
+                    videoSource={popupExercise.video}
+                    fallbackImage={popupExercise.gif || popupExercise.thumb}
+                  />
+                </View>
+
+                {/* Primary & Secondary Target Muscle Badges */}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                  {popupExercise.primaryMuscles.map((m, idx) => (
+                    <View key={idx} style={{ backgroundColor: colors.purple + '20', paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.full, borderWidth: 1, borderColor: colors.purple + '40' }}>
+                      <Text style={{ color: colors.purple, fontSize: 11, fontWeight: 'bold' }}>🎯 {m}</Text>
+                    </View>
+                  ))}
+                  {popupExercise.secondaryMuscles.map((m, idx) => (
+                    <View key={idx} style={{ backgroundColor: colors.surfaceHighlight, paddingHorizontal: 10, paddingVertical: 4, borderRadius: Radius.full, borderWidth: 1, borderColor: colors.border }}>
+                      <Text style={{ color: colors.textSecondary, fontSize: 11, fontWeight: 'bold' }}>• {m}</Text>
+                    </View>
+                  ))}
+                </View>
+
+                {/* Form & Technique Tips */}
+                <View style={[styles.popupFooter, { backgroundColor: colors.bg, padding: Spacing.md, borderRadius: Radius.md }]}>
+                  <Feather name="info" size={18} color={colors.blue} style={{ marginTop: 2 }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: colors.textPrimary, fontWeight: 'bold', fontSize: 13, marginBottom: 2 }}>Pro Form Tip</Text>
+                    <Text style={styles.popupTips}>{popupExercise.tips}</Text>
+                  </View>
+                </View>
+
+                {/* Live AI Skeleton Motion Analysis */}
+                <View style={{ alignItems: 'center', marginTop: Spacing.xs }}>
+                  <Text style={{ color: colors.textSecondary, fontSize: 11, fontWeight: 'bold', marginBottom: 6 }}>AI SKELETON KINEMATICS</Text>
+                  <AnimatedExerciseSkeleton exerciseName={popupExercise.name} color={colors.purple} size={140} />
+                </View>
+              </ScrollView>
             </View>
           )}
         </View>
@@ -506,8 +539,12 @@ const useStyles = (colors: any) => StyleSheet.create({
   modalOverlay: { flex: 1, justifyContent: 'flex-end' },
   modalBackdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.7)' },
   modalSheet: { backgroundColor: colors.surface, borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl, padding: Spacing.lg, paddingBottom: 40, borderWidth: 1, borderBottomWidth: 0, borderColor: colors.border, gap: Spacing.md },
-  modalHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: colors.surfaceHighlight, alignSelf: 'center', marginBottom: Spacing.sm },
-  modalTitle: { fontSize: 20, fontWeight: '700', color: colors.textPrimary },
+  modalHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: colors.surfaceHighlight, alignSelf: 'center', marginBottom: Spacing.xs },
+  modalHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.xs },
+  modalBackBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 4, paddingRight: 8 },
+  modalBackBtnText: { fontSize: 16, fontWeight: '600', color: colors.textPrimary },
+  modalCloseIconBtn: { padding: 4 },
+  modalTitle: { fontSize: 18, fontWeight: '800', color: colors.textPrimary },
   
   typeGridModal: { gap: Spacing.sm },
   typeCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, padding: Spacing.md, borderRadius: Radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surfaceHighlight },
@@ -516,8 +553,11 @@ const useStyles = (colors: any) => StyleSheet.create({
   typeCardLabel: { fontSize: 16, fontWeight: '600' },
   intensityTag: { fontSize: 12, fontWeight: '500' },
   
+  modalActionRow: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.sm },
+  modalCancelBtn: { flex: 1, backgroundColor: colors.surfaceHighlight, borderRadius: Radius.md, padding: Spacing.md, alignItems: 'center', borderWidth: 1, borderColor: colors.border },
+  modalCancelBtnText: { color: colors.textPrimary, fontWeight: '700', fontSize: 15 },
   beginBtn: { backgroundColor: colors.blue, borderRadius: Radius.md, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.sm },
-  beginBtnDisabled: { backgroundColor: colors.surfaceHighlight },
+  beginBtnDisabled: { backgroundColor: colors.surfaceHighlight, opacity: 0.6 },
   beginBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
 
   guideModalSheet: {

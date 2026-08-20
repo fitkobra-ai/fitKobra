@@ -1,6 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 // @ts-ignore
-import { initializeAuth, getAuth, getReactNativePersistence } from '@firebase/auth';
+import { initializeAuth, getAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FIREBASE_CONFIG, IS_FIREBASE_CONFIGURED } from '../config/firebase.config';
@@ -12,27 +12,31 @@ let auth: ReturnType<typeof getAuth>;
 let db: ReturnType<typeof getFirestore>;
 
 if (IS_FIREBASE_CONFIGURED) {
-  // Avoid initializing more than once (hot reload guard)
-  app = getApps().length === 0
-    ? initializeApp(FIREBASE_CONFIG)
-    : getApps()[0];
+  try {
+    app = getApps().length === 0
+      ? initializeApp(FIREBASE_CONFIG)
+      : getApps()[0];
 
-  if (getApps().length === 1) {
-    if (Platform.OS === 'web') {
+    try {
+      if (Platform.OS === 'web') {
+        auth = getAuth(app);
+      } else {
+        auth = initializeAuth(app, {
+          persistence: getReactNativePersistence(AsyncStorage),
+        });
+      }
+    } catch (authErr) {
+      // Fallback if initializeAuth was already invoked or persistence throws
       auth = getAuth(app);
-    } else {
-      auth = initializeAuth(app, {
-        persistence: getReactNativePersistence(AsyncStorage),
-      });
     }
-  } else {
-    auth = getAuth(app);
-  }
 
-  db = getFirestore(app);
+    db = getFirestore(app);
+  } catch (err) {
+    console.error('[FitKobra] Error initializing Firebase app/auth/db:', err);
+  }
 } else {
   console.warn(
-    '[TrueFit] Firebase is not configured. Edit config/firebase.config.ts with your project credentials.'
+    '[FitKobra] Firebase is not configured. Edit config/firebase.config.ts with your project credentials.'
   );
 }
 

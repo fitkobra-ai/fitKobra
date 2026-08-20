@@ -30,30 +30,30 @@ export default function AddWorkoutScreen() {
     safe: { flex: 1, backgroundColor: colors.bg },
     header: {
       flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-      padding: Spacing.m, borderBottomWidth: 1, borderBottomColor: colors.border,
-      paddingTop: Platform.OS === 'android' ? 40 : Spacing.m,
+      padding: Spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border,
+      paddingTop: Platform.OS === 'android' ? 40 : Spacing.md,
     },
     headerTitle: { color: colors.text, fontSize: 18, fontWeight: 'bold' },
-    content: { padding: Spacing.m },
+    content: { padding: Spacing.md },
     aiBox: {
-      backgroundColor: colors.surfaceHighlight, padding: Spacing.m,
-      borderRadius: Radius.m, marginBottom: Spacing.xl, alignItems: 'center',
-      borderWidth: 1, borderColor: colors.primary,
+      backgroundColor: colors.surfaceHighlight, padding: Spacing.md,
+      borderRadius: Radius.md, marginBottom: Spacing.xl, alignItems: 'center',
+      borderWidth: 1, borderColor: colors.blue,
     },
     micBtn: {
       width: 70, height: 70, borderRadius: 35,
-      backgroundColor: isRecording ? colors.red : colors.primary,
-      justifyContent: 'center', alignItems: 'center', marginVertical: Spacing.m,
-      ...Shadow.glow(isRecording ? colors.red : colors.primary),
+      backgroundColor: isRecording ? colors.red : colors.blue,
+      justifyContent: 'center', alignItems: 'center', marginVertical: Spacing.md,
+      ...Shadow.glow(isRecording ? colors.red : colors.blue),
     },
     label: { color: colors.text, marginBottom: 4, fontWeight: 'bold' },
     input: {
-      backgroundColor: colors.card, color: colors.text,
-      padding: Spacing.m, borderRadius: Radius.m, marginBottom: Spacing.m,
+      backgroundColor: colors.surface, color: colors.text,
+      padding: Spacing.md, borderRadius: Radius.md, marginBottom: Spacing.md,
     },
     saveBtn: {
-      backgroundColor: colors.green, padding: Spacing.m,
-      borderRadius: Radius.m, alignItems: 'center', marginTop: Spacing.m,
+      backgroundColor: colors.green, padding: Spacing.md,
+      borderRadius: Radius.md, alignItems: 'center', marginTop: Spacing.md,
     },
     saveBtnText: { color: 'white', fontWeight: 'bold', fontSize: 16 }
   });

@@ -39,3 +39,10 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Build outputs & scratch scripts
+*.aab
+*.apk
+fix_styles.py
+test_bundle*.js
+

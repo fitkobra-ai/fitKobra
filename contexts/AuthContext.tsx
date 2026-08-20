@@ -21,17 +21,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!IS_FIREBASE_CONFIGURED) {
+    if (!IS_FIREBASE_CONFIGURED || !auth) {
       setLoading(false);
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, firebaseUser => {
-      setUser(firebaseUser);
-      setLoading(false);
-    });
+    try {
+      const unsubscribe = onAuthStateChanged(auth, firebaseUser => {
+        setUser(firebaseUser);
+        setLoading(false);
+      });
 
-    return unsubscribe;
+      return unsubscribe;
+    } catch (e) {
+      console.warn('[AuthContext] Listener subscription error:', e);
+      setLoading(false);
+    }
   }, []);
 
   const value = React.useMemo(() => ({ user, loading, isConfigured: IS_FIREBASE_CONFIGURED }), [user, loading]);

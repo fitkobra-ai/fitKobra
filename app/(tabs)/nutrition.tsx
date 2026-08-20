@@ -17,9 +17,10 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { Feather } from '@expo/vector-icons';
 import { Radius, Spacing, Shadow } from '../../constants/Theme';
 import { FOOD_DATABASE, FoodItem, DietType } from '../../constants/FoodDatabase';
+import { useApp, MealTime } from '../../contexts/AppContext';
+import { useCameraPermissions } from 'expo-camera';
 
 const DIET_TYPES: DietType[] = ['Mix', 'Veg', 'Non-Veg', 'Vegan'];
-type MealTime = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
 const MEAL_TIMES: MealTime[] = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
 
 export default function NutritionScreen() {
@@ -28,13 +29,8 @@ export default function NutritionScreen() {
   const router = useRouter();
   const [selectedDiet, setSelectedDiet] = useState<DietType>('Veg');
   
-  // State for the meal builder
-  const [selectedMeals, setSelectedMeals] = useState<Record<MealTime, FoodItem[]>>({
-    Breakfast: [],
-    Lunch: [],
-    Dinner: [],
-    Snacks: []
-  });
+  // State from global context
+  const { meals: selectedMeals, addFoodToMeal, removeFoodFromMeal } = useApp();
 
   // Modal State
   const [isModalVisible, setModalVisible] = useState(false);
@@ -57,6 +53,19 @@ export default function NutritionScreen() {
     });
   }, [selectedDiet, searchQuery]);
 
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+
+  const handleScanPress = async (mealTime: MealTime) => {
+    if (!cameraPermission?.granted) {
+      const result = await requestCameraPermission();
+      if (!result.granted) {
+        // We route anyway so they can see the "Open Settings" UI in recipe-scanner 
+        // if they still want to try, or if canAskAgain is false.
+      }
+    }
+    router.push(`/(modals)/recipe-scanner?mealTime=${mealTime}`);
+  };
+
   const openFoodSelector = (mealTime: MealTime) => {
     setActiveMealTime(mealTime);
     setSearchQuery('');
@@ -65,27 +74,16 @@ export default function NutritionScreen() {
 
   const handleAddFood = (food: FoodItem) => {
     if (!activeMealTime) return;
-    setSelectedMeals(prev => ({
-      ...prev,
-      [activeMealTime]: [...prev[activeMealTime], food]
-    }));
+    addFoodToMeal(activeMealTime, food);
     setModalVisible(false);
   };
 
   const incrementFood = (mealTime: MealTime, food: FoodItem) => {
-    setSelectedMeals(prev => ({
-      ...prev,
-      [mealTime]: [...prev[mealTime], food]
-    }));
+    addFoodToMeal(mealTime, food);
   };
 
   const decrementFood = (mealTime: MealTime, foodId: string) => {
-    setSelectedMeals(prev => {
-      const newMeals = [...prev[mealTime]];
-      const index = newMeals.findIndex(f => f.id === foodId);
-      if (index > -1) newMeals.splice(index, 1);
-      return { ...prev, [mealTime]: newMeals };
-    });
+    removeFoodFromMeal(mealTime, foodId);
   };
 
   return (
@@ -138,7 +136,7 @@ export default function NutritionScreen() {
               <View style={{ flexDirection: 'row', gap: 8 }}>
                 <TouchableOpacity 
                   style={[styles.addFoodBtn, { backgroundColor: 'rgba(249,115,22,0.15)' }]} 
-                  onPress={() => router.push('/(modals)/recipe-scanner')}
+                  onPress={() => handleScanPress(mealTime)}
                   activeOpacity={0.7}
                 >
                   <Feather name="camera" size={16} color={colors.orange} />
@@ -171,7 +169,28 @@ export default function NutritionScreen() {
                     return acc;
                   }, {} as Record<string, { food: FoodItem, count: number }>)
                 ).map(({ food, count }) => (
-                  <View key={food.id} style={[styles.mealCard, Shadow.card]}>
+                  <TouchableOpacity 
+                    key={food.id} 
+                    style={[styles.mealCard, Shadow.card]}
+                    activeOpacity={0.8}
+                    onPress={() => {
+                      router.push({
+                        pathname: '/(modals)/food-detail',
+                        params: {
+                          name: food.name,
+                          cals: String(food.cals * count),
+                          protein: String(food.protein * count),
+                          carbs: String(food.carbs * count),
+                          fat: String(food.fat * count),
+                          image: food.image,
+                          servingSize: food.servingSize,
+                          servingGrams: String(food.servingGrams || 200),
+                          ingredients: food.ingredients ? JSON.stringify(food.ingredients) : undefined,
+                          instructions: food.instructions ? JSON.stringify(food.instructions) : undefined,
+                        }
+                      });
+                    }}
+                  >
                     <Image source={{ uri: food.image }} style={styles.mealImage} />
                     <View style={styles.mealInfo}>
                       <View style={styles.mealNameRow}>
@@ -196,7 +215,7 @@ export default function NutritionScreen() {
                         <Text style={styles.mealMacroText}>🥑 {Math.round(food.fat * count)}g</Text>
                       </View>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 ))}
               </View>
             )}

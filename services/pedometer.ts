@@ -7,10 +7,16 @@ export type StepCallback = (steps: number) => void;
 export async function isStepCountingAvailable(): Promise<boolean> {
   if (Platform.OS === 'web') return false;
   try {
-    const { status } = await Pedometer.requestPermissionsAsync();
-    if (status !== 'granted') return false;
-    return await Pedometer.isAvailableAsync();
-  } catch {
+    const available = await Pedometer.isAvailableAsync();
+    if (!available) return false;
+    let { status } = await Pedometer.getPermissionsAsync();
+    if (status !== 'granted') {
+      const res = await Pedometer.requestPermissionsAsync();
+      status = res.status;
+    }
+    return status === 'granted';
+  } catch (err) {
+    console.warn('[Pedometer] isStepCountingAvailable check failed:', err);
     return false;
   }
 }
@@ -20,17 +26,18 @@ export async function isStepCountingAvailable(): Promise<boolean> {
  * Returns 0 if unavailable (web / no hardware).
  */
 export async function getTodayStepCount(): Promise<number> {
-  const available = await isStepCountingAvailable();
-  if (!available) return 0;
-
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  const end = new Date();
-
   try {
+    const available = await isStepCountingAvailable();
+    if (!available) return 0;
+
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date();
+
     const result = await Pedometer.getStepCountAsync(start, end);
-    return result.steps;
-  } catch {
+    return result?.steps ?? 0;
+  } catch (err) {
+    console.warn('[Pedometer] getTodayStepCount failed:', err);
     return 0;
   }
 }
@@ -45,17 +52,27 @@ export function watchStepCount(callback: StepCallback): () => void {
     return () => {}; // no-op on web
   }
 
-  let subscription: ReturnType<typeof Pedometer.watchStepCount> | null = null;
+  let subscription: any = null;
 
   isStepCountingAvailable().then(available => {
     if (available) {
-      subscription = Pedometer.watchStepCount(result => {
-        callback(result.steps);
-      });
+      try {
+        subscription = Pedometer.watchStepCount(result => {
+          if (result && typeof result.steps === 'number') {
+            callback(result.steps);
+          }
+        });
+      } catch (err) {
+        console.warn('[Pedometer] watchStepCount subscription error:', err);
+      }
     }
+  }).catch(err => {
+    console.warn('[Pedometer] watchStepCount availability error:', err);
   });
 
   return () => {
-    subscription?.remove();
+    try {
+      subscription?.remove();
+    } catch {}
   };
 }

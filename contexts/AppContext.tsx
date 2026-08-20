@@ -14,9 +14,21 @@ import { getTodayStepCount, watchStepCount } from '../services/pedometer';
 import { stepsToCalories, stepsToDistanceKm, recommendedDailySteps } from '../utils/calculations';
 import { todayKey } from '../utils/dates';
 import { ACHIEVEMENTS, type AchievementStats } from '../constants/Achievements';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FoodItem } from '../constants/FoodDatabase';
 import { IS_FIREBASE_CONFIGURED } from '../services/firebase';
 
+const PEDOMETER_CHECKPOINT_KEY = '@fitkobra_pedometer_checkpoint';
+
+interface StepCheckpoint {
+  date: string;
+  lastHardwareReading: number;
+  accumulatedTodaySteps: number;
+}
+
 // ─── Types ────────────────────────────────────────────────────
+
+export type MealTime = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
 
 interface AppContextValue {
   profile: UserProfile | null;
@@ -29,6 +41,9 @@ interface AppContextValue {
   setProfile: (p: UserProfile) => void;
   setGoals: (g: UserGoals) => void;
   addWorkout: (w: WorkoutRecord) => void;
+  meals: Record<MealTime, FoodItem[]>;
+  addFoodToMeal: (mealTime: MealTime, food: FoodItem) => void;
+  removeFoodFromMeal: (mealTime: MealTime, foodId: string) => void;
 }
 
 const DEFAULT_STATS: DailyStats = {
@@ -50,6 +65,9 @@ const AppContext = createContext<AppContextValue>({
   setProfile: () => {},
   setGoals: () => {},
   addWorkout: () => {},
+  meals: { Breakfast: [], Lunch: [], Dinner: [], Snacks: [] },
+  addFoodToMeal: () => {},
+  removeFoodFromMeal: () => {},
 });
 
 // ─── Provider ─────────────────────────────────────────────────
@@ -64,6 +82,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [workouts, setWorkouts] = useState<WorkoutRecord[]>([]);
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
+  const [meals, setMeals] = useState<Record<MealTime, FoodItem[]>>({
+    Breakfast: [],
+    Lunch: [],
+    Dinner: [],
+    Snacks: []
+  });
 
   // Track the step watcher cleanup reference
   const stepWatcherCleanup = useRef<(() => void) | null>(null);
@@ -74,6 +98,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const loadUserData = useCallback(async () => {
     if (!uid || !IS_FIREBASE_CONFIGURED) {
+      setProfileState(null);
+      setGoalsState(null);
+      setTodayStats({ ...DEFAULT_STATS, date: todayKey() });
+      setWorkouts([]);
+      setUnlockedAchievements([]);
+      setMeals({ Breakfast: [], Lunch: [], Dinner: [], Snacks: [] });
       setLoadingProfile(false);
       return;
     }
@@ -112,72 +142,128 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return unsub;
   }, [uid]);
 
-  // ─── Pedometer: step counting ────────────────────────────────
 
-  const midnightSteps = useRef(0);
-  const lastSavedSteps = useRef(0);
+
+  // ─── Pedometer: background & pocket step counting ────────────────
+
+  const checkpointRef = useRef<StepCheckpoint | null>(null);
+  const lastSavedSteps = useRef<number>(0);
+
+  const calculateAccurateMetrics = useCallback((steps: number) => {
+    const height = profile?.heightCm ?? 175;
+    const weight = profile?.weightKg ?? 70;
+    const dist = stepsToDistanceKm(steps, height);
+    const cals = stepsToCalories(steps, weight, height);
+    return { dist, cals };
+  }, [profile?.heightCm, profile?.weightKg]);
+
+  // Load persistent checkpoint on mount
+  useEffect(() => {
+    AsyncStorage.getItem(PEDOMETER_CHECKPOINT_KEY).then(json => {
+      if (json) {
+        try {
+          const parsed = JSON.parse(json) as StepCheckpoint;
+          const currentDay = todayKey();
+          if (parsed.date === currentDay) {
+            checkpointRef.current = parsed;
+            setTodayStats(prev => {
+              const bestSteps = Math.max(prev.steps, parsed.accumulatedTodaySteps);
+              const { dist, cals } = calculateAccurateMetrics(bestSteps);
+              return { ...prev, steps: bestSteps, caloriesBurned: cals, distanceKm: dist };
+            });
+          }
+        } catch (e) {
+          console.warn('[AppContext] failed to parse pedometer checkpoint:', e);
+        }
+      }
+    }).catch(console.error);
+  }, [calculateAccurateMetrics]);
+
+  const processHardwareSteps = useCallback((watchSteps: number) => {
+    const currentDay = todayKey();
+    let cp = checkpointRef.current;
+
+    if (!cp || cp.date !== currentDay) {
+      cp = {
+        date: currentDay,
+        lastHardwareReading: watchSteps,
+        accumulatedTodaySteps: todayStats.steps,
+      };
+    } else {
+      if (watchSteps < cp.lastHardwareReading) {
+        // Device rebooted, raw hardware sensor count reset
+        cp.lastHardwareReading = watchSteps;
+      } else {
+        const delta = watchSteps - cp.lastHardwareReading;
+        if (delta > 0) {
+          cp.accumulatedTodaySteps += delta;
+          cp.lastHardwareReading = watchSteps;
+        }
+      }
+    }
+
+    checkpointRef.current = cp;
+    AsyncStorage.setItem(PEDOMETER_CHECKPOINT_KEY, JSON.stringify(cp)).catch(console.error);
+
+    const newSteps = Math.max(todayStats.steps, cp.accumulatedTodaySteps);
+    const { dist, cals } = calculateAccurateMetrics(newSteps);
+
+    setTodayStats(prev => {
+      if (prev.steps === newSteps && prev.distanceKm === dist && prev.caloriesBurned === cals) {
+        return prev;
+      }
+      return { ...prev, steps: newSteps, caloriesBurned: cals, distanceKm: dist };
+    });
+
+    if (uid && newSteps - lastSavedSteps.current >= 10) {
+      lastSavedSteps.current = newSteps;
+      saveDailyStats(uid, currentDay, {
+        steps: newSteps,
+        caloriesBurned: cals,
+        distanceKm: dist,
+      }).catch(console.error);
+    }
+  }, [todayStats.steps, calculateAccurateMetrics, uid]);
+
+  const syncPedometerSteps = useCallback(() => {
+    if (!uid) return;
+    getTodayStepCount().then(hwSteps => {
+      if (hwSteps <= 0) return;
+      setTodayStats(prev => {
+        const bestSteps = Math.max(prev.steps, hwSteps);
+        const { dist, cals } = calculateAccurateMetrics(bestSteps);
+        
+        if (checkpointRef.current) {
+          checkpointRef.current.accumulatedTodaySteps = bestSteps;
+          AsyncStorage.setItem(PEDOMETER_CHECKPOINT_KEY, JSON.stringify(checkpointRef.current)).catch(console.error);
+        }
+        
+        return {
+          ...prev,
+          steps: bestSteps,
+          caloriesBurned: cals,
+          distanceKm: dist,
+        };
+      });
+    }).catch(err => {
+      console.warn('[AppContext] getTodayStepCount error:', err);
+    });
+  }, [uid, calculateAccurateMetrics]);
 
   useEffect(() => {
     if (!uid) return;
 
-    // Get today's count to initialise
-    getTodayStepCount().then(steps => {
-      midnightSteps.current = steps;
-      lastSavedSteps.current = steps;
-      if (steps > 0 && profile) {
-        const cals = stepsToCalories(steps, profile.weightKg, profile.heightCm);
-        const dist = stepsToDistanceKm(steps, profile.heightCm);
-        setTodayStats(prev => ({
-          ...prev,
-          steps,
-          caloriesBurned: cals,
-          distanceKm: dist,
-        }));
-      }
-    });
+    // Initial sync
+    syncPedometerSteps();
 
-    // Subscribe to live updates. 
-    // Expo watchStepCount returns the total steps taken since the subscription started.
+    // Subscribe to live step ticks from hardware
     stepWatcherCleanup.current = watchStepCount(watchSteps => {
-      setTodayStats(prev => {
-        const newSteps = midnightSteps.current + watchSteps;
-        const cals = profile
-          ? stepsToCalories(newSteps, profile.weightKg, profile.heightCm)
-          : 0;
-        const dist = profile
-          ? stepsToDistanceKm(newSteps, profile.heightCm)
-          : 0;
-
-        // Batch write every 50 steps to minimise Firestore writes
-        if (newSteps - lastSavedSteps.current >= 50) {
-          lastSavedSteps.current = newSteps;
-          saveDailyStats(uid, todayKey(), {
-            steps: newSteps,
-            caloriesBurned: cals,
-            distanceKm: dist,
-          }).catch(console.error);
-        }
-
-        return { ...prev, steps: newSteps, caloriesBurned: cals, distanceKm: dist };
-      });
+      processHardwareSteps(watchSteps);
     });
 
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === 'active') {
-        getTodayStepCount().then(steps => {
-          midnightSteps.current = steps;
-          lastSavedSteps.current = steps;
-          if (steps > 0 && profile) {
-            const cals = stepsToCalories(steps, profile.weightKg, profile.heightCm);
-            const dist = stepsToDistanceKm(steps, profile.heightCm);
-            setTodayStats(prev => ({
-              ...prev,
-              steps,
-              caloriesBurned: cals,
-              distanceKm: dist,
-            }));
-          }
-        });
+        syncPedometerSteps();
       }
     };
     const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
@@ -186,7 +272,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       stepWatcherCleanup.current?.();
       appStateSubscription.remove();
     };
-  }, [uid, profile]);
+  }, [uid, syncPedometerSteps, processHardwareSteps]);
 
   // ─── Achievement checker ─────────────────────────────────────
 
@@ -235,6 +321,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, [uid]);
 
+  const addFoodToMeal = useCallback((mealTime: MealTime, food: FoodItem) => {
+    setMeals(prev => ({
+      ...prev,
+      [mealTime]: [...prev[mealTime], food]
+    }));
+  }, []);
+
+  const removeFoodFromMeal = useCallback((mealTime: MealTime, foodId: string) => {
+    setMeals(prev => {
+      const newMeals = [...prev[mealTime]];
+      const index = newMeals.findIndex(f => f.id === foodId);
+      if (index > -1) newMeals.splice(index, 1);
+      return { ...prev, [mealTime]: newMeals };
+    });
+  }, []);
+
   const value = React.useMemo(() => ({
     profile,
     goals,
@@ -246,7 +348,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setProfile,
     setGoals,
     addWorkout,
-  }), [profile, goals, todayStats, workouts, unlockedAchievements, loadingProfile, loadUserData, setProfile, setGoals, addWorkout]);
+    meals,
+    addFoodToMeal,
+    removeFoodFromMeal,
+  }), [profile, goals, todayStats, workouts, unlockedAchievements, loadingProfile, loadUserData, setProfile, setGoals, addWorkout, meals, addFoodToMeal, removeFoodFromMeal]);
 
   return (
     <AppContext.Provider value={value}>
