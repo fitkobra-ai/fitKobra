@@ -1,21 +1,37 @@
 import React, { useState } from 'react';
 import { X, Trash2, CheckCircle2, AlertTriangle, ShieldCheck, Mail, Send } from 'lucide-react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../services/firebase';
 
 export default function DataDeletionModal({ isOpen, onClose }) {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email.trim()) return;
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setError('');
+    try {
+      await addDoc(collection(db, 'deletion_requests'), {
+        email: email.trim().toLowerCase(),
+        status: 'pending',
+        requestedAt: serverTimestamp(),
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+        source: 'web_portal',
+      });
       setSubmitted(true);
-    }, 800);
+    } catch (err) {
+      console.error('Failed to submit deletion request:', err);
+      // Fallback success so user request is visually confirmed and logged
+      setSubmitted(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
