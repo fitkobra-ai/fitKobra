@@ -9,6 +9,7 @@ import MacroStepCalculator from './components/MacroStepCalculator';
 import Testimonials from './components/Testimonials';
 import DownloadCTA from './components/DownloadCTA';
 import Footer from './components/Footer';
+import AndroidDownloadModal from './components/AndroidDownloadModal';
 import IosModal from './components/IosModal';
 import PrivacyPolicyModal from './components/PrivacyPolicyModal';
 import TermsOfServiceModal from './components/TermsOfServiceModal';
@@ -17,6 +18,7 @@ import ScrollingCobraMascot from './components/ScrollingCobraMascot';
 
 export default function App() {
   const [activeSection, setActiveSection] = useState('hero');
+  const [isAndroidModalOpen, setIsAndroidModalOpen] = useState(false);
   const [isIosModalOpen, setIsIosModalOpen] = useState(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
@@ -53,13 +55,17 @@ export default function App() {
       
       {/* Navigation Header */}
       <Header 
+        onOpenAndroidModal={() => setIsAndroidModalOpen(true)}
         onOpenIosModal={() => setIsIosModalOpen(true)}
         activeSection={activeSection}
         setActiveSection={setActiveSection}
       />
 
       {/* Hero Section */}
-      <Hero onOpenIosModal={() => setIsIosModalOpen(true)} />
+      <Hero 
+        onOpenAndroidModal={() => setIsAndroidModalOpen(true)}
+        onOpenIosModal={() => setIsIosModalOpen(true)} 
+      />
 
       {/* Feature Grid */}
       <FeatureGrid onSelectFeature={handleSelectFeature} />
@@ -80,7 +86,10 @@ export default function App() {
       <Testimonials />
 
       {/* Download CTA Banner */}
-      <DownloadCTA onOpenIosModal={() => setIsIosModalOpen(true)} />
+      <DownloadCTA 
+        onOpenAndroidModal={() => setIsAndroidModalOpen(true)}
+        onOpenIosModal={() => setIsIosModalOpen(true)} 
+      />
 
       {/* Footer */}
       <Footer 
@@ -90,6 +99,11 @@ export default function App() {
       />
 
       {/* Modals */}
+      <AndroidDownloadModal 
+        isOpen={isAndroidModalOpen}
+        onClose={() => setIsAndroidModalOpen(false)}
+      />
+
       <IosModal 
         isOpen={isIosModalOpen} 
         onClose={() => setIsIosModalOpen(false)} 

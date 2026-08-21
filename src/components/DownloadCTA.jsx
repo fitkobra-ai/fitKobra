@@ -1,8 +1,8 @@
 import React from 'react';
 import { logoUrl } from '../data/videoLibrary';
-import { Smartphone, Apple, Sparkles, CheckCircle2, ShieldCheck, Download } from 'lucide-react';
+import { Smartphone, Apple, Sparkles, CheckCircle2, ShieldCheck } from 'lucide-react';
 
-export default function DownloadCTA({ onOpenIosModal }) {
+export default function DownloadCTA({ onOpenAndroidModal, onOpenIosModal }) {
   return (
     <section id="download" className="py-24 relative bg-[#0A0E17] overflow-hidden">
       
@@ -31,14 +31,13 @@ export default function DownloadCTA({ onOpenIosModal }) {
 
           {/* Download Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 max-w-md mx-auto">
-            <a
-              href="/media/fitkobra-app-mockup.jpeg" 
-              download="FitKobra_Android.apk"
+            <button
+              onClick={onOpenAndroidModal}
               className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-[#00FF75] to-[#00E5FF] text-black font-extrabold text-base flex items-center justify-center gap-3 shadow-xl shadow-emerald-500/30 hover:scale-105 transition-all"
             >
               <Smartphone className="w-5 h-5 fill-black" />
               <span>Get Android App (Free)</span>
-            </a>
+            </button>
 
             <button
               onClick={onOpenIosModal}

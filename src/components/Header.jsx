@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { logoUrl } from '../data/videoLibrary';
 import { Smartphone, Sparkles, Menu, X, Dumbbell, Utensils, Bot, Calculator, ShieldCheck } from 'lucide-react';
 
-export default function Header({ onOpenIosModal, activeSection, setActiveSection }) {
+export default function Header({ onOpenAndroidModal, onOpenIosModal, activeSection, setActiveSection }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -53,12 +53,12 @@ export default function Header({ onOpenIosModal, activeSection, setActiveSection
                 FIT<span className="text-[#00FF75]">KOBRA</span>
               </span>
               <span className="block text-[9px] sm:text-[10px] text-emerald-400 font-bold tracking-widest uppercase">
-                AI FITNESS & FORM
+                AI FITNESS &amp; FORM
               </span>
             </div>
           </div>
 
-          {/* Desktop Navigation - Spacious & Clean */}
+          {/* Desktop Navigation */}
           <nav className="hidden xl:flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 backdrop-blur-xl shadow-lg">
             {navLinks.map((link) => {
               const Icon = link.icon;
@@ -89,9 +89,8 @@ export default function Header({ onOpenIosModal, activeSection, setActiveSection
               <span>iOS Soon</span>
             </button>
 
-            <a
-              href="#download"
-              onClick={() => scrollToSection('download')}
+            <button
+              onClick={onOpenAndroidModal}
               className="relative group overflow-hidden rounded-xl p-[1px] focus:outline-none"
             >
               <span className="absolute inset-0 bg-gradient-to-r from-[#00FF75] to-[#00E5FF] rounded-xl"></span>
@@ -101,7 +100,7 @@ export default function Header({ onOpenIosModal, activeSection, setActiveSection
                   Get Android App
                 </span>
               </span>
-            </a>
+            </button>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -136,13 +135,12 @@ export default function Header({ onOpenIosModal, activeSection, setActiveSection
             );
           })}
           <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
-            <a
-              href="#download"
-              onClick={() => scrollToSection('download')}
+            <button
+              onClick={() => { setMobileMenuOpen(false); onOpenAndroidModal(); }}
               className="w-full text-center py-3 bg-gradient-to-r from-[#00FF75] to-[#00E5FF] text-black font-bold rounded-xl text-sm shadow-lg shadow-emerald-500/20"
             >
               Get Free Android App
-            </a>
+            </button>
             <button
               onClick={() => { setMobileMenuOpen(false); onOpenIosModal(); }}
               className="w-full text-center py-3 bg-white/5 border border-white/10 text-slate-200 rounded-xl text-sm hover:text-white"

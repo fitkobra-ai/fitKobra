@@ -3,7 +3,7 @@ import { appMockupUrl, videoLibrary } from '../data/videoLibrary';
 import HeroMascotBanner from './HeroMascotBanner';
 import { Smartphone, Apple, Flame, Footprints, Camera, Sparkles, CheckCircle2, Play, Activity } from 'lucide-react';
 
-export default function Hero({ onOpenIosModal }) {
+export default function Hero({ onOpenAndroidModal, onOpenIosModal }) {
   const featuredVideo = videoLibrary[0] || {};
   const [isPlayingPreview, setIsPlayingPreview] = useState(true);
 
@@ -25,8 +25,6 @@ export default function Hero({ onOpenIosModal }) {
             </div>
 
             {/* Main Headline */}
-
-
             <h1 className="text-4xl sm:text-6xl xl:text-7xl font-extrabold tracking-tight font-heading text-white leading-[1.1]">
               SCAN MEALS. <br />
               <span className="text-gradient">TRACK STEPS.</span> <br />
@@ -60,13 +58,13 @@ export default function Hero({ onOpenIosModal }) {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-              <a
-                href="#download"
+              <button
+                onClick={onOpenAndroidModal}
                 className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-[#00FF75] to-[#00E5FF] text-black font-extrabold text-base tracking-wide flex items-center justify-center gap-3 shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105 transition-all duration-300"
               >
                 <Smartphone className="w-5 h-5 fill-black" />
                 <span>Download Free on Android</span>
-              </a>
+              </button>
 
               <button
                 onClick={onOpenIosModal}
