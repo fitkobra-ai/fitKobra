@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { videoLibrary, categories } from '../data/videoLibrary';
+import AdSlot from './AdSlot';
 import { Play, Search, Dumbbell, Sparkles, X, CheckCircle, Flame, Filter, Zap, Volume2, VolumeX, Smartphone, ArrowRight } from 'lucide-react';
 
-// Web Audio API Synth Engine for guaranteed workout audio sound on Audio ON
+// Web Audio API Synth Engine for workout audio sound
 let audioCtx = null;
 let audioTimer = null;
 
@@ -21,7 +22,7 @@ function startWorkoutAudioEngine() {
       if (!audioCtx || audioCtx.state !== 'running') return;
       const now = audioCtx.currentTime;
 
-      // Punchy kick drum on beats 0 & 2
+      // Kick drum on beats 0 & 2
       if (step % 2 === 0) {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
@@ -36,7 +37,7 @@ function startWorkoutAudioEngine() {
         osc.stop(now + 0.14);
       }
 
-      // Energetic workout synth pulse on every beat
+      // Workout synth pulse on every beat
       const synthOsc = audioCtx.createOscillator();
       const synthGain = audioCtx.createGain();
       const freqs = [220, 277.18, 329.63, 440];
@@ -52,7 +53,7 @@ function startWorkoutAudioEngine() {
       step = (step + 1) % 4;
     };
 
-    audioTimer = setInterval(playBeat, 250); // 120 BPM energetic rhythm
+    audioTimer = setInterval(playBeat, 250); // 120 BPM
   } catch (err) {
     console.warn('Audio synth failed:', err);
   }
@@ -71,7 +72,7 @@ function stopWorkoutAudioEngine() {
   }
 }
 
-// Subcomponent for Video Card with Smooth Lazy Video Preview
+// Subcomponent for Video Card with Smooth Video Preview
 function ExerciseVideoCard({ video, onClick }) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -80,9 +81,9 @@ function ExerciseVideoCard({ video, onClick }) {
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group glass-card rounded-2xl overflow-hidden cursor-pointer flex flex-col justify-between hover:border-[#00FF75]/50 transition-all duration-300"
+      className="group glass-card rounded-2xl overflow-hidden cursor-pointer flex flex-col justify-between hover:border-emerald-500/50 dark:hover:border-[#00FF75]/50 transition-all duration-300 shadow-sm dark:shadow-none"
     >
-      <div className="relative aspect-video bg-slate-950 overflow-hidden">
+      <div className="relative aspect-video bg-slate-900 dark:bg-slate-950 overflow-hidden">
         {isHovered ? (
           <video
             src={video.videoUrl}
@@ -98,33 +99,33 @@ function ExerciseVideoCard({ video, onClick }) {
           <img
             src={video.posterUrl || video.videoUrl}
             alt={video.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85 group-hover:opacity-100"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-80 pointer-events-none"></div>
 
         {/* Play Button Overlay */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-12 h-12 rounded-full bg-emerald-500/90 text-black flex items-center justify-center shadow-lg group-hover:scale-115 transition-transform">
+          <div className="w-12 h-12 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow-lg group-hover:scale-115 transition-transform">
             <Play className="w-5 h-5 fill-black ml-0.5" />
           </div>
         </div>
 
         {/* Category Pill */}
         <div className="absolute top-3 left-3 z-10">
-          <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-slate-950/80 border border-white/10 text-[#00FF75] backdrop-blur-md">
+          <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-slate-900/90 border border-white/10 text-emerald-400 dark:text-[#00FF75] backdrop-blur-md">
             {video.category}
           </span>
         </div>
       </div>
 
       <div className="p-4 space-y-2">
-        <h3 className="font-bold text-white text-sm group-hover:text-[#00FF75] transition-colors line-clamp-1">
+        <h3 className="font-bold text-slate-900 dark:text-white text-sm group-hover:text-emerald-600 dark:group-hover:text-[#00FF75] transition-colors line-clamp-1">
           {video.title}
         </h3>
-        <div className="flex items-center justify-between text-[11px] text-slate-400">
-          <span>Target: <strong className="text-slate-200">{video.targetMuscle}</strong></span>
-          <span className="text-cyan-400 font-semibold">{video.setsReps}</span>
+        <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+          <span>Target: <strong className="text-slate-800 dark:text-slate-200">{video.targetMuscle}</strong></span>
+          <span className="text-cyan-600 dark:text-cyan-400 font-semibold">{video.setsReps}</span>
         </div>
       </div>
     </div>
@@ -186,20 +187,20 @@ export default function MuscleGuideExplorer() {
   };
 
   return (
-    <section id="muscle-guide" className="py-24 relative bg-[#080B11]">
+    <section id="muscle-guide" className="py-24 relative bg-slate-100/60 dark:bg-[#080B11] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold text-cyan-400">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold text-cyan-600 dark:text-cyan-400">
               <Dumbbell className="w-3.5 h-3.5" />
-              INTERACTIVE MUSCLE GUIDE & FORM VAULT
+              INTERACTIVE MUSCLE GUIDE &amp; FORM VAULT
             </div>
-            <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight">
+            <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 dark:text-white tracking-tight">
               MASTER YOUR FORM WITH <span className="text-gradient-cyan">50+ HD EXERCISE VIDEOS</span>
             </h2>
-            <p className="text-slate-300 text-sm sm:text-base">
+            <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
               Say goodbye to bad form and injury risks. Explore 51 real exercise videos embedded directly into FitKobra with targeted muscle highlights and rep guidelines.
             </p>
           </div>
@@ -212,12 +213,12 @@ export default function MuscleGuideExplorer() {
               placeholder="Search exercise or muscle..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-900/90 border border-white/15 focus:border-[#00FF75] rounded-2xl pl-11 pr-4 py-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#00FF75] transition-all"
+              className="w-full bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-white/15 focus:border-emerald-500 dark:focus:border-[#00FF75] rounded-2xl pl-11 pr-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#00FF75] transition-all shadow-sm"
             />
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-white"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -233,8 +234,8 @@ export default function MuscleGuideExplorer() {
               onClick={() => setSelectedCategory(cat)}
               className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 ${
                 selectedCategory === cat
-                  ? 'bg-gradient-to-r from-[#00FF75] to-[#00E5FF] text-black shadow-lg shadow-emerald-500/20 scale-105'
-                  : 'bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10'
+                  ? 'bg-gradient-to-r from-[#00FF75] to-[#00E5FF] text-black shadow-md shadow-emerald-500/20 scale-105'
+                  : 'bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/10 shadow-sm'
               }`}
             >
               {cat}
@@ -254,17 +255,24 @@ export default function MuscleGuideExplorer() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 space-y-3 bg-slate-900/40 rounded-3xl border border-white/10">
-            <Filter className="w-8 h-8 text-slate-500 mx-auto" />
-            <p className="text-slate-300 font-semibold text-sm">No exercises found matching "{searchQuery}"</p>
+          <div className="text-center py-16 space-y-3 bg-white dark:bg-slate-900/40 rounded-3xl border border-slate-200 dark:border-white/10 shadow-sm">
+            <Filter className="w-8 h-8 text-slate-400 mx-auto" />
+            <p className="text-slate-600 dark:text-slate-300 font-semibold text-sm">No exercises found matching "{searchQuery}"</p>
             <button
               onClick={() => { setSelectedCategory('All'); setSearchQuery(''); }}
-              className="text-xs text-[#00FF75] underline hover:text-white font-bold"
+              className="text-xs text-emerald-600 dark:text-[#00FF75] underline hover:opacity-80 font-bold"
             >
               Reset Filters
             </button>
           </div>
         )}
+
+        {/* In-Feed Google AdSense Slot */}
+        <AdSlot 
+          slotId="muscle-guide-bottom"
+          type="in-feed"
+          className="mt-12"
+        />
 
       </div>
 

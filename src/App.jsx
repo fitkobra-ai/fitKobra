@@ -9,6 +9,7 @@ import MacroStepCalculator from './components/MacroStepCalculator';
 import Testimonials from './components/Testimonials';
 import DownloadCTA from './components/DownloadCTA';
 import Footer from './components/Footer';
+import AdSlot from './components/AdSlot';
 import AndroidDownloadModal from './components/AndroidDownloadModal';
 import IosModal from './components/IosModal';
 import PrivacyPolicyModal from './components/PrivacyPolicyModal';
@@ -18,11 +19,39 @@ import ScrollingCobraMascot from './components/ScrollingCobraMascot';
 
 export default function App() {
   const [activeSection, setActiveSection] = useState('hero');
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem('fitkobra_theme');
+      if (saved) return saved;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'dark';
+    } catch (e) {
+      return 'dark';
+    }
+  });
+
   const [isAndroidModalOpen, setIsAndroidModalOpen] = useState(false);
   const [isIosModalOpen, setIsIosModalOpen] = useState(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const [isDataDeletionModalOpen, setIsDataDeletionModalOpen] = useState(false);
+
+  // Sync theme to <html> element
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'light') {
+      root.classList.remove('dark');
+      root.classList.add('light');
+      localStorage.setItem('fitkobra_theme', 'light');
+    } else {
+      root.classList.remove('light');
+      root.classList.add('dark');
+      localStorage.setItem('fitkobra_theme', 'dark');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   // Check URL hash on load & hashchange for direct linking (e.g. website.com/#privacy)
   useEffect(() => {
@@ -51,7 +80,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080B11] text-slate-100 font-['Inter',sans-serif] selection:bg-[#00FF75] selection:text-black">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-main)] font-['Inter',sans-serif] selection:bg-[#00FF75] selection:text-black transition-colors duration-300">
       
       {/* Navigation Header */}
       <Header 
@@ -59,6 +88,8 @@ export default function App() {
         onOpenIosModal={() => setIsIosModalOpen(true)}
         activeSection={activeSection}
         setActiveSection={setActiveSection}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       {/* Hero Section */}
@@ -66,6 +97,15 @@ export default function App() {
         onOpenAndroidModal={() => setIsAndroidModalOpen(true)}
         onOpenIosModal={() => setIsIosModalOpen(true)} 
       />
+
+      {/* Top Leaderboard Google AdSense Slot */}
+      <div className="max-w-7xl mx-auto px-4">
+        <AdSlot 
+          slotId="header-leaderboard" 
+          type="leaderboard"
+          className="my-4"
+        />
+      </div>
 
       {/* Feature Grid */}
       <FeatureGrid onSelectFeature={handleSelectFeature} />
@@ -75,6 +115,15 @@ export default function App() {
 
       {/* AI Food & Macro Scanner Simulator */}
       <AiFoodScannerDemo />
+
+      {/* In-Feed Google AdSense Slot */}
+      <div className="max-w-7xl mx-auto px-4">
+        <AdSlot 
+          slotId="mid-content-feed" 
+          type="in-feed"
+          className="my-6"
+        />
+      </div>
 
       {/* AI Coach Chat Simulator */}
       <AiCoachDemo />

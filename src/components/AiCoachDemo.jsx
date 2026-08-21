@@ -75,23 +75,23 @@ export default function AiCoachDemo() {
   };
 
   return (
-    <section id="ai-coach" className="py-24 relative bg-[#080B11] overflow-hidden">
+    <section id="ai-coach" className="py-24 relative bg-slate-100/70 dark:bg-[#080B11] overflow-hidden transition-colors duration-300">
       {/* Glow Effects */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[140px] pointer-events-none"></div>
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#00FF75]/5 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-10 right-10 w-96 h-96 bg-emerald-500/5 dark:bg-[#00FF75]/5 rounded-full blur-[120px] pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-xs font-extrabold text-purple-400">
-            <Cpu className="w-3.5 h-3.5 animate-pulse text-purple-400" />
-            24/7 AI TRAINER & NUTRITION ENGINE
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-xs font-extrabold text-purple-600 dark:text-purple-400">
+            <Cpu className="w-3.5 h-3.5 animate-pulse" />
+            24/7 AI TRAINER &amp; NUTRITION ENGINE
           </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight">
-            SEE THE <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-[#00FF75] bg-clip-text text-transparent">FITKOBRA AI COACH</span> IN ACTION
+          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 dark:text-white tracking-tight">
+            SEE THE <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-emerald-600 dark:from-purple-400 dark:via-pink-400 dark:to-[#00FF75] bg-clip-text text-transparent">FITKOBRA AI COACH</span> IN ACTION
           </h2>
-          <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
+          <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base max-w-2xl mx-auto">
             Experience real-time form corrections, hyper-customized meal timing, and biomechanical feedback delivered instantly inside the app.
           </p>
         </div>
@@ -105,10 +105,10 @@ export default function AiCoachDemo() {
               <button
                 key={sc.id}
                 onClick={() => { setActiveTab(idx); setIsPlaying(false); }}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 shadow-sm ${
                   activeTab === idx
-                    ? 'bg-gradient-to-r from-purple-600 to-[#00FF75] text-black font-extrabold shadow-lg shadow-purple-500/20 scale-105'
-                    : 'bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 border border-white/10'
+                    ? 'bg-gradient-to-r from-purple-600 to-[#00FF75] text-black font-extrabold shadow-md shadow-purple-500/20 scale-105'
+                    : 'bg-white dark:bg-white/5 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10'
                 }`}
               >
                 <span>{sc.title}</span>
@@ -117,20 +117,20 @@ export default function AiCoachDemo() {
 
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="p-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white text-xs flex items-center gap-1.5 ml-2"
+              className="p-2 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs flex items-center gap-1.5 ml-2 shadow-sm"
               title={isPlaying ? "Pause auto-scroll" : "Play auto-scroll"}
             >
-              {isPlaying ? <Pause className="w-3.5 h-3.5 text-purple-400" /> : <Play className="w-3.5 h-3.5 text-[#00FF75]" />}
+              {isPlaying ? <Pause className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" /> : <Play className="w-3.5 h-3.5 text-emerald-600 dark:text-[#00FF75]" />}
               <span className="text-[11px] font-semibold">{isPlaying ? 'Autoplay ON' : 'Paused'}</span>
             </button>
           </div>
 
           {/* Simulated App Screen Showcase Container */}
-          <div className="relative rounded-3xl p-[1px] bg-gradient-to-b from-purple-500/40 via-purple-900/20 to-[#00FF75]/30 shadow-2xl shadow-purple-950/50">
-            <div className="bg-[#0D1117] rounded-[23px] overflow-hidden">
+          <div className="relative rounded-3xl p-[1px] bg-gradient-to-b from-purple-500/40 via-purple-900/20 to-[#00FF75]/30 shadow-2xl shadow-purple-950/20">
+            <div className="bg-slate-900 dark:bg-[#0D1117] rounded-[23px] overflow-hidden">
               
               {/* App Phone Header Bar */}
-              <div className="px-6 py-4 bg-slate-950/90 border-b border-white/10 flex items-center justify-between">
+              <div className="px-6 py-4 bg-slate-950/95 border-b border-white/10 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <img 
@@ -146,7 +146,7 @@ export default function AiCoachDemo() {
                       <Sparkles className="w-3.5 h-3.5 text-purple-400" />
                     </div>
                     <div className="text-[11px] text-emerald-400 font-semibold flex items-center gap-2">
-                      <span>● Active Voice & Form Logic</span>
+                      <span>● Active Voice &amp; Form Logic</span>
                       <span className="text-slate-500">•</span>
                       <span className="text-purple-300">{scenario.category}</span>
                     </div>
@@ -161,7 +161,7 @@ export default function AiCoachDemo() {
               </div>
 
               {/* Chat Motion Screen Body */}
-              <div className="p-6 sm:p-8 space-y-6 bg-slate-950/50 min-h-[380px] flex flex-col justify-between">
+              <div className="p-6 sm:p-8 space-y-6 bg-slate-950/60 min-h-[380px] flex flex-col justify-between">
                 
                 <div className="space-y-6">
                   {/* User Question Bubble */}

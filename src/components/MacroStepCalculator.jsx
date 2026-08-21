@@ -39,19 +39,19 @@ export default function MacroStepCalculator() {
   const carbGrams = Math.round(carbCalories / 4);
 
   return (
-    <section id="calculator" className="py-24 relative bg-[#0A0E17]">
+    <section id="calculator" className="py-24 relative bg-slate-50 dark:bg-[#0A0E17] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-xs font-bold text-amber-400">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-xs font-bold text-amber-600 dark:text-amber-400">
             <Calculator className="w-3.5 h-3.5" />
-            FITKOBRA NUTRITION & ACTIVITY ENGINE
+            FITKOBRA NUTRITION &amp; ACTIVITY ENGINE
           </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight">
-            CALCULATE YOUR <span className="bg-gradient-to-r from-amber-400 to-[#00FF75] bg-clip-text text-transparent">TARGET MACROS & STEPS</span>
+          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 dark:text-white tracking-tight">
+            CALCULATE YOUR <span className="bg-gradient-to-r from-amber-500 to-emerald-600 dark:from-amber-400 dark:to-[#00FF75] bg-clip-text text-transparent">TARGET MACROS &amp; STEPS</span>
           </h2>
-          <p className="text-slate-300 text-sm sm:text-base">
+          <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
             Input your biological stats below to calculate your personalized daily calorie budget, macronutrient targets, and daily step goal.
           </p>
         </div>
@@ -59,18 +59,18 @@ export default function MacroStepCalculator() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
           {/* Input Form */}
-          <div className="lg:col-span-6 glass-panel p-6 sm:p-8 rounded-3xl border border-white/10 space-y-6">
+          <div className="lg:col-span-6 glass-panel p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-white/10 space-y-6 shadow-sm">
             
             {/* Goal Selector */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase text-slate-300">Select Primary Fitness Goal</label>
+              <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">Select Primary Fitness Goal</label>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   onClick={() => setGoal('fatloss')}
                   className={`py-3 px-2 rounded-xl text-xs font-bold transition-all ${
                     goal === 'fatloss'
-                      ? 'bg-[#00FF75] text-black shadow-lg shadow-emerald-500/20'
-                      : 'bg-slate-900 text-slate-300 border border-white/10'
+                      ? 'bg-gradient-to-r from-[#00FF75] to-[#00E5FF] text-black shadow-md shadow-emerald-500/20 font-extrabold'
+                      : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 hover:border-slate-300'
                   }`}
                 >
                   Fat Loss (-20%)
@@ -79,8 +79,8 @@ export default function MacroStepCalculator() {
                   onClick={() => setGoal('recomp')}
                   className={`py-3 px-2 rounded-xl text-xs font-bold transition-all ${
                     goal === 'recomp'
-                      ? 'bg-[#00FF75] text-black shadow-lg shadow-emerald-500/20'
-                      : 'bg-slate-900 text-slate-300 border border-white/10'
+                      ? 'bg-gradient-to-r from-[#00FF75] to-[#00E5FF] text-black shadow-md shadow-emerald-500/20 font-extrabold'
+                      : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 hover:border-slate-300'
                   }`}
                 >
                   Recomp (Maintain)
@@ -89,8 +89,8 @@ export default function MacroStepCalculator() {
                   onClick={() => setGoal('muscle')}
                   className={`py-3 px-2 rounded-xl text-xs font-bold transition-all ${
                     goal === 'muscle'
-                      ? 'bg-[#00FF75] text-black shadow-lg shadow-emerald-500/20'
-                      : 'bg-slate-900 text-slate-300 border border-white/10'
+                      ? 'bg-gradient-to-r from-[#00FF75] to-[#00E5FF] text-black shadow-md shadow-emerald-500/20 font-extrabold'
+                      : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 hover:border-slate-300'
                   }`}
                 >
                   Lean Bulk (+12%)
@@ -101,23 +101,23 @@ export default function MacroStepCalculator() {
             {/* Gender & Age */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-400">Gender</label>
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Gender</label>
                 <select
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
-                  className="w-full bg-slate-900 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-white"
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 shadow-sm"
                 >
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                 </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-400">Age (Years)</label>
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Age (Years)</label>
                 <input
                   type="number"
                   value={age}
                   onChange={(e) => setAge(Number(e.target.value))}
-                  className="w-full bg-slate-900 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-white"
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 shadow-sm"
                 />
               </div>
             </div>
@@ -125,32 +125,32 @@ export default function MacroStepCalculator() {
             {/* Weight & Height */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-400">Weight (kg)</label>
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Weight (kg)</label>
                 <input
                   type="number"
                   value={weightKg}
                   onChange={(e) => setWeightKg(Number(e.target.value))}
-                  className="w-full bg-slate-900 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-white"
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 shadow-sm"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-400">Height (cm)</label>
+                <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Height (cm)</label>
                 <input
                   type="number"
                   value={heightCm}
                   onChange={(e) => setHeightCm(Number(e.target.value))}
-                  className="w-full bg-slate-900 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-white"
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 shadow-sm"
                 />
               </div>
             </div>
 
             {/* Activity Level */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-400">Weekly Workout Activity</label>
+              <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">Weekly Workout Activity</label>
               <select
                 value={activity}
                 onChange={(e) => setActivity(e.target.value)}
-                className="w-full bg-slate-900 border border-white/15 rounded-xl px-3 py-2.5 text-xs text-white"
+                className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-white/15 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 shadow-sm"
               >
                 <option value="1.2">Sedentary (Desk Job, No Exercise)</option>
                 <option value="1.375">Lightly Active (1-3 days gym / week)</option>
@@ -163,72 +163,72 @@ export default function MacroStepCalculator() {
 
           {/* Results Cards Output */}
           <div className="lg:col-span-6 space-y-6">
-            <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-[#00FF75]/30 space-y-6 relative overflow-hidden">
+            <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-emerald-500/30 dark:border-[#00FF75]/30 space-y-6 relative overflow-hidden shadow-lg">
               
               {/* Top Banner */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-4">
                 <div>
-                  <span className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Calculated Target</span>
-                  <h3 className="text-2xl font-bold font-heading text-white">Daily Target Breakdown</h3>
+                  <span className="text-[10px] font-extrabold uppercase text-slate-500 dark:text-slate-400 tracking-wider">Calculated Target</span>
+                  <h3 className="text-2xl font-bold font-heading text-slate-900 dark:text-white">Daily Target Breakdown</h3>
                 </div>
-                <span className="px-3 py-1 bg-emerald-500/20 text-[#00FF75] text-xs font-extrabold rounded-full border border-emerald-500/30">
+                <span className="px-3 py-1 bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-[#00FF75] text-xs font-extrabold rounded-full border border-emerald-500/30">
                   FitKobra Calculated
                 </span>
               </div>
 
               {/* Main Calories Display */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-900/90 p-4 rounded-2xl border border-white/10">
-                  <div className="text-xs text-slate-400 flex items-center gap-1">
-                    <Flame className="w-4 h-4 text-orange-400" /> Maintenance TDEE
+                <div className="bg-white dark:bg-slate-900/90 p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm">
+                  <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <Flame className="w-4 h-4 text-orange-500" /> Maintenance TDEE
                   </div>
-                  <div className="text-2xl font-extrabold text-white mt-1">{tdee} kcal</div>
+                  <div className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">{tdee} kcal</div>
                 </div>
 
-                <div className="bg-gradient-to-br from-emerald-950/80 to-slate-900/90 p-4 rounded-2xl border border-emerald-500/40">
-                  <div className="text-xs text-emerald-300 font-bold flex items-center gap-1">
-                    <Zap className="w-4 h-4 text-[#00FF75]" /> Target Daily Intake
+                <div className="bg-emerald-50 dark:bg-gradient-to-br dark:from-emerald-950/80 dark:to-slate-900/90 p-4 rounded-2xl border border-emerald-500/40 shadow-sm">
+                  <div className="text-xs text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1">
+                    <Zap className="w-4 h-4 text-emerald-600 dark:text-[#00FF75]" /> Target Daily Intake
                   </div>
-                  <div className="text-2xl font-extrabold text-[#00FF75] mt-1">{targetCalories} kcal</div>
+                  <div className="text-2xl font-extrabold text-emerald-600 dark:text-[#00FF75] mt-1">{targetCalories} kcal</div>
                 </div>
               </div>
 
               {/* Macronutrient Ratios */}
               <div className="space-y-2">
-                <div className="text-xs font-bold text-slate-300">Target Macros (High Protein split)</div>
+                <div className="text-xs font-bold text-slate-700 dark:text-slate-300">Target Macros (High Protein split)</div>
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-emerald-950/40 p-3 rounded-xl border border-emerald-500/30 text-center">
-                    <div className="text-[10px] text-emerald-300 font-bold">PROTEIN</div>
-                    <div className="text-lg font-extrabold text-white">{proteinGrams}g</div>
-                    <div className="text-[10px] text-slate-400">{proteinCalories} kcal</div>
+                  <div className="bg-emerald-50 dark:bg-emerald-950/40 p-3 rounded-xl border border-emerald-500/30 text-center">
+                    <div className="text-[10px] text-emerald-700 dark:text-emerald-300 font-bold">PROTEIN</div>
+                    <div className="text-lg font-extrabold text-slate-900 dark:text-white">{proteinGrams}g</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400">{proteinCalories} kcal</div>
                   </div>
 
-                  <div className="bg-cyan-950/40 p-3 rounded-xl border border-cyan-500/30 text-center">
-                    <div className="text-[10px] text-cyan-300 font-bold">CARBS</div>
-                    <div className="text-lg font-extrabold text-white">{carbGrams}g</div>
-                    <div className="text-[10px] text-slate-400">{carbCalories} kcal</div>
+                  <div className="bg-cyan-50 dark:bg-cyan-950/40 p-3 rounded-xl border border-cyan-500/30 text-center">
+                    <div className="text-[10px] text-cyan-700 dark:text-cyan-300 font-bold">CARBS</div>
+                    <div className="text-lg font-extrabold text-slate-900 dark:text-white">{carbGrams}g</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400">{carbCalories} kcal</div>
                   </div>
 
-                  <div className="bg-amber-950/40 p-3 rounded-xl border border-amber-500/30 text-center">
-                    <div className="text-[10px] text-amber-300 font-bold">FATS</div>
-                    <div className="text-lg font-extrabold text-white">{fatGrams}g</div>
-                    <div className="text-[10px] text-slate-400">{fatCalories} kcal</div>
+                  <div className="bg-amber-50 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-500/30 text-center">
+                    <div className="text-[10px] text-amber-700 dark:text-amber-300 font-bold">FATS</div>
+                    <div className="text-lg font-extrabold text-slate-900 dark:text-white">{fatGrams}g</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400">{fatCalories} kcal</div>
                   </div>
                 </div>
               </div>
 
               {/* Daily Step Target */}
-              <div className="p-4 rounded-2xl bg-slate-900/90 border border-white/10 flex items-center justify-between">
+              <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-white/10 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/15 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
                     <Footprints className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-white">Recommended Daily Steps</div>
-                    <div className="text-[11px] text-slate-400">Tracked automatically in FitKobra</div>
+                    <div className="text-xs font-bold text-slate-900 dark:text-white">Recommended Daily Steps</div>
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400">Tracked automatically in FitKobra</div>
                   </div>
                 </div>
-                <div className="text-lg font-extrabold text-cyan-400">
+                <div className="text-lg font-extrabold text-cyan-600 dark:text-cyan-400">
                   {recommendedSteps.toLocaleString()} steps
                 </div>
               </div>

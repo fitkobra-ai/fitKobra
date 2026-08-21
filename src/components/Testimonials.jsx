@@ -27,19 +27,19 @@ export default function Testimonials() {
   ];
 
   return (
-    <section className="py-24 relative bg-[#080B11]">
+    <section className="py-24 relative bg-slate-100/70 dark:bg-[#080B11] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-[#00FF75]">
-            <Star className="w-3.5 h-3.5 fill-[#00FF75]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-emerald-600 dark:text-[#00FF75]">
+            <Star className="w-3.5 h-3.5 fill-emerald-500 dark:fill-[#00FF75]" />
             EARLY ACCESS &amp; BETA ATHLETE FEEDBACK
           </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight">
+          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 dark:text-white tracking-tight">
             TESTED &amp; VERIFIED BY <span className="text-gradient">REAL ATHLETES</span>
           </h2>
-          <p className="text-slate-300 text-sm sm:text-base">
+          <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
             See how FitKobra helps lifters, runners, and fitness enthusiasts during early access testing.
           </p>
         </div>
@@ -47,30 +47,30 @@ export default function Testimonials() {
         {/* Testimonials Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {reviews.map((rev, idx) => (
-            <div key={idx} className="glass-card p-8 rounded-3xl space-y-6 flex flex-col justify-between">
+            <div key={idx} className="glass-card p-8 rounded-3xl space-y-6 flex flex-col justify-between shadow-sm dark:shadow-none">
               
               <div className="space-y-4">
                 {/* Rating Stars */}
-                <div className="flex items-center gap-1 text-amber-400">
+                <div className="flex items-center gap-1 text-amber-500">
                   {[...Array(rev.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400" />
+                    <Star key={i} className="w-4 h-4 fill-amber-500" />
                   ))}
                 </div>
 
-                <p className="text-sm text-slate-200 leading-relaxed italic">
+                <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed italic">
                   "{rev.comment}"
                 </p>
               </div>
 
               {/* User Profile */}
-              <div className="pt-4 border-t border-white/10 flex items-center gap-3">
-                <img src={rev.avatar} alt={rev.name} className="w-11 h-11 rounded-full object-cover border border-[#00FF75]/40" />
+              <div className="pt-4 border-t border-slate-200 dark:border-white/10 flex items-center gap-3">
+                <img src={rev.avatar} alt={rev.name} className="w-11 h-11 rounded-full object-cover border border-emerald-500/40" />
                 <div>
-                  <div className="text-sm font-bold text-white flex items-center gap-1">
+                  <div className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1">
                     {rev.name}
-                    <ShieldCheck className="w-4 h-4 text-[#00FF75]" />
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-[#00FF75]" />
                   </div>
-                  <div className="text-xs text-emerald-400 font-medium">{rev.role}</div>
+                  <div className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">{rev.role}</div>
                 </div>
               </div>
 

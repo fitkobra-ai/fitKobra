@@ -6,14 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FitKobra | AI Calorie & Macro Scanner, Form Guide & Fitness Companion</title>
     <meta name="description" content="Transform your body with FitKobra — the free Android app featuring AI Food & Macro Scanning, 24/7 AI Coach, Daily Step Tracking, Custom Meal Plans & 50+ HD Video Form Guides." />
+    
+    <!-- Early Theme Detection Script (Prevents flash of unstyled theme) -->
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('fitkobra_theme');
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (saved === 'light') {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+          } else {
+            document.documentElement.classList.remove('light');
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Google AdSense (Ready for verification) -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
   </head>
-  <body class="bg-[#080B11] text-slate-100 font-['Inter',sans-serif] antialiased selection:bg-[#00FF75] selection:text-black min-h-screen overflow-x-hidden">
+  <body class="bg-[var(--bg-primary)] text-[var(--text-main)] font-['Inter',sans-serif] antialiased selection:bg-[#00FF75] selection:text-black min-h-screen overflow-x-hidden transition-colors duration-300">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
-

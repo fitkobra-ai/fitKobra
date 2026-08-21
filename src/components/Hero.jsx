@@ -11,7 +11,7 @@ export default function Hero({ onOpenAndroidModal, onOpenIosModal }) {
     <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
       {/* Dynamic Glowing Lighting */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-emerald-500/20 to-cyan-500/20 rounded-full blur-[140px] pointer-events-none"></div>
-      <div className="absolute top-1/3 left-10 w-[300px] h-[300px] bg-[#00FF75]/10 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-1/3 left-10 w-[300px] h-[300px] bg-[#00FF75]/10 dark:bg-[#00FF75]/10 rounded-full blur-[100px] pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -19,40 +19,40 @@ export default function Hero({ onOpenAndroidModal, onOpenIosModal }) {
           {/* Left Column: Copywriting & CTAs */}
           <div className="lg:col-span-7 space-y-8 text-center lg:text-left">
             
-            {/* Cute Fitness Cobra Pill Banner */}
+            {/* Fitness Cobra Pill Banner */}
             <div className="flex justify-center lg:justify-start">
               <HeroMascotBanner />
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl sm:text-6xl xl:text-7xl font-extrabold tracking-tight font-heading text-white leading-[1.1]">
+            <h1 className="text-4xl sm:text-6xl xl:text-7xl font-extrabold tracking-tight font-heading text-slate-900 dark:text-white leading-[1.1]">
               SCAN MEALS. <br />
               <span className="text-gradient">TRACK STEPS.</span> <br />
               MASTER FORM.
             </h1>
 
             {/* Description */}
-            <p className="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
-              FitKobra combines instant <strong className="text-white">AI Food & Macro Scanning</strong>, daily step counting, a 24/7 <strong className="text-emerald-400">AI Coach</strong>, and <strong className="text-cyan-400">50+ HD Video Form Guides</strong> into one sleek, 100% free app.
+            <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto lg:mx-0 font-normal leading-relaxed">
+              FitKobra combines instant <strong className="text-slate-900 dark:text-white">AI Food &amp; Macro Scanning</strong>, daily step counting, a 24/7 <strong className="text-emerald-600 dark:text-emerald-400">AI Coach</strong>, and <strong className="text-cyan-600 dark:text-cyan-400">50+ HD Video Form Guides</strong> into one sleek, 100% free app.
             </p>
 
             {/* Core Feature Bullet Highlights */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 max-w-lg mx-auto lg:mx-0 text-xs font-semibold text-slate-300">
-              <div className="flex items-center gap-2 bg-white/5 p-2.5 rounded-xl border border-white/10">
-                <CheckCircle2 className="w-4 h-4 text-[#00FF75] shrink-0" />
+            <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 max-w-lg mx-auto lg:mx-0 text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <div className="flex items-center gap-2 bg-slate-100 dark:bg-white/5 p-2.5 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#00FF75] shrink-0" />
                 <span>Instant AI Macro Photo Scan</span>
               </div>
-              <div className="flex items-center gap-2 bg-white/5 p-2.5 rounded-xl border border-white/10">
-                <CheckCircle2 className="w-4 h-4 text-[#00FF75] shrink-0" />
+              <div className="flex items-center gap-2 bg-slate-100 dark:bg-white/5 p-2.5 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#00FF75] shrink-0" />
                 <span>50+ HD Muscle Guide Videos</span>
               </div>
-              <div className="flex items-center gap-2 bg-white/5 p-2.5 rounded-xl border border-white/10">
-                <CheckCircle2 className="w-4 h-4 text-[#00FF75] shrink-0" />
-                <span>Live AI Fitness & Diet Coach</span>
+              <div className="flex items-center gap-2 bg-slate-100 dark:bg-white/5 p-2.5 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#00FF75] shrink-0" />
+                <span>Live AI Fitness &amp; Diet Coach</span>
               </div>
-              <div className="flex items-center gap-2 bg-white/5 p-2.5 rounded-xl border border-white/10">
-                <CheckCircle2 className="w-4 h-4 text-[#00FF75] shrink-0" />
-                <span>Daily Steps & Calorie Burn</span>
+              <div className="flex items-center gap-2 bg-slate-100 dark:bg-white/5 p-2.5 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#00FF75] shrink-0" />
+                <span>Daily Steps &amp; Calorie Burn</span>
               </div>
             </div>
 
@@ -68,28 +68,28 @@ export default function Hero({ onOpenAndroidModal, onOpenIosModal }) {
 
               <button
                 onClick={onOpenIosModal}
-                className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/15 text-slate-200 font-bold text-base flex items-center justify-center gap-2 transition-all hover:border-cyan-400/50 hover:text-white"
+                className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/15 text-slate-700 dark:text-slate-200 font-bold text-base flex items-center justify-center gap-2 transition-all hover:border-cyan-400/50 hover:text-slate-900 dark:hover:text-white shadow-sm"
               >
-                <Apple className="w-5 h-5 text-slate-300" />
+                <Apple className="w-5 h-5 text-slate-700 dark:text-slate-300" />
                 <span>Coming Soon to iOS</span>
-                <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] uppercase tracking-wider font-extrabold border border-cyan-400/30">
+                <span className="px-2 py-0.5 rounded-full bg-cyan-500/15 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-300 text-[10px] uppercase tracking-wider font-extrabold border border-cyan-400/30">
                   Notify Me
                 </span>
               </button>
             </div>
 
             {/* Launch Badges */}
-            <div className="flex items-center justify-center lg:justify-start gap-6 pt-2 text-xs text-slate-400">
+            <div className="flex items-center justify-center lg:justify-start gap-6 pt-2 text-xs text-slate-500 dark:text-slate-400">
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
                   <div className="w-7 h-7 rounded-full bg-emerald-500 border border-black flex items-center justify-center text-black font-bold text-[10px]">AI</div>
                   <div className="w-7 h-7 rounded-full bg-cyan-500 border border-black flex items-center justify-center text-black font-bold text-[10px]">★</div>
                   <div className="w-7 h-7 rounded-full bg-emerald-400 border border-black flex items-center justify-center text-black font-bold text-[10px]">PRO</div>
                 </div>
-                <span><strong className="text-white">Early Access</strong> 2026 Edition</span>
+                <span><strong className="text-slate-900 dark:text-white">Early Access</strong> 2026 Edition</span>
               </div>
-              <div className="h-4 w-px bg-white/15"></div>
-              <div><strong className="text-white">100% Free</strong> • No Subscription Paywalls</div>
+              <div className="h-4 w-px bg-slate-300 dark:bg-white/15"></div>
+              <div><strong className="text-slate-900 dark:text-white">100% Free</strong> • No Subscription Paywalls</div>
             </div>
 
           </div>
@@ -98,7 +98,7 @@ export default function Hero({ onOpenAndroidModal, onOpenIosModal }) {
           <div className="lg:col-span-5 relative flex justify-center">
             
             {/* Phone Frame Glass Wrapper */}
-            <div className="relative w-full max-w-[360px] aspect-[9/18] bg-slate-950/80 rounded-[45px] p-3 border-4 border-slate-800/80 shadow-2xl shadow-emerald-500/20 glass-card">
+            <div className="relative w-full max-w-[360px] aspect-[9/18] bg-slate-900 dark:bg-slate-950/80 rounded-[45px] p-3 border-4 border-slate-700 dark:border-slate-800/80 shadow-2xl shadow-emerald-500/20 glass-card">
               
               {/* Dynamic Island Notch */}
               <div className="absolute top-5 left-1/2 -translate-x-1/2 w-28 h-5 bg-black rounded-full z-30 flex items-center justify-center">
@@ -201,22 +201,22 @@ export default function Hero({ onOpenAndroidModal, onOpenIosModal }) {
 
             {/* Floating Glass Pill Badges */}
             <div className="absolute -bottom-4 -left-4 glass-panel p-3 rounded-2xl border border-emerald-500/30 flex items-center gap-3 shadow-xl z-30 hidden sm:flex">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-[#00FF75]">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-[#00FF75]">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-xs font-bold text-white">AI Meal Recognition</div>
-                <div className="text-[10px] text-slate-400">Instant Photo Macros</div>
+                <div className="text-xs font-bold text-slate-900 dark:text-white">AI Meal Recognition</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400">Instant Photo Macros</div>
               </div>
             </div>
 
             <div className="absolute -top-4 -right-4 glass-panel p-3 rounded-2xl border border-cyan-500/30 flex items-center gap-3 shadow-xl z-30 hidden sm:flex">
-              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-400">
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-600 dark:text-cyan-400">
                 <Activity className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-xs font-bold text-white">50+ Form Videos</div>
-                <div className="text-[10px] text-slate-400">Perfect Technique</div>
+                <div className="text-xs font-bold text-slate-900 dark:text-white">50+ Form Videos</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400">Perfect Technique</div>
               </div>
             </div>
 

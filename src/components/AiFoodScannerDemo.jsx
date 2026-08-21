@@ -16,7 +16,7 @@ export default function AiFoodScannerDemo() {
       image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80'
     },
     {
-      id: 'food-[#2]',
+      id: 'food-2',
       name: 'Avocado Toast & Egg Whites',
       calories: 380,
       protein: '24g',
@@ -28,7 +28,7 @@ export default function AiFoodScannerDemo() {
       image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=600&q=80'
     },
     {
-      id: 'food-[#3]',
+      id: 'food-3',
       name: 'Ribeye Steak & Roasted Sweet Potato',
       calories: 680,
       protein: '56g',
@@ -40,7 +40,7 @@ export default function AiFoodScannerDemo() {
       image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80'
     },
     {
-      id: 'food-[#4]',
+      id: 'food-4',
       name: 'Greek Yogurt Protein Berry Bowl',
       calories: 290,
       protein: '32g',
@@ -65,19 +65,19 @@ export default function AiFoodScannerDemo() {
   };
 
   return (
-    <section id="scanner-demo" className="py-24 relative bg-[#0A0E17] overflow-hidden">
+    <section id="scanner-demo" className="py-24 relative bg-slate-50 dark:bg-[#0A0E17] overflow-hidden transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-[#00FF75]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-emerald-600 dark:text-[#00FF75]">
             <Camera className="w-3.5 h-3.5" />
             AI FOOD PHOTO RECOGNITION SIMULATOR
           </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight">
+          <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-slate-900 dark:text-white tracking-tight">
             TRY THE LIVE <span className="text-gradient">AI MACRO SCANNER</span>
           </h2>
-          <p className="text-slate-300 text-sm sm:text-base">
+          <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base">
             Click on any sample meal below to see how FitKobra’s computer vision AI analyzes meal photos in real-time.
           </p>
         </div>
@@ -87,7 +87,7 @@ export default function AiFoodScannerDemo() {
           
           {/* Left Column: Meal Selector */}
           <div className="lg:col-span-5 space-y-4">
-            <h3 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">
+            <h3 className="text-xs font-extrabold uppercase text-slate-500 dark:text-slate-400 tracking-wider">
               Select Sample Meal Dish:
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -95,26 +95,26 @@ export default function AiFoodScannerDemo() {
                 <button
                   key={food.id}
                   onClick={() => handleScanFood(food)}
-                  className={`p-3 rounded-2xl border text-left transition-all flex items-center gap-3 ${
+                  className={`p-3 rounded-2xl border text-left transition-all flex items-center gap-3 shadow-sm ${
                     selectedFood.id === food.id
-                      ? 'bg-gradient-to-r from-[#00FF75]/20 to-emerald-950/40 border-[#00FF75] text-white shadow-lg shadow-emerald-500/10'
-                      : 'bg-slate-900/80 border-white/10 text-slate-300 hover:border-white/30 hover:text-white'
+                      ? 'bg-gradient-to-r from-emerald-500/15 dark:from-[#00FF75]/20 to-emerald-950/20 dark:to-emerald-950/40 border-emerald-500 dark:border-[#00FF75] text-slate-900 dark:text-white shadow-md'
+                      : 'bg-white dark:bg-slate-900/80 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-white/30'
                   }`}
                 >
                   <img src={food.image} alt={food.name} className="w-12 h-12 rounded-xl object-cover" />
                   <div className="overflow-hidden">
                     <div className="text-xs font-bold truncate">{food.name}</div>
-                    <div className="text-[10px] text-emerald-400 font-semibold">{food.calories} kcal • {food.protein} P</div>
+                    <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">{food.calories} kcal • {food.protein} P</div>
                   </div>
                 </button>
               ))}
             </div>
 
-            <div className="p-4 rounded-2xl glass-panel border border-cyan-500/30 text-xs text-slate-300 space-y-2">
-              <div className="flex items-center gap-2 font-bold text-white">
-                <Sparkles className="w-4 h-4 text-cyan-400" /> Over 1.2M Food Items In Database
+            <div className="p-4 rounded-2xl glass-panel border border-cyan-500/30 text-xs text-slate-600 dark:text-slate-300 space-y-2 shadow-sm">
+              <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-white">
+                <Sparkles className="w-4 h-4 text-cyan-600 dark:text-cyan-400" /> Over 1.2M Food Items In Database
               </div>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 FitKobra supports custom home-cooked meals, restaurant plates, fast food, and barcode nutrition scanning.
               </p>
             </div>
@@ -122,15 +122,15 @@ export default function AiFoodScannerDemo() {
 
           {/* Right Column: Interactive Scanner Preview Window */}
           <div className="lg:col-span-7">
-            <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-emerald-500/30 relative overflow-hidden">
+            <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-emerald-500/30 relative overflow-hidden shadow-lg">
               
               {/* Scan Reticle Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-white/10 mb-6">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#00FF75] animate-ping"></div>
-                  <span className="text-xs font-bold text-white uppercase tracking-wider">FITKOBRA VISION AI v3.8</span>
+                  <div className="w-3 h-3 rounded-full bg-emerald-500 dark:bg-[#00FF75] animate-ping"></div>
+                  <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">FITKOBRA VISION AI v3.8</span>
                 </div>
-                <span className="text-xs text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
                   Confidence: {selectedFood.matchScore}
                 </span>
               </div>
@@ -138,7 +138,7 @@ export default function AiFoodScannerDemo() {
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-center">
                 
                 {/* Photo with Animated Scanning Laser Overlay */}
-                <div className="sm:col-span-5 relative rounded-2xl overflow-hidden aspect-square border border-white/20">
+                <div className="sm:col-span-5 relative rounded-2xl overflow-hidden aspect-square border border-slate-300 dark:border-white/20">
                   <img
                     src={selectedFood.image}
                     alt={selectedFood.name}
@@ -160,36 +160,36 @@ export default function AiFoodScannerDemo() {
                 {/* Macro Data Card Output */}
                 <div className="sm:col-span-7 space-y-4">
                   <div>
-                    <span className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">Scanned Dish</span>
-                    <h4 className="text-xl font-bold font-heading text-white">{selectedFood.name}</h4>
+                    <span className="text-[10px] font-extrabold uppercase text-slate-500 dark:text-slate-400 tracking-wider">Scanned Dish</span>
+                    <h4 className="text-xl font-bold font-heading text-slate-900 dark:text-white">{selectedFood.name}</h4>
                   </div>
 
                   {/* Macros Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <div className="bg-slate-900/90 p-3 rounded-xl border border-white/10 text-center">
-                      <div className="text-[10px] text-slate-400">Calories</div>
-                      <div className="text-base font-extrabold text-white">{selectedFood.calories}</div>
+                    <div className="bg-slate-100 dark:bg-slate-900/90 p-3 rounded-xl border border-slate-200 dark:border-white/10 text-center">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400">Calories</div>
+                      <div className="text-base font-extrabold text-slate-900 dark:text-white">{selectedFood.calories}</div>
                     </div>
-                    <div className="bg-emerald-950/60 p-3 rounded-xl border border-emerald-500/40 text-center">
-                      <div className="text-[10px] text-emerald-300">Protein</div>
-                      <div className="text-base font-extrabold text-[#00FF75]">{selectedFood.protein}</div>
+                    <div className="bg-emerald-50 dark:bg-emerald-950/60 p-3 rounded-xl border border-emerald-500/40 text-center">
+                      <div className="text-[10px] text-emerald-700 dark:text-emerald-300">Protein</div>
+                      <div className="text-base font-extrabold text-emerald-600 dark:text-[#00FF75]">{selectedFood.protein}</div>
                     </div>
-                    <div className="bg-slate-900/90 p-3 rounded-xl border border-white/10 text-center">
-                      <div className="text-[10px] text-slate-400">Carbs</div>
-                      <div className="text-base font-extrabold text-cyan-300">{selectedFood.carbs}</div>
+                    <div className="bg-slate-100 dark:bg-slate-900/90 p-3 rounded-xl border border-slate-200 dark:border-white/10 text-center">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400">Carbs</div>
+                      <div className="text-base font-extrabold text-cyan-600 dark:text-cyan-300">{selectedFood.carbs}</div>
                     </div>
-                    <div className="bg-slate-900/90 p-3 rounded-xl border border-white/10 text-center">
-                      <div className="text-[10px] text-slate-400">Fats</div>
-                      <div className="text-base font-extrabold text-amber-300">{selectedFood.fats}</div>
+                    <div className="bg-slate-100 dark:bg-slate-900/90 p-3 rounded-xl border border-slate-200 dark:border-white/10 text-center">
+                      <div className="text-[10px] text-slate-500 dark:text-slate-400">Fats</div>
+                      <div className="text-base font-extrabold text-amber-600 dark:text-amber-300">{selectedFood.fats}</div>
                     </div>
                   </div>
 
                   {/* AI Dietitian Verdict */}
-                  <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-1">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
-                      <Award className="w-4 h-4 text-[#00FF75]" /> AI Dietitian Analysis
+                  <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                      <Award className="w-4 h-4 text-emerald-600 dark:text-[#00FF75]" /> AI Dietitian Analysis
                     </div>
-                    <p className="text-xs text-slate-300 leading-relaxed">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                       {selectedFood.verdict}
                     </p>
                   </div>
