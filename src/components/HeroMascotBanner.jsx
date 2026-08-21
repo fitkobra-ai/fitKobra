@@ -18,7 +18,7 @@ export default function HeroMascotBanner() {
         <div className="flex items-center gap-1.5 text-xs font-bold text-white">
           <span>MEET KOBRA AI</span>
           <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-[#00FF75] text-[10px] font-extrabold uppercase border border-emerald-500/30">
-            #1 Free App
+            100% Free
           </span>
         </div>
         <div className="text-[11px] text-slate-300 flex items-center gap-1">
