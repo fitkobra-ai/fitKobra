@@ -78,18 +78,18 @@ export default function Hero({ onOpenAndroidModal, onOpenIosModal }) {
               </button>
             </div>
 
-            {/* Rating & Downloads counter */}
+            {/* Launch Badges */}
             <div className="flex items-center justify-center lg:justify-start gap-6 pt-2 text-xs text-slate-400">
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  <div className="w-7 h-7 rounded-full bg-emerald-500 border border-black flex items-center justify-center text-black font-bold text-[10px]">4.9</div>
+                  <div className="w-7 h-7 rounded-full bg-emerald-500 border border-black flex items-center justify-center text-black font-bold text-[10px]">AI</div>
                   <div className="w-7 h-7 rounded-full bg-cyan-500 border border-black flex items-center justify-center text-black font-bold text-[10px]">★</div>
                   <div className="w-7 h-7 rounded-full bg-emerald-400 border border-black flex items-center justify-center text-black font-bold text-[10px]">PRO</div>
                 </div>
-                <span><strong className="text-white">4.9/5</strong> Rating</span>
+                <span><strong className="text-white">Early Access</strong> 2026 Edition</span>
               </div>
               <div className="h-4 w-px bg-white/15"></div>
-              <div><strong className="text-white">100% Free</strong> No Hidden Paywalls</div>
+              <div><strong className="text-white">100% Free</strong> • No Subscription Paywalls</div>
             </div>
 
           </div>

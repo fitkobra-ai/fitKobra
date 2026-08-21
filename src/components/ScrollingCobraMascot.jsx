@@ -16,7 +16,7 @@ export default function ScrollingCobraMascot() {
     { text: "💪 Master exercise form with 40+ HD video guides!", emoji: "🔥" },
     { text: "🎯 Tap a sample dish to test the AI scanner above!", emoji: "🥗" },
     { text: "🤖 Explore our 24/7 AI Trainer & Nutrition Companion!", emoji: "💡" },
-    { text: "🚀 Join 50,000+ athletes — Download FitKobra 100% Free!", emoji: "⭐" },
+    { text: "🚀 Become an early VIP athlete — Join FitKobra 100% Free!", emoji: "⚡" },
   ];
 
   useEffect(() => {

@@ -34,13 +34,13 @@ export default function Testimonials() {
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-[#00FF75]">
             <Star className="w-3.5 h-3.5 fill-[#00FF75]" />
-            LOVED BY 50,000+ ATHLETES & ENTHUSIASTS
+            EARLY ACCESS &amp; BETA ATHLETE FEEDBACK
           </div>
           <h2 className="text-3xl sm:text-5xl font-extrabold font-heading text-white tracking-tight">
-            PROVEN RESULTS FROM <span className="text-gradient">REAL ATHLETES</span>
+            TESTED &amp; VERIFIED BY <span className="text-gradient">REAL ATHLETES</span>
           </h2>
           <p className="text-slate-300 text-sm sm:text-base">
-            See how FitKobra helps lifters, runners, and fitness enthusiasts transform their body composition.
+            See how FitKobra helps lifters, runners, and fitness enthusiasts during early access testing.
           </p>
         </div>
 
